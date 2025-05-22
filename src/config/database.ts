@@ -27,10 +27,8 @@ export default () =>
           password: process.env.DB_PASSWORD,
           database: process.env.DB_DATABASE,
           synchronize: process.env.APP_ENV === 'development',
-          entities: [path.join(__dirname, '../app/Models/*{.ts,.js}')],
-          migrations: [
-            path.join(__dirname, '../database/migration/*{.ts,.js}'),
-          ],
+          entities: [path.join(__dirname, '/../**/*.entity{.ts,.js}')],
+          migrations: [path.join(__dirname, '/../**/*.entity{.ts,.js}')],
         } satisfies TypeOrmModuleOptions,
 
         mysql: {
@@ -41,10 +39,8 @@ export default () =>
           password: process.env.DB_PASSWORD,
           database: process.env.DB_DATABASE,
           synchronize: process.env.APP_ENV === 'development',
-          entities: [path.join(__dirname, '../app/Models/*{.ts,.js}')],
-          migrations: [
-            path.join(__dirname, '../database/migration/*{.ts,.js}'),
-          ],
+          entities: [path.join(__dirname, '/../**/*.entity{.ts,.js}')],
+          migrations: [path.join(__dirname, '/../**/*.entity{.ts,.js}')],
         } satisfies TypeOrmModuleOptions,
       },
     },
