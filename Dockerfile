@@ -11,6 +11,7 @@ COPY . .
 COPY .env.example .env
 
 RUN yarn build
+RUN chmod 777 -R dist
 
 EXPOSE 3000
 

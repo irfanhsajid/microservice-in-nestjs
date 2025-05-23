@@ -49,7 +49,7 @@ export class User {
   license_class: string | null;
 
   @Column({ type: 'boolean' })
-  car_view_accept_privacy: boolean;
+  view_accept_privacy: boolean;
 
   @CreateDateColumn()
   created_at: Date;
