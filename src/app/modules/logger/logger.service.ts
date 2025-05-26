@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class Logger extends ConsoleLogger {
+export class CustomLogger extends ConsoleLogger {
   private logDir = 'logs';
 
   constructor(context?: string) {

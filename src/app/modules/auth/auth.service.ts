@@ -1,10 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { CreateUserDto } from '../user/dto/create-user.dto';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Queue } from 'bullmq';
+import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { Queue } from 'bullmq';
 import { AUTH_SERVICE_NAME, AuthServiceClient } from 'src/grpc/types/auth.pb';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
