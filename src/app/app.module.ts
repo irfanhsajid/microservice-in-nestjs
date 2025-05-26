@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common';
 
+import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import database from '../config/database';
-import app from '../config/app';
-import services from 'src/config/services';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import services from 'src/config/services';
+import { GrpcModule } from 'src/grpc/grpc.module';
+import app from '../config/app';
+import database from '../config/database';
 import { driver } from '../database/driver';
 import { AuthModule } from './modules/auth/auth.module';
-import { PaymentModule } from './modules/payment/payment.module';
+import { LoggerModule } from './modules/logger/logger.module';
 import { MailModule } from './modules/mail/mail.module';
+import { PaymentModule } from './modules/payment/payment.module';
 import { UserModule } from './modules/user/user.module';
-import { BullModule } from '@nestjs/bullmq';
-import { GrpcModule } from 'src/grpc/grpc.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { GrpcModule } from 'src/grpc/grpc.module';
     MailModule,
     UserModule,
     GrpcModule,
+    LoggerModule,
   ],
   controllers: [],
   providers: [],
