@@ -3,12 +3,28 @@ import { AppModule } from './app/app.module';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
-import { GlobalServerExceptionsFilter } from './app/exceptions/global-server-exception.filter';
-import { UserResponseFormatterInterceptor } from './app/interceptors/user-response-formatter.interceptor';
+import { GlobalServerExceptionsFilter } from './app/common/exceptions/global-server-exception.filter';
+import { UserResponseFormatterInterceptor } from './app/common/interceptors/user-response-formatter.interceptor';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { CARVU_PACKAGE_NAME } from './grpc/types/auth.pb';
+import { globSync } from 'glob';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  // grpc server
+  const grpcServer = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.GRPC,
+      options: {
+        package: CARVU_PACKAGE_NAME,
+        protoPath: globSync('src/grpc/proto/*.proto'),
+        url: `${configService.get<string>('grpc.host')}:${configService.get<number>('grpc.port')}`,
+      },
+    },
+  );
 
   const config = new DocumentBuilder()
     .setTitle(`${configService.get<string>('app.name')} API`)
@@ -58,6 +74,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new UserResponseFormatterInterceptor());
 
   await app.listen(configService.get<number>('app.port') || 3000);
+
+  await grpcServer.listen();
 }
 
 bootstrap().catch((e) => console.error(e));

@@ -1,0 +1,27 @@
+interface Redis {
+  redis: {
+    host: string;
+    port: number;
+    password: string;
+    url: string;
+    username: string;
+    client: string;
+    cluster: string;
+    redisDb: string;
+    prefix: string;
+  };
+}
+export default () =>
+  ({
+    redis: {
+      host: process.env.REDIS_HOST ?? 'localhost',
+      port: process.env.REDIS_PORT ?? 6379,
+      password: process.env.REDIS_PASSWORD ?? '',
+      url: process.env.REDIS_URL ?? '',
+      client: process.env.REDIS_CLIENT ?? '',
+      cluster: process.env.REDIS_CLUSTER ?? '',
+      prefix: process.env.REDIS_PREFIX ?? '',
+      redisDb: process.env.REDIS_DB ?? '',
+      username: process.env.REDIS_USERNAME ?? '',
+    },
+  }) as Redis;
