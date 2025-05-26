@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import database from '../config/database';
-import app from '../config/app';
+import database from 'src/config/database';
+import app from 'src/config/app';
 import services from 'src/config/services';
+import mail from 'src/config/mail';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { driver } from '../database/driver';
 import { AuthModule } from './modules/auth/auth.module';
@@ -12,12 +13,28 @@ import { MailModule } from './modules/mail/mail.module';
 import { UserModule } from './modules/user/user.module';
 import { BullModule } from '@nestjs/bullmq';
 import { GrpcModule } from 'src/grpc/grpc.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          transport: configService.get(
+            `mail.mailers[${configService.get<string>('mail.default')}].transport`,
+          ),
+          defaults: {
+            from: configService.get<string>('mail.from'),
+          },
+          template: configService.get('mail.template'),
+        };
+      },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [database, app, services],
+      load: [database, app, services, mail],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: driver,

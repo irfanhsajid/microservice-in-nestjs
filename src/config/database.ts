@@ -2,7 +2,6 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import * as path from 'path';
 import * as process from 'node:process';
-import 'dotenv/config';
 
 interface ConfigType {
   database: {

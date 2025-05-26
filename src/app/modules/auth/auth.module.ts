@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth.pb';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth.pb';
     BullModule.registerQueue({
       name: 'auth',
     }),
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthConsumer],

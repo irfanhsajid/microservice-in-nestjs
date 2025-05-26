@@ -8,10 +8,6 @@ interface App {
     timezone: string;
     key: string;
   };
-  grpc: {
-    host: string;
-    port: number;
-  };
 }
 export default () =>
   ({
@@ -23,9 +19,5 @@ export default () =>
       url: process.env.APP_URL,
       timezone: process.env.APP_TIMEZONE,
       key: process.env.APP_KEY,
-    },
-    grpc: {
-      host: process.env.GRPC_HOST || 'localhost',
-      port: process.env.GRPC_PORT || 50001,
     },
   }) as App;

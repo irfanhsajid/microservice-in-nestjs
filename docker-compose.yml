@@ -7,6 +7,7 @@ services:
     restart: always
     ports:
       - "3000:${APP_PORT}"
+      - "6000:${GRPC_PORT}"
     volumes:
       - ./:/app
     depends_on:
@@ -20,7 +21,7 @@ services:
     container_name: redis
     restart: unless-stopped
     ports:
-      - "6379:${REDIS_PORT}"
+      - "6378:${REDIS_PORT}"
     volumes:
       - redis:/data
     networks:

@@ -1,4 +1,4 @@
-interface Redis {
+interface Services {
   redis: {
     host: string;
     port: number;
@@ -9,6 +9,10 @@ interface Redis {
     cluster: string;
     redisDb: string;
     prefix: string;
+  };
+  grpc: {
+    host: string;
+    port: number;
   };
 }
 export default () =>
@@ -24,4 +28,8 @@ export default () =>
       redisDb: process.env.REDIS_DB ?? '',
       username: process.env.REDIS_USERNAME ?? '',
     },
-  }) as Redis;
+    grpc: {
+      host: process.env.GRPC_HOST || '0.0.0.0',
+      port: process.env.GRPC_PORT || 5000,
+    },
+  }) as Services;
