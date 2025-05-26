@@ -4,10 +4,29 @@ import { AuthService } from './auth.service';
 import { UserModule } from '../user/user.module';
 import { BullModule } from '@nestjs/bullmq';
 import { AuthConsumer } from './auth.queue';
+import { ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { globSync } from 'glob';
+import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth.pb';
 
 @Module({
   imports: [
     UserModule,
+    // Grpc client
+    ClientsModule.registerAsync([
+      {
+        name: 'AUTH_PACKAGE',
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: CARVU_PACKAGE_NAME,
+            protoPath: globSync('src/grpc/proto/*.proto'),
+            url: `${configService.get<string>('grpc.host')}:${configService.get<number>('grpc.port')}`,
+          },
+        }),
+      },
+    ]),
     BullModule.registerQueue({
       name: 'auth',
     }),
