@@ -15,6 +15,7 @@ import { UserModule } from './modules/user/user.module';
 import { BullModule } from '@nestjs/bullmq';
 import { GrpcModule } from 'src/grpc/grpc.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -82,7 +83,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     GrpcModule,
     LoggerModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}

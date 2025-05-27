@@ -8,11 +8,13 @@ import { UserResponseFormatterInterceptor } from './app/common/interceptors/user
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   const configService = app.get(ConfigService);
-  console.log('GRPC config', configService.get('services.grpc'));
   // grpc server
   const grpcServer = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
@@ -74,6 +76,11 @@ async function bootstrap() {
 
   // Global user response formatter interceptor
   app.useGlobalInterceptors(new UserResponseFormatterInterceptor());
+
+  // Setup view engine
+  app.useStaticAssets(join(__dirname, '..', 'public'));
+  app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  app.setViewEngine('hbs');
 
   await app.listen(configService.get<number>('app.port') || 3000);
 
