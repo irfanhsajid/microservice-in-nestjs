@@ -44,7 +44,7 @@ export default () =>
           transport: {
             host: process.env.MAIL_HOST || 'sandbox.smtp.mailtrap.io',
             port: Number(process.env.MAIL_PORT) || 2525,
-            secure: false,
+            secure: process.env.MAIL_SECURE != 'false',
             auth: {
               user: process.env.MAIL_USERNAME,
               pass: process.env.MAIL_PASSWORD,
@@ -53,7 +53,7 @@ export default () =>
         },
       },
       template: {
-        dir: join(__dirname, '../mail/templates'),
+        dir: join(__dirname, '../app/modules/mail/templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,
