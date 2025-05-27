@@ -8,8 +8,9 @@ import mail from 'src/config/mail';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { driver } from '../database/driver';
 import { AuthModule } from './modules/auth/auth.module';
-import { PaymentModule } from './modules/payment/payment.module';
+import { LoggerModule } from './modules/logger/logger.module';
 import { MailModule } from './modules/mail/mail.module';
+import { PaymentModule } from './modules/payment/payment.module';
 import { UserModule } from './modules/user/user.module';
 import { BullModule } from '@nestjs/bullmq';
 import { GrpcModule } from 'src/grpc/grpc.module';
@@ -79,6 +80,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
     MailModule,
     UserModule,
     GrpcModule,
+    LoggerModule,
   ],
   controllers: [],
   providers: [],
