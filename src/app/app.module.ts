@@ -46,21 +46,25 @@ import { MailerModule } from '@nestjs-modules/mailer';
       useFactory: (configService: ConfigService) => {
         return {
           connection: {
-            port: configService.get<number>('redis.port'),
-            ...(configService.get<string>('redis.host')
-              ? { host: configService.get<string>('redis.host') }
+            port: configService.get<number>('services.redis.port'),
+            ...(configService.get<string>('services.redis.host')
+              ? { host: configService.get<string>('services.redis.host') }
               : {}),
-            ...(configService.get<string>('redis.username')
-              ? { username: configService.get<string>('redis.username') }
+            ...(configService.get<string>('services.redis.username')
+              ? {
+                  username: configService.get<string>(
+                    'services.redis.username',
+                  ),
+                }
               : {}),
-            ...(configService.get<string>('redis.password')
-              ? { password: configService.get<string>('redis.password') }
+            ...(configService.get<string>('services.redis.password')
+              ? { password: configService.get<string>('services.redis.password') }
               : {}),
-            ...(configService.get<string>('redis.url')
-              ? { url: configService.get<string>('redis.url') }
+            ...(configService.get<string>('services.redis.url')
+              ? { url: configService.get<string>('services.redis.url') }
               : {}),
-            ...(configService.get<string>('redis.redisDb')
-              ? { db: configService.get<string>('redis.redisDb') }
+            ...(configService.get<string>('services.redis.redisDb')
+              ? { db: configService.get<string>('services.redis.redisDb') }
               : {}),
           },
         };

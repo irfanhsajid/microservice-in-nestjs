@@ -21,7 +21,7 @@ async function bootstrap() {
       options: {
         package: CARVU_PACKAGE_NAME,
         protoPath: globSync('src/grpc/proto/*.proto'),
-        url: `${configService.get<string>('grpc.host')}:${configService.get<number>('grpc.port')}`,
+        url: `${configService.get<string>('services.grpc.host')}:${configService.get<number>('services.grpc.port')}`,
       },
     },
   );
