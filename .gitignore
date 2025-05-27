@@ -56,8 +56,8 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # proto file ignore
-src/grpc/*
-!src/grpc/README.md
+src/grpc/proto/*
+!src/grpc/proto/README.md
 
 src/grpc/types/*
-!src/grpc/README.md
+!src/grpc/types/README.md
