@@ -4,6 +4,7 @@
 
 cd /app
 yarn
+yarn generate:proto
 yarn build
 
 service supervisor start
