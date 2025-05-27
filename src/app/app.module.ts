@@ -16,6 +16,8 @@ import { BullModule } from '@nestjs/bullmq';
 import { GrpcModule } from 'src/grpc/grpc.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AppController } from './app.controller';
+import filesystems from 'src/config/filesystems';
+import { UploadsModule } from './modules/uploads/uploads.module';
 
 @Module({
   imports: [
@@ -36,7 +38,7 @@ import { AppController } from './app.controller';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [database, app, services, mail],
+      load: [database, app, services, mail, filesystems],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: driver,
@@ -82,6 +84,7 @@ import { AppController } from './app.controller';
     UserModule,
     GrpcModule,
     LoggerModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [],
