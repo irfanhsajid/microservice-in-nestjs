@@ -1,0 +1,8 @@
+node_modules
+vendor
+/storage/*.key
+/public/build
+/public/hot
+/public/storage
+/database/*.sqlite*
+
