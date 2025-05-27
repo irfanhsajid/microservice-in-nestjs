@@ -25,7 +25,7 @@ import { MailModule } from '../mail/mail.module';
             protoPath: globSync('src/grpc/proto/carvu_proto/**/*.proto', {
               absolute: true,
             }),
-            url: `${configService.get<string>('grpc.host')}:${configService.get<number>('grpc.port')}`,
+            url: `${configService.get<string>('services.grpc.host')}:${configService.get<number>('services.grpc.port')}`,
           },
         }),
       },

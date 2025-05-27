@@ -12,7 +12,7 @@ import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-
+  console.log('GRPC config', configService.get('services.grpc'));
   // grpc server
   const grpcServer = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
