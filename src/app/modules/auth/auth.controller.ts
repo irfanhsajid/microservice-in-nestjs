@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { CustomLogger } from '../logger/logger.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
@@ -38,5 +45,17 @@ export class AuthController {
       'user@example.com',
       'Shariful',
     );
+  }
+
+  @Get('/error')
+  errorTest() {
+    const t = 0;
+    const sum = t / 0 + 'asdsadsad';
+    console.info(sum);
+    throw new HttpException(
+      'Interal server error',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+    return 'Error pass';
   }
 }
