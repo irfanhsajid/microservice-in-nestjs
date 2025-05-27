@@ -12,6 +12,13 @@ export class UserResponseFormatterInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const httpContext = context.switchToHttp();
     const response = httpContext.getResponse();
+    const request = httpContext.getRequest();
+    const accept = request.headers['accept'];
+
+    // ignore fromatting the text/html data
+    if (accept && accept.includes('text/html')) {
+      return next.handle();
+    }
 
     return next.handle().pipe(
       map((data) => {
