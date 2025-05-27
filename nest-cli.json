@@ -10,6 +10,14 @@
       {
         "include": "app/modules/mail/templates/**/*",
         "outDir": "dist/"
+      },
+      {
+        "include": "views/**/*",
+        "outDir": "dist/"
+      },
+      {
+        "include": "public/**/*",
+        "outDir": "dist/"
       }
     ]
   }
