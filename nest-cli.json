@@ -8,7 +8,7 @@
     "assets": [
       "**/*.proto",
       {
-        "include": "mail/templates/**/*",
+        "include": "app/modules/mail/templates/**/*",
         "outDir": "dist/"
       }
     ]
