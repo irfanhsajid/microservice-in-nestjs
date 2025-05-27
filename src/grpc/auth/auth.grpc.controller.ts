@@ -4,7 +4,7 @@ import {
   AuthServiceController,
   RequestAuthorizationPayload,
   ResponseAuthorizationPayload,
-} from '../types/auth.pb';
+} from '../types/auth/auth.pb';
 import { Observable } from 'rxjs';
 import { GrpcMethod } from '@nestjs/microservices';
 

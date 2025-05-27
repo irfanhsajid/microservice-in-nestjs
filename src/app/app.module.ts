@@ -58,7 +58,11 @@ import { MailerModule } from '@nestjs-modules/mailer';
                 }
               : {}),
             ...(configService.get<string>('services.redis.password')
-              ? { password: configService.get<string>('services.redis.password') }
+              ? {
+                  password: configService.get<string>(
+                    'services.redis.password',
+                  ),
+                }
               : {}),
             ...(configService.get<string>('services.redis.url')
               ? { url: configService.get<string>('services.redis.url') }

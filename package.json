@@ -25,7 +25,7 @@
     "db:fresh:seed": "npm run db:drop && npm run db:sync && npm run db:seed",
     "migration:generate": "npx ts-node ./node_modules/typeorm/cli.js migration:generate ./src/database/migrations/asdgsdg --dataSource ./src/database/driver.ts",
     "migration:run": "npx ts-node ./node_modules/typeorm/cli.js migration:run  --dataSource ./src/database/driver.ts",
-    "generate:proto": "cd src/grpc/proto && protoc --plugin=protoc-gen-ts_proto=../../../node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=../types *.proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb"
+    "generate:proto": "cd src/grpc/proto/carvu_proto && find . -type f -name '*.proto' -exec protoc --plugin=protoc-gen-ts_proto=$(which protoc-gen-ts_proto) --ts_proto_out=../../types {} --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb \\;"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.13.4",

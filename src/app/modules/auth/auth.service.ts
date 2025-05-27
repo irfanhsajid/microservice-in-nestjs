@@ -4,7 +4,10 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ClientGrpc } from '@nestjs/microservices';
-import { AUTH_SERVICE_NAME, AuthServiceClient } from 'src/grpc/types/auth.pb';
+import {
+  AUTH_SERVICE_NAME,
+  AuthServiceClient,
+} from 'src/grpc/types/auth/auth.pb';
 
 @Injectable()
 export class AuthService {

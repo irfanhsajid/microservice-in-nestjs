@@ -7,7 +7,7 @@ import { AuthConsumer } from './auth.queue';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { globSync } from 'glob';
-import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth.pb';
+import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth/auth.pb';
 import { MailModule } from '../mail/mail.module';
 
 @Module({
@@ -22,7 +22,9 @@ import { MailModule } from '../mail/mail.module';
           transport: Transport.GRPC,
           options: {
             package: CARVU_PACKAGE_NAME,
-            protoPath: globSync('src/grpc/proto/*.proto'),
+            protoPath: globSync('src/grpc/proto/carvu_proto/**/*.proto', {
+              absolute: true,
+            }),
             url: `${configService.get<string>('grpc.host')}:${configService.get<number>('grpc.port')}`,
           },
         }),
