@@ -26,23 +26,27 @@ import { UploadsController } from './uploads.controller';
         );
 
         if (storageType === 's3') {
-          const region = configService.get<string>('fileSystems.s3.region');
-          const endpoint = configService.get<string>('fileSystems.s3.endpoint');
+          const region = configService.get<string>(
+            'fileSystems.disk.s3.region',
+          );
+          const endpoint = configService.get<string>(
+            'fileSystems.disk.s3.endpoint',
+          );
           const accessKeyId = configService.get<string>(
-            'fileSystems.s3.accessKeyId',
+            'fileSystems.disk.s3.accessKeyId',
           );
           const secretAccessKey = configService.get<string>(
-            'fileSystems.s3.accessKey',
+            'fileSystems.disk.s3.accessKey',
           );
-
-          if (!region || !endpoint || !accessKeyId || !secretAccessKey) {
+          console.info(region, endpoint, accessKeyId, secretAccessKey);
+          if (!region || !accessKeyId || !secretAccessKey) {
             throw new Error('Missing required S3 configuration.');
           }
 
           s3Provider.setClient(
             new S3Client({
               region,
-              endpoint,
+              ...(endpoint ? { endpoint: endpoint } : {}),
               credentials: {
                 accessKeyId,
                 secretAccessKey,
