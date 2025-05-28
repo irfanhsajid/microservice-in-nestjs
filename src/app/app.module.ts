@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import app from 'src/config/app';
 import database from 'src/config/database';
+import filesystems from 'src/config/filesystems';
 import mail from 'src/config/mail';
 import services from 'src/config/services';
 import { GrpcModule } from 'src/grpc/grpc.module';
@@ -16,6 +17,7 @@ import { DocsModule } from './modules/docs/docs.modules';
 import { LoggerModule } from './modules/logger/logger.module';
 import { MailModule } from './modules/mail/mail.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
@@ -37,7 +39,7 @@ import { UserModule } from './modules/user/user.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [database, app, services, mail],
+      load: [database, app, services, mail, filesystems],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: driver,
@@ -83,6 +85,7 @@ import { UserModule } from './modules/user/user.module';
     UserModule,
     GrpcModule,
     LoggerModule,
+    UploadsModule,
     DocsModule,
   ],
   controllers: [AppController],

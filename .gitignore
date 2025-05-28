@@ -61,3 +61,9 @@ src/grpc/proto/*
 
 src/grpc/types/*
 !src/grpc/types/README.md
+
+storage/app/*
+!storage/app/.gitkeep
+storage/logs/*
+!storage/logs
+!storage/logs/.gitkeep

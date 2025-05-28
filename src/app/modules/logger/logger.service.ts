@@ -4,7 +4,7 @@ import * as path from 'path';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class CustomLogger extends ConsoleLogger {
-  private logDir = 'logs';
+  private logDir = 'storage/logs/';
 
   constructor(context?: string) {
     super(context || 'Application');
