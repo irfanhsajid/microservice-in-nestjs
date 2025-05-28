@@ -6,6 +6,7 @@ import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth/auth.pb';
 import { MailModule } from '../mail/mail.module';
 import { UserModule } from '../user/user.module';
+import { AuthController } from './auth.controller';
 import { AuthConsumer } from './auth.queue';
 import { AuthService } from './auth.service';
 
@@ -34,7 +35,7 @@ import { AuthService } from './auth.service';
     }),
     MailModule,
   ],
-  controllers: [],
+  controllers: [AuthController],
   providers: [AuthService, AuthConsumer],
 })
 export class AuthModule {}

@@ -6,11 +6,13 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CustomLogger } from '../logger/logger.service';
 import { MailService } from '../mail/mail.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 
+@ApiTags('Auth')
 @Controller('api/v1')
 export class AuthController {
   constructor(
@@ -19,11 +21,14 @@ export class AuthController {
   ) {}
   private readonly logger = new CustomLogger(AuthController.name);
 
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, description: 'User successfully registered' })
   @Post('/register')
   async credentioalLogin(@Body() dto: CreateUserDto) {
     return await this.authService.registerUser(dto);
   }
 
+  @ApiOperation({ summary: 'Test gRPC connection' })
   @Get('/test-grpc')
   testGrpc() {
     return this.authService.getAuthrization({ email: 'test@hudai.com' });
