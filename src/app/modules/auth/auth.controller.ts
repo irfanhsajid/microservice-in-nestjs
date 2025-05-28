@@ -7,9 +7,9 @@ import {
   Post,
 } from '@nestjs/common';
 import { CustomLogger } from '../logger/logger.service';
+import { MailService } from '../mail/mail.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { MailService } from '../mail/mail.service';
 
 @Controller('api/v1')
 export class AuthController {

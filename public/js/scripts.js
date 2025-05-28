@@ -45,12 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loginButton.textContent = 'Logging in...';
       }
 
-      fetch('http://localhost:3000/api/v1/login', {
+      fetch('/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           email: emailInput.value,
           password: passwordInput.value,
@@ -66,7 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then((data) => {
           console.log('Login successful:', data);
-          window.location.href = '/dashboard';
+          if (data.statusCode === 401) {
+            alert('Invalid credentials. Please try again.');
+          } else {
+            // Reload the page to show the authenticated view
+            window.location.reload();
+          }
         })
         .catch((error) => {
           console.error('Login failed:', error);
@@ -77,6 +81,33 @@ document.addEventListener('DOMContentLoaded', () => {
             loginButton.disabled = false;
             loginButton.textContent = 'Log in';
           }
+        });
+    });
+  }
+
+  // Logout button functionality
+  const logoutButton = document.getElementById('logout-button');
+  if (logoutButton) {
+    logoutButton.addEventListener('click', () => {
+      fetch('/logout', {
+        method: 'GET',
+      })
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((errorData) => {
+              throw new Error(errorData.message || 'Unknown error');
+            });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('Logout successful:', data);
+          // Reload the page to show the login view
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error('Logout failed:', error);
+          alert(`Logout failed: ${error.message}`);
         });
     });
   }

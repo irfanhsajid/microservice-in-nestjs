@@ -1,15 +1,16 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
-import { ConfigService } from '@nestjs/config';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as session from 'express-session';
+import { globSync } from 'glob';
+import { join } from 'path';
+import { AppModule } from './app/app.module';
 import { GlobalServerExceptionsFilter } from './app/common/exceptions/global-server-exception.filter';
 import { UserResponseFormatterInterceptor } from './app/common/interceptors/user-response-formatter.interceptor';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -30,15 +31,39 @@ async function bootstrap() {
     },
   );
 
+  // Configure session middleware
+  app.use(
+    session({
+      secret: 'carvu-secret-key',
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        maxAge: 3600000, // 1 hour
+      },
+    }),
+  );
+
+  // Set up Swagger BEFORE applying route protection
   const config = new DocumentBuilder()
     .setTitle(`${configService.get<string>('app.name')} API`)
     .setDescription(
       `The ${configService.get<string>('app.name')} API description`,
     )
     .setVersion('1.0')
+    // .addBearerAuth() // Add this to support JWT auth in Swagger
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
+  // AFTER Swagger setup, protect the route
+  app.use('/docs', (req, res, next) => {
+    if (req.session && req.session['user']) {
+      next();
+    } else {
+      res.redirect('/'); // Redirect to home page if not authenticated
+    }
+  });
 
   // Validation pipes errors
   app.useGlobalPipes(

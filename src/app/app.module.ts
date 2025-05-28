@@ -1,21 +1,22 @@
 import { Module } from '@nestjs/common';
 
+import { MailerModule } from '@nestjs-modules/mailer';
+import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import database from 'src/config/database';
-import app from 'src/config/app';
-import services from 'src/config/services';
-import mail from 'src/config/mail';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import app from 'src/config/app';
+import database from 'src/config/database';
+import mail from 'src/config/mail';
+import services from 'src/config/services';
+import { GrpcModule } from 'src/grpc/grpc.module';
 import { driver } from '../database/driver';
+import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
+import { DocsModule } from './modules/docs/docs.modules';
 import { LoggerModule } from './modules/logger/logger.module';
 import { MailModule } from './modules/mail/mail.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { UserModule } from './modules/user/user.module';
-import { BullModule } from '@nestjs/bullmq';
-import { GrpcModule } from 'src/grpc/grpc.module';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -82,6 +83,7 @@ import { AppController } from './app.controller';
     UserModule,
     GrpcModule,
     LoggerModule,
+    DocsModule,
   ],
   controllers: [AppController],
   providers: [],
