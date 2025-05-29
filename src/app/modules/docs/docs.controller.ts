@@ -9,11 +9,13 @@ import {
 } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { Request } from 'express';
+import { LoginThrottlerGuard } from '../throttler/login-throttler.guard';
 import { LoginDto } from './dto/login.dto';
 import { SessionGuard } from './guards/session.guard';
 @ApiExcludeController()
 @Controller('')
 export class DocsAuthController {
+  @UseGuards(LoginThrottlerGuard)
   @Post('login')
   login(@Body() loginDto: LoginDto, @Session() session: Record<string, any>) {
     // For simplicity, we're using hardcoded credentials

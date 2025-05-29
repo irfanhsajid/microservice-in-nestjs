@@ -1,12 +1,12 @@
 import { Controller } from '@nestjs/common';
+import { GrpcMethod } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 import {
   AUTH_SERVICE_NAME,
   AuthServiceController,
   RequestAuthorizationPayload,
   ResponseAuthorizationPayload,
 } from '../types/auth/auth.pb';
-import { Observable } from 'rxjs';
-import { GrpcMethod } from '@nestjs/microservices';
 
 @Controller('authGrpc')
 export class AuthGrpcController implements AuthServiceController {
