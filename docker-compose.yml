@@ -7,11 +7,11 @@ services:
     restart: always
     ports:
       - "3000:80"
-      - "6000:${GRPC_PORT}"
+      - "${GRPC_PORT}:${GRPC_PORT}"
     volumes:
       - ./:/app
     depends_on:
-      - pgsql
+      - pgsql2
       - redis
     networks:
       - carvu
@@ -21,15 +21,15 @@ services:
     container_name: redis
     restart: unless-stopped
     ports:
-      - "6378:${REDIS_PORT}"
+      - "${REDIS_PORT}:${REDIS_PORT}"
     volumes:
       - redis:/data
     networks:
       - carvu
 
-  pgsql:
+  pgsql2:
     image: postgres:latest
-    container_name: pgsql
+    container_name: pgsql2
     restart: unless-stopped
     tty: true
     ports:
