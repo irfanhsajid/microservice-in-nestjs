@@ -9,12 +9,15 @@ import {
 } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import { Request } from 'express';
+import { CustomLogger } from '../logger/logger.service';
 import { LoginThrottlerGuard } from '../throttler/login-throttler.guard';
 import { LoginDto } from './dto/login.dto';
 import { SessionGuard } from './guards/session.guard';
 @ApiExcludeController()
 @Controller('')
 export class DocsAuthController {
+  private readonly logger = new CustomLogger(DocsAuthController.name);
+
   @UseGuards(LoginThrottlerGuard)
   @Post('login')
   login(@Body() loginDto: LoginDto, @Session() session: Record<string, any>) {
@@ -29,7 +32,7 @@ export class DocsAuthController {
         email: loginDto.email,
         name: 'CarVu Devs',
       };
-
+      this.logger.log('Login successful');
       return { message: 'Login successful' };
     }
 
@@ -41,6 +44,7 @@ export class DocsAuthController {
   logout(@Req() request: Request) {
     request.session.destroy(() => {
       // Session destroyed
+      this.logger.log('Logout successful');
     });
 
     return { message: 'Logout successful' };
