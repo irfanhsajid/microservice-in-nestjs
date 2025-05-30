@@ -1,20 +1,25 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
-import { ConfigService } from '@nestjs/config';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as connectTypeorm from 'connect-typeorm';
+import * as session from 'express-session';
+import { globSync } from 'glob';
+import { join } from 'path';
+import { DataSource } from 'typeorm';
+import { AppModule } from './app/app.module';
 import { GlobalServerExceptionsFilter } from './app/common/exceptions/global-server-exception.filter';
 import { UserResponseFormatterInterceptor } from './app/common/interceptors/user-response-formatter.interceptor';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { globSync } from 'glob';
+import { Session } from './app/modules/docs/entities/session.entity';
 import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
+import { docsAuthMiddleware } from './utils/docs-auth.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
   const configService = app.get(ConfigService);
+
   // grpc server
   const grpcServer = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
@@ -30,15 +35,51 @@ async function bootstrap() {
     },
   );
 
+  // Get Session repository
+  const dataSource = app.get(DataSource); // Get the DataSource
+  const sessionRepository = dataSource.getRepository(Session);
+
+  // Configure express-session with TypeormStore
+  const TypeormStore = connectTypeorm.TypeormStore;
+  app.use(
+    session({
+      secret: configService.get('app.key', 'super-secret-key'),
+      resave: false,
+      saveUninitialized: true,
+      store: new TypeormStore({
+        cleanupLimit: 2,
+        ttl: 84600,
+      }).connect(sessionRepository),
+      cookie: {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: configService.get('app.env') === 'production',
+      },
+    }),
+  );
+
+  app.use('/docs', docsAuthMiddleware);
+
   const config = new DocumentBuilder()
     .setTitle(`${configService.get<string>('app.name')} API`)
     .setDescription(
       `The ${configService.get<string>('app.name')} API description`,
     )
     .setVersion('1.0')
+    .addBearerAuth() // Add this to support JWT auth in Swagger
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
+  // AFTER Swagger setup, protect the route
+  app.use('/docs', (req, res, next) => {
+    if (req.session && req.session['user']) {
+      next();
+    } else {
+      res.redirect('/'); // Redirect to home page if not authenticated
+    }
+  });
 
   // Validation pipes errors
   app.useGlobalPipes(

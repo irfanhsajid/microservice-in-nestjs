@@ -1,14 +1,14 @@
-import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { UserModule } from '../user/user.module';
 import { BullModule } from '@nestjs/bullmq';
-import { AuthConsumer } from './auth.queue';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth/auth.pb';
 import { MailModule } from '../mail/mail.module';
+import { AuthConsumer } from './auth.queue';
+import { Module } from '@nestjs/common';
+import { UserModule } from '../user/user.module';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 
 @Module({
   imports: [

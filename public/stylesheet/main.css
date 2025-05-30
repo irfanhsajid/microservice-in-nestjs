@@ -177,3 +177,63 @@ input::placeholder {
     padding-bottom: 40px;
   }
 }
+
+/* User panel styles */
+.user-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 20px 0;
+}
+
+.user-actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 30px;
+  gap: 15px;
+}
+
+.docs-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 2px;
+  width: 100%;
+  background: linear-gradient(330deg, #034300 1.4%, #089a00 97.35%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.docs-button:hover {
+  background: linear-gradient(100deg, #043301 1.4%, #076302 97.35%);
+  scale: 1.02;
+  transition: all 0.2s ease-in-out;
+}
+
+.logout-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+  width: 100%;
+  background-color: #f8f8f8;
+  color: #2b3545;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: #e9e9e9;
+}
