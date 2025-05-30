@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (logoutButton) {
     logoutButton.addEventListener('click', () => {
       fetch('/logout', {
-        method: 'GET',
+        method: 'POST',
       })
         .then((response) => {
           if (!response.ok) {

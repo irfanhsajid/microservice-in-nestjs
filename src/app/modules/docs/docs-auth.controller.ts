@@ -38,7 +38,8 @@ export class DocsController {
           );
         }
         res.clearCookie('connect.sid');
-        res.redirect('/');
+        // res.redirect('/');
+        res.json({ message: 'Logout success' });
         resolve(null);
       });
     });
