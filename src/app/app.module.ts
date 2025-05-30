@@ -13,13 +13,13 @@ import { GrpcModule } from 'src/grpc/grpc.module';
 import { driver } from '../database/driver';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
-import { DocsModule } from './modules/docs/docs.modules';
 import { LoggerModule } from './modules/logger/logger.module';
 import { MailModule } from './modules/mail/mail.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AppThrottlerModule } from './modules/throttler/throttler.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
+import { DocsModule } from './modules/docs/docs.module';
 
 @Module({
   imports: [
