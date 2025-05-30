@@ -31,7 +31,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Test gRPC connection' })
   @Get('/test-grpc')
   testGrpc() {
-    return this.authService.getAuthrization({ email: 'test@hudai.com' });
+    return this.authService.getAuthorization({ email: 'test@hudai.com' });
   }
 
   @Get('/test-logger')
