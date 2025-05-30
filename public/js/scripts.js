@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginButton.textContent = 'Logging in...';
       }
 
-      fetch('http://localhost:3000/api/v1/docs-login', {
+      fetch('/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

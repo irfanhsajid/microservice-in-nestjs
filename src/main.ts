@@ -12,7 +12,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { Response } from 'express';
 import * as session from 'express-session';
-import { Session } from './app/modules/auth/entities/session.entity';
+import { Session } from './app/modules/docs/entities/session.entity';
 import { DataSource } from 'typeorm';
 import * as connectTypeorm from 'connect-typeorm';
 
@@ -43,17 +43,17 @@ async function bootstrap() {
   const TypeormStore = connectTypeorm.TypeormStore;
   app.use(
     session({
-      secret: configService.get('SESSION_SECRET', 'your-secret-key'),
+      secret: configService.get('app.key', 'super-secret-key'),
       resave: false,
       saveUninitialized: true,
       store: new TypeormStore({
         cleanupLimit: 2,
-        ttl: 86400, // 24 hours
+        ttl: 84600,
       }).connect(sessionRepository),
       cookie: {
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
-        secure: configService.get('NODE_ENV') === 'production',
+        secure: configService.get('app.env') === 'production',
       },
     }),
   );

@@ -18,6 +18,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { AppController } from './app.controller';
 import filesystems from 'src/config/filesystems';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { DocsModule } from './modules/docs/docs.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
     GrpcModule,
     LoggerModule,
     UploadsModule,
+    DocsModule,
   ],
   controllers: [AppController],
   providers: [],

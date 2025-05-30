@@ -49,7 +49,6 @@ export class UserService {
     email: string,
     password: string,
   ): Promise<User | null> {
-    console.info('user got here', email, password);
     try {
       const user = await this.getUserByEmail(email);
       if (!user) {
