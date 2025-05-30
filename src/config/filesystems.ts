@@ -14,6 +14,7 @@ interface FileSystems {
         endpoint: string;
         usePathStyleEndpoint: boolean;
         throw: boolean;
+        bucket: string;
         root: string;
       };
     };
@@ -37,6 +38,7 @@ export default () =>
           region: process.env.AWS_DEFAULT_REGION,
           root: process.env.APP_ROOT_DIR ?? 'carvu',
           throw: process.env.AWS_THROW ?? false,
+          bucket: process.env.AWS_BUCKET,
           usePathStyleEndpoint:
             process.env.AWS_USE_PATH_STYLE_ENDPOINT ?? false,
         },

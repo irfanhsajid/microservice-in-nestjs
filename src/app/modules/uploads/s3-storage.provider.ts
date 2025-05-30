@@ -13,7 +13,8 @@ export class S3StorageProvider implements StorageProvider {
   private readonly bucket: string;
 
   constructor(private configService: ConfigService) {
-    this.bucket = this.configService.get<string>('AWS_S3_BUCKET') || '';
+    this.bucket =
+      this.configService.get<string>('fileSystems.disk.s3.bucket') || '';
   }
 
   setClient(client: S3Client) {
@@ -22,7 +23,7 @@ export class S3StorageProvider implements StorageProvider {
 
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
     try {
-      const fileName = `${Date.now()}-${file.originalname}`;
+      const fileName = `${file.originalname}`;
       const key = folder ? `${folder}/${fileName}` : fileName;
 
       const command = new PutObjectCommand({
