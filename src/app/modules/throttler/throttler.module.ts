@@ -9,7 +9,7 @@ import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
       {
         name: 'default',
         ttl: seconds(60), // 60 seconds window
-        limit: 100, // 100 requests per minute for all APIs
+        limit: 10, // 10 requests per minute for all APIs
       },
     ]),
   ],

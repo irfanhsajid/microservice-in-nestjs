@@ -12,13 +12,13 @@ export class LoginThrottlerGuard extends ThrottlerGuard {
   // We override the handleRequest method to add custom behavior
   // This allows us to set special throttling limits just for login
   // eslint-disable-next-line @typescript-eslint/require-await
-  protected override async getThrottlerOptions() {
+  protected async getThrottlerOptions() {
     return [
       {
         name: 'login',
         ttl: minutes(10), // 10 minute time window for login attempts
         limit: 5, // 5 attempts allowed
-        blockDuration: minutes(10), // Block for 10 minutes after too many attempts
+        blockDuration: minutes(1), // Block for 10 minutes after too many attempts
       },
     ];
   }
