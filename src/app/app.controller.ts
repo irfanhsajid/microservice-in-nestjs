@@ -1,4 +1,4 @@
-import { Controller, Get, Render } from '@nestjs/common';
+import { Controller, Get, Render, Request, Response } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 
 @ApiExcludeController()
@@ -6,9 +6,8 @@ import { ApiExcludeController } from '@nestjs/swagger';
 export class AppController {
   @Get()
   @Render('index')
-  root() {
-    console.info('rendering home');
-    return { message: 'Hello world!' };
+  root(@Request() req: any) {
+    return req.user ? { user: req?.user } : {};
   }
 
   @Get('/.well-known/appspecific/com.chrome.devtools.json')

@@ -10,11 +10,17 @@ import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { Response } from 'express';
+import * as session from 'express-session';
+import { Session } from './app/modules/docs/entities/session.entity';
+import { DataSource } from 'typeorm';
+import * as connectTypeorm from 'connect-typeorm';
+import { docsAuthMiddleware } from './utils/docs-auth.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
   const configService = app.get(ConfigService);
+
   // grpc server
   const grpcServer = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
@@ -29,6 +35,31 @@ async function bootstrap() {
       },
     },
   );
+
+  // Get Session repository
+  const dataSource = app.get(DataSource); // Get the DataSource
+  const sessionRepository = dataSource.getRepository(Session);
+
+  // Configure express-session with TypeormStore
+  const TypeormStore = connectTypeorm.TypeormStore;
+  app.use(
+    session({
+      secret: configService.get('app.key', 'super-secret-key'),
+      resave: false,
+      saveUninitialized: true,
+      store: new TypeormStore({
+        cleanupLimit: 2,
+        ttl: 84600,
+      }).connect(sessionRepository),
+      cookie: {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: configService.get('app.env') === 'production',
+      },
+    }),
+  );
+
+  app.use('/docs', docsAuthMiddleware);
 
   const config = new DocumentBuilder()
     .setTitle(`${configService.get<string>('app.name')} API`)

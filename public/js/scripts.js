@@ -45,14 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
         loginButton.textContent = 'Logging in...';
       }
 
-      fetch('http://localhost:3000/api/v1/login', {
+      fetch('/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
         body: JSON.stringify({
-          email: emailInput.value,
+          username: emailInput.value,
           password: passwordInput.value,
         }),
       })
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then((data) => {
           console.log('Login successful:', data);
-          window.location.href = '/dashboard';
+          window.location.href = '/docs';
         })
         .catch((error) => {
           console.error('Login failed:', error);

@@ -56,6 +56,5 @@ export class AuthController {
       'Interal server error',
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
-    return 'Error pass';
   }
 }
