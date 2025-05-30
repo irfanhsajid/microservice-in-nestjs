@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: emailInput.value,
+          username: emailInput.value,
           password: passwordInput.value,
         }),
       })
@@ -65,12 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then((data) => {
           console.log('Login successful:', data);
-          if (data.statusCode === 401) {
-            alert('Invalid credentials. Please try again.');
-          } else {
-            // Reload the page to show the authenticated view
-            window.location.reload();
-          }
+          window.location.href = '/docs';
         })
         .catch((error) => {
           console.error('Login failed:', error);

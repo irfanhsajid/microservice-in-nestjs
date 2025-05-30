@@ -1,14 +1,10 @@
 import { BullModule } from '@nestjs/bullmq';
-import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth/auth.pb';
 import { MailModule } from '../mail/mail.module';
-import { UserModule } from '../user/user.module';
-import { AuthController } from './auth.controller';
 import { AuthConsumer } from './auth.queue';
-import { AuthService } from './auth.service';
 
 @Module({
   imports: [
