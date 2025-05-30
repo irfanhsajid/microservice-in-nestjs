@@ -45,7 +45,30 @@ export class UserService {
     }
   }
 
+  async validateUserByEmailPassword(
+    email: string,
+    password: string,
+  ): Promise<User | null> {
+    console.info('user got here', email, password);
+    try {
+      const user = await this.getUserByEmail(email);
+      if (!user) {
+        return null;
+      }
+      if (!(await user.comparePassword(password))) {
+        return null;
+      }
+      return user;
+    } catch (error) {
+      console.info('user getting error', error);
+      return null;
+    }
+  }
+
   async getUserByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email: email } });
+    return this.userRepository.findOne({
+      where: { email: email },
+      select: ['id', 'email', 'password', 'first_name', 'last_name'],
+    });
   }
 }
