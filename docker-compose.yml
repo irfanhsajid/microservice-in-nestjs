@@ -1,9 +1,9 @@
 services:
-  carvu:
+  carvu_api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: carvu
+    container_name: carvu_api
     restart: always
     ports:
       - "3000:80"
@@ -11,39 +11,39 @@ services:
     volumes:
       - ./:/app
     depends_on:
-      - pgsql2
-      - redis
+      - carvu_api_pgsql
+      - carvu_api_redis
     networks:
-      - carvu
+      - carvu_api
 
-  redis:
+  carvu_api_redis:
     image: redis:latest
     container_name: redis
     restart: unless-stopped
     ports:
       - "6378:6379"
     volumes:
-      - redis:/data
+      - carvu_api_redis:/data
     networks:
-      - carvu
+      - carvu_api
 
-  pgsql2:
+  carvu_api_pgsql:
     image: postgres:latest
-    container_name: pgsql2
+    container_name: carvu_api_pgsql
     restart: unless-stopped
     tty: true
     ports:
       - "5433:5432"
     volumes:
-      - pgsql:/var/lib/postgresql/data
+      - carvu_api_pgsql:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: "${DB_DATABASE}"
       POSTGRES_USER: "${DB_USERNAME}"
       POSTGRES_PASSWORD: "${DB_PASSWORD}"
     networks:
-      - carvu
+      - carvu_api
 networks:
-  carvu:
+  carvu_api:
 volumes:
-  pgsql:
-  redis:
+  carvu_api_pgsql:
+  carvu_api_redis:
