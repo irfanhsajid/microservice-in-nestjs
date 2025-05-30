@@ -15,6 +15,7 @@ import * as session from 'express-session';
 import { Session } from './app/modules/docs/entities/session.entity';
 import { DataSource } from 'typeorm';
 import * as connectTypeorm from 'connect-typeorm';
+import { docsAuthMiddleware } from './utils/docs-auth.middleware';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -58,18 +59,7 @@ async function bootstrap() {
     }),
   );
 
-  app.use('/docs', (req, res: Response, next) => {
-    console.info('from main.ts', req.session, req.session.user);
-    if (req.session && req.session.user) {
-      next();
-    } else {
-      if (req.session) {
-        res.clearCookie('session');
-      }
-      res.clearCookie('connect.sid');
-      res.redirect('/');
-    }
-  });
+  app.use('/docs', docsAuthMiddleware);
 
   const config = new DocumentBuilder()
     .setTitle(`${configService.get<string>('app.name')} API`)
