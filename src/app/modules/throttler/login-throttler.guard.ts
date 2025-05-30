@@ -16,9 +16,9 @@ export class LoginThrottlerGuard extends ThrottlerGuard {
     return [
       {
         name: 'login',
-        ttl: minutes(10), // 10 minute time window for login attempts
+        ttl: minutes(5), // 5 minute time window for login attempts
         limit: 5, // 5 attempts allowed
-        blockDuration: minutes(1), // Block for 10 minutes after too many attempts
+        blockDuration: minutes(5), // Block for 5 minutes after too many attempts
       },
     ];
   }
