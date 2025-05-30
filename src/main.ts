@@ -72,15 +72,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  // AFTER Swagger setup, protect the route
-  app.use('/docs', (req, res, next) => {
-    if (req.session && req.session['user']) {
-      next();
-    } else {
-      res.redirect('/'); // Redirect to home page if not authenticated
-    }
-  });
-
   // Validation pipes errors
   app.useGlobalPipes(
     new ValidationPipe({
