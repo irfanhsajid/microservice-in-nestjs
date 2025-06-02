@@ -8,6 +8,7 @@ import {
   AUTH_SERVICE_NAME,
   AuthServiceClient,
 } from 'src/grpc/types/auth/auth.pb';
+import { SigninDto } from '../user/dto/signin.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,7 @@ export class AuthService {
     private grpcClient: ClientGrpc,
   ) {}
 
-  async registerUser(dto: CreateUserDto) {
+  async register(dto: CreateUserDto) {
     // 1. Create user
     // 2. Send email otp by as email or sms
     // 3. Return success message
@@ -39,6 +40,11 @@ export class AuthService {
     }
   }
 
+  async signin(dto: SigninDto) {
+    return await this.userService.validateUser(dto);
+  }
+
+  // GRPC test service
   getAuthorization(dto: { email: string }) {
     const authService =
       this.grpcClient.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
