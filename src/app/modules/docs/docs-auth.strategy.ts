@@ -10,10 +10,10 @@ export class DocsLocalAuthStrategyService extends PassportStrategy(Strategy) {
   }
 
   async validate(username: string, password: string): Promise<any> {
-    const validateUser = await this.userService.validateUserByEmailPassword(
+    const validateUser = await this.userService.validateUser({
       username,
       password,
-    );
+    });
     if (!validateUser) {
       throw new UnauthorizedException('Invalid user credentials');
     }

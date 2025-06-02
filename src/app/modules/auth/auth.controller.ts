@@ -11,6 +11,7 @@ import { CustomLogger } from '../logger/logger.service';
 import { MailService } from '../mail/mail.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
+import { SigninDto } from '../user/dto/signin.dto';
 
 @ApiTags('Auth')
 @Controller('api/v1')
@@ -24,16 +25,24 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User successfully registered' })
   @Post('/register')
-  async credentioalLogin(@Body() dto: CreateUserDto) {
-    return await this.authService.registerUser(dto);
+  async registerUser(@Body() dto: CreateUserDto) {
+    return await this.authService.register(dto);
   }
 
+  @ApiOperation({ summary: 'Login user' })
+  @Post('/login')
+  async tokenBasedLogin(@Body() dto: SigninDto) {
+    return await this.authService.signin(dto);
+  }
+
+  // Test routes
   @ApiOperation({ summary: 'Test gRPC connection' })
   @Get('/test-grpc')
   testGrpc() {
     return this.authService.getAuthorization({ email: 'test@hudai.com' });
   }
 
+  // Test routes
   @Get('/test-logger')
   testLogger() {
     this.logger.log('test logger >>>>');
@@ -44,6 +53,7 @@ export class AuthController {
     return 'test logger response!';
   }
 
+  // Test routes
   @Get('/test-mail')
   async sendWelcomeEmail() {
     return await this.mailService.sendWelcomeEmail(
@@ -52,6 +62,7 @@ export class AuthController {
     );
   }
 
+  // Test routes
   @Get('/error')
   errorTest() {
     const t = 0;

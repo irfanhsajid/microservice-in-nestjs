@@ -7,7 +7,9 @@ import {
   RequestAuthorizationPayload,
   ResponseAuthorizationPayload,
 } from '../types/auth/auth.pb';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('authGrpc')
 export class AuthGrpcController implements AuthServiceController {
   @GrpcMethod(AUTH_SERVICE_NAME)

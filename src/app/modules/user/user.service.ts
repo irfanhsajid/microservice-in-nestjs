@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { SigninDto } from './dto/signin.dto';
 
 @Injectable()
 export class UserService {
@@ -45,16 +46,13 @@ export class UserService {
     }
   }
 
-  async validateUserByEmailPassword(
-    email: string,
-    password: string,
-  ): Promise<User | null> {
+  async validateUser(dto: SigninDto): Promise<User | null> {
     try {
-      const user = await this.getUserByEmail(email);
+      const user = await this.getUserByEmail(dto.username);
       if (!user) {
         return null;
       }
-      if (!(await user.comparePassword(password))) {
+      if (!(await user.comparePassword(dto.password))) {
         return null;
       }
       return user;
