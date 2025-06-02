@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -9,6 +9,8 @@ import {
   AuthServiceClient,
 } from 'src/grpc/types/auth/auth.pb';
 import { SigninDto } from '../user/dto/signin.dto';
+import { JwtService } from '@nestjs/jwt';
+import { UserResource } from '../user/resource/user.resource';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +22,8 @@ export class AuthService {
 
     @Inject('AUTH_PACKAGE')
     private grpcClient: ClientGrpc,
+
+    private jwtService: JwtService,
   ) {}
 
   async register(dto: CreateUserDto) {
@@ -41,7 +45,20 @@ export class AuthService {
   }
 
   async signin(dto: SigninDto) {
-    return await this.userService.validateUser(dto);
+    const user = await this.userService.validateUser(dto);
+    if (!user) {
+      throw new UnauthorizedException('Invalid user credentials');
+    }
+    // generate jwt token
+    const token = await this.jwtService.signAsync({
+      sub: user?.id,
+      email: user.email,
+    });
+
+    return {
+      access_token: token,
+      user: new UserResource(user),
+    };
   }
 
   // GRPC test service

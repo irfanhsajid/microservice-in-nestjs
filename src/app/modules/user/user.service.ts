@@ -48,7 +48,7 @@ export class UserService {
 
   async validateUser(dto: SigninDto): Promise<User | null> {
     try {
-      const user = await this.getUserByEmail(dto.username);
+      const user = await this.getUserByEmail(dto.email);
       if (!user) {
         return null;
       }
@@ -65,7 +65,6 @@ export class UserService {
   async getUserByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email: email },
-      select: ['id', 'email', 'password', 'first_name', 'last_name'],
     });
   }
 }

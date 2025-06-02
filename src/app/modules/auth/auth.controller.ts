@@ -5,13 +5,21 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CustomLogger } from '../logger/logger.service';
 import { MailService } from '../mail/mail.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { SigninDto } from '../user/dto/signin.dto';
+import { ApiGuard } from './api.guard';
+// import { ApiGuard } from './api.guard';
 
 @ApiTags('Auth')
 @Controller('api/v1')
@@ -36,7 +44,9 @@ export class AuthController {
   }
 
   // Test routes
+  @UseGuards(ApiGuard)
   @ApiOperation({ summary: 'Test gRPC connection' })
+  @ApiBearerAuth('jwt')
   @Get('/test-grpc')
   testGrpc() {
     return this.authService.getAuthorization({ email: 'test@hudai.com' });

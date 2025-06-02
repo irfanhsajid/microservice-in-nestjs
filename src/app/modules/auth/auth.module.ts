@@ -1,5 +1,5 @@
 import { BullModule } from '@nestjs/bullmq';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth/auth.pb';
@@ -13,6 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
+    ConfigModule,
     UserModule,
     // Grpc client
     ClientsModule.registerAsync([
@@ -42,7 +43,7 @@ import { JwtModule } from '@nestjs/jwt';
         return {
           secret: configService.get<string>('app.key'),
           signOptions: {
-            expiresIn: configService.get<string>('jwt.expires_in'),
+            expiresIn: configService.get<string>('jwt.expireIn') || '60s',
             algorithm: 'HS256',
           },
         };

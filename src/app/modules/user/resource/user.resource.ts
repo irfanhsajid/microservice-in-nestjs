@@ -3,6 +3,7 @@ import { User } from '../entities/user.entity';
 
 export class UserResource extends Resource<User> {
   toJSON(): unknown {
+    console.log(this);
     return {
       id: this.id,
       email: this.email,
