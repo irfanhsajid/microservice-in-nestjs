@@ -39,7 +39,7 @@ export class AuthService {
     }
   }
 
-  getAuthrization(dto: { email: string }) {
+  getAuthorization(dto: { email: string }) {
     const authService =
       this.grpcClient.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
     return authService.requestAuthorization(dto);

@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify({
           username: emailInput.value,
           password: passwordInput.value,
@@ -77,6 +76,33 @@ document.addEventListener('DOMContentLoaded', () => {
             loginButton.disabled = false;
             loginButton.textContent = 'Log in';
           }
+        });
+    });
+  }
+
+  // Logout button functionality
+  const logoutButton = document.getElementById('logout-button');
+  if (logoutButton) {
+    logoutButton.addEventListener('click', () => {
+      fetch('/logout', {
+        method: 'POST',
+      })
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((errorData) => {
+              throw new Error(errorData.message || 'Unknown error');
+            });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log('Logout successful:', data);
+          // Reload the page to show the login view
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error('Logout failed:', error);
+          alert(`Logout failed: ${error.message}`);
         });
     });
   }

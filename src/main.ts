@@ -1,20 +1,19 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app/app.module';
-import { ConfigService } from '@nestjs/config';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as connectTypeorm from 'connect-typeorm';
+import * as session from 'express-session';
+import { globSync } from 'glob';
+import { join } from 'path';
+import { DataSource } from 'typeorm';
+import { AppModule } from './app/app.module';
 import { GlobalServerExceptionsFilter } from './app/common/exceptions/global-server-exception.filter';
 import { UserResponseFormatterInterceptor } from './app/common/interceptors/user-response-formatter.interceptor';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { globSync } from 'glob';
-import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
-import { Response } from 'express';
-import * as session from 'express-session';
 import { Session } from './app/modules/docs/entities/session.entity';
-import { DataSource } from 'typeorm';
-import * as connectTypeorm from 'connect-typeorm';
+import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
 import { docsAuthMiddleware } from './utils/docs-auth.middleware';
 
 async function bootstrap() {
@@ -67,9 +66,11 @@ async function bootstrap() {
       `The ${configService.get<string>('app.name')} API description`,
     )
     .setVersion('1.0')
+    .addBearerAuth() // Add this to support JWT auth in Swagger
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   // Validation pipes errors
   app.useGlobalPipes(
