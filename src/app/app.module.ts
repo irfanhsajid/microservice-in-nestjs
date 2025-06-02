@@ -20,6 +20,7 @@ import { AppThrottlerModule } from './modules/throttler/throttler.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
 import { DocsModule } from './modules/docs/docs.module';
+import { ApiGuard } from './modules/auth/api.guard';
 
 @Module({
   imports: [
@@ -91,6 +92,6 @@ import { DocsModule } from './modules/docs/docs.module';
     DocsModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [ApiGuard],
 })
 export class AppModule {}

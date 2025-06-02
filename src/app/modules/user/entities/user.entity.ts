@@ -30,7 +30,7 @@ export class User {
   @Column({ type: 'date', nullable: true, default: null })
   email_verified_at: Date | null;
 
-  @Column({ type: 'varchar', length: 255, select: false })
+  @Column({ type: 'varchar', length: 255, select: true })
   password: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })

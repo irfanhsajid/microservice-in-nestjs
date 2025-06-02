@@ -66,7 +66,14 @@ async function bootstrap() {
       `The ${configService.get<string>('app.name')} API description`,
     )
     .setVersion('1.0')
-    .addBearerAuth() // Add this to support JWT auth in Swagger
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+      'jwt',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
