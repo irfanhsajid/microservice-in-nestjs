@@ -7,6 +7,7 @@ export class AppController {
   @Get()
   @Render('index')
   root(@Request() req: any) {
+    console.info(req.session.user);
     return req.session.user ? { user: req?.session?.user } : {};
   }
 

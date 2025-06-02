@@ -9,6 +9,7 @@ import {
 import { CustomLogger } from '../logger/logger.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiExcludeController } from '@nestjs/swagger';
+import { UserResource } from '../user/resource/user.resource';
 
 @ApiExcludeController()
 @Controller()
@@ -18,12 +19,7 @@ export class DocsController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   login(@Request() req: any) {
-    req.session.user = {
-      id: req.user.id,
-      email: req.user.email,
-      first_name: req.user.first_name,
-      last_name: req.user.last_name,
-    };
+    req.session.user = new UserResource(req?.user);
     return req.user;
   }
 
@@ -33,13 +29,11 @@ export class DocsController {
       req.session.destroy((err: any) => {
         if (err) {
           console.error('Session destruction error:', err);
-          return reject(
-            new UnauthorizedException('Session destruction failed'),
-          );
+          reject(new UnauthorizedException('Session destruction failed'));
+        } else {
+          res.clearCookie('connect.sid');
+          resolve({ message: 'Logout success' });
         }
-        res.clearCookie('connect.sid');
-        res.json({ message: 'Logout success' });
-        resolve(null);
       });
     });
   }
