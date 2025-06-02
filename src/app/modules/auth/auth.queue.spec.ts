@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Job } from 'bullmq';
-import { AuthConsumer } from '../../../app/modules/auth/auth.queue';
+import { AuthConsumer } from './auth.queue';
 
 describe('AuthConsumer', () => {
   let authConsumer: AuthConsumer;

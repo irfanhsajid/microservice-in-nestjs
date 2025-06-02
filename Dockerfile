@@ -33,19 +33,19 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
 # Copy project files and configuration
 COPY . .
 COPY ./.env.example .env
-COPY ./supervisor/* /opt/docker/etc/supervisor.d/
-COPY ./supervisor/* /etc/supervisor/conf.d/
+COPY dockerfile/supervisor/* /opt/docker/etc/supervisor.d/
+COPY dockerfile/supervisor/* /etc/supervisor/conf.d/
 RUN chmod +x /etc/supervisor/conf.d/*
 
 # Replace default nginx config
 RUN rm /etc/nginx/sites-enabled/default
-COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY dockerfile/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Set supervisor log directory
 RUN mkdir -p /var/log/supervisor/ && chmod 777 /var/log/supervisor/
 
 # Entrypoint
-COPY ./scripts/* /usr/local/bin/
+COPY dockerfile/scripts/* /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80
