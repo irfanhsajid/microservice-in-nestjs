@@ -11,12 +11,15 @@ import {
 import { SigninDto } from '../user/dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserResource } from '../user/resource/user.resource';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectQueue('auth')
     private authQueue: Queue,
+
+    private readonly configService: ConfigService,
 
     private readonly userService: UserService,
 
@@ -55,10 +58,36 @@ export class AuthService {
       email: user.email,
     });
 
+    const configService = this.configService;
+    const expiresIn = configService.get<string>('jwt.expireIn') || '20s';
+
+    // Calculate expiration time
+    const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);
+    const expiredAt = new Date(Date.now() + expiresInSeconds * 1000);
+
     return {
       access_token: token,
+      expired_at: expiredAt,
       user: new UserResource(user),
     };
+  }
+
+  private parseExpiresInToSeconds(expiresIn: string): number {
+    const timeUnits: { [key: string]: number } = {
+      s: 1,
+      m: 60,
+      h: 3600,
+      d: 86400,
+    };
+
+    const match = expiresIn.match(/^(\d+)([smhd])$/);
+    if (!match) {
+      throw new Error(`Invalid expiresIn format: ${expiresIn}`);
+    }
+
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+    return value * timeUnits[unit];
   }
 
   // GRPC test service
