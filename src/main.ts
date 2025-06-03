@@ -59,6 +59,7 @@ async function bootstrap() {
   );
 
   app.use('/docs', docsAuthMiddleware);
+  app.use('/host', docsAuthMiddleware);
 
   const config = new DocumentBuilder()
     .setTitle(`${configService.get<string>('app.name')} API`)

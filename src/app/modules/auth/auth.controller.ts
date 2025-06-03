@@ -49,7 +49,7 @@ export class AuthController {
   @ApiBearerAuth('jwt')
   @Get('/test-grpc')
   testGrpc() {
-    return this.authService.getAuthorization({ email: 'test@hudai.com' });
+    return this.authService.getAuthorization({ accessToken: 'test@hudai.com' });
   }
 
   // Test routes

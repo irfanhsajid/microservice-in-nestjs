@@ -62,7 +62,7 @@ export class AuthService {
   }
 
   // GRPC test service
-  getAuthorization(dto: { email: string }) {
+  getAuthorization(dto: { accessToken: string }) {
     const authService =
       this.grpcClient.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
     return authService.requestAuthorization(dto);
