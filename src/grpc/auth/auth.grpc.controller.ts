@@ -21,7 +21,7 @@ export class AuthGrpcController implements AuthServiceController {
     | ResponseAuthorizationPayload {
     console.info('got grpc request', request);
     return {
-      accessToken: 'hudai',
+      status: true,
       errors: 'none',
     };
   }
