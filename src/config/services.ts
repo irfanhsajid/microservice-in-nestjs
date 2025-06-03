@@ -39,7 +39,7 @@ export default () =>
         port: process.env.GRPC_PORT || 5000,
       },
       jwt: {
-        expireIn: '120s',
+        expireIn: '20s',
       },
     },
   }) as Services;

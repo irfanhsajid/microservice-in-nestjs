@@ -43,7 +43,7 @@ import { JwtModule } from '@nestjs/jwt';
         return {
           secret: configService.get<string>('app.key'),
           signOptions: {
-            expiresIn: configService.get<string>('jwt.expireIn') || '60s',
+            expiresIn: configService.get<string>('jwt.expireIn') || '20s',
             algorithm: 'HS256',
           },
         };
