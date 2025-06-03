@@ -12,9 +12,9 @@ import { DataSource } from 'typeorm';
 import { AppModule } from './app/app.module';
 import { GlobalServerExceptionsFilter } from './app/common/exceptions/global-server-exception.filter';
 import { UserResponseFormatterInterceptor } from './app/common/interceptors/user-response-formatter.interceptor';
-import { Session } from './app/modules/docs/entities/session.entity';
 import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
 import { docsAuthMiddleware } from './utils/docs-auth.middleware';
+import { Session } from './app/modules/auth/entities/session.entity';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

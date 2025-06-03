@@ -19,8 +19,8 @@ import { PaymentModule } from './modules/payment/payment.module';
 import { AppThrottlerModule } from './modules/throttler/throttler.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
-import { DocsModule } from './modules/docs/docs.module';
 import { ApiGuard } from './modules/auth/api.guard';
+import session from '../config/session';
 
 @Module({
   imports: [
@@ -42,7 +42,7 @@ import { ApiGuard } from './modules/auth/api.guard';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [database, app, services, mail, filesystems],
+      load: [database, app, services, mail, filesystems, session],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: driver,
@@ -89,7 +89,6 @@ import { ApiGuard } from './modules/auth/api.guard';
     GrpcModule,
     LoggerModule,
     UploadsModule,
-    DocsModule,
   ],
   controllers: [AppController],
   providers: [ApiGuard],
