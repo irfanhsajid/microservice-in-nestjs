@@ -84,7 +84,7 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('app.key'),
       });
-
+      console.log('token payload', payload);
       // Validate payload structure
       if (!payload.sub || !payload.email) {
         return false;
@@ -93,7 +93,7 @@ export class AuthService {
       return true;
     } catch (error) {
       // Handle specific JWT errors
-      console.info(error);
+      console.info('error from token verification', error);
       return false;
     }
   }

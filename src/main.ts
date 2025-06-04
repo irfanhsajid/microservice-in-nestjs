@@ -18,6 +18,11 @@ import { Session } from './app/modules/auth/entities/session.entity';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.enableCors({
+    origin: ['http://10.0.0.56:3000', 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  });
   const configService = app.get(ConfigService);
 
   // grpc server

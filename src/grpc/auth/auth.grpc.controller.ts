@@ -23,9 +23,23 @@ export class AuthGrpcController implements AuthServiceController {
     | Observable<ResponseAuthorizationPayload>
     | ResponseAuthorizationPayload {
     console.info('got grpc request', request);
-    return {
-      status: true,
-      errors: 'none',
-    };
+
+    return this.authService
+      .validateJwtToken(request.accessToken)
+      .then((r) => {
+        console.info('response verification', r);
+
+        return {
+          status: r,
+          errors: '',
+        };
+      })
+      .catch((e) => {
+        console.info('error ver', e);
+        return {
+          status: false,
+          errors: '',
+        };
+      });
   }
 }
