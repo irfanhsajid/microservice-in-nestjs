@@ -16,8 +16,10 @@ export class ApiGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    console.info('connection got here');
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    console.info('token user', token);
     if (!token) {
       throw new UnauthorizedException();
     }

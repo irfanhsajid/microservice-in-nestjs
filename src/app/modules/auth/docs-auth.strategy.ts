@@ -10,6 +10,7 @@ export class DocsLocalAuthStrategyService extends PassportStrategy(Strategy) {
   }
 
   async validate(email: string, password: string): Promise<any> {
+    console.info('auth comes on session');
     const validateUser = await this.userService.validateUser({
       email: email,
       password,

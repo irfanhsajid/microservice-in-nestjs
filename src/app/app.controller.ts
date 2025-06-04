@@ -34,6 +34,6 @@ export class AppController {
         }
       }
     }
-    return undefined; // Return undefined if no valid IP is found
+    return undefined;
   }
 }
