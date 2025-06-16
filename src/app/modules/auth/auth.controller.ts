@@ -51,7 +51,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Reset user password' })
-  @Post('/reset-password')
+  @Post('/send-reset-link')
   async passwordReset(@Body() dto: ResetPasswordDto) {
     throw new HttpException(
       '@TODO implemente the logic',
@@ -60,7 +60,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Set new password' })
-  @Put('/set-new-password')
+  @Put('/reset-password')
   async setNewPassword(@Body() dto: SetNewPasswordDto) {
     throw new HttpException(
       '@TODO implemente the logic',
