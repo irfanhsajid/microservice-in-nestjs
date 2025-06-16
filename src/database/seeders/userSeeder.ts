@@ -10,14 +10,14 @@ const userSeeder = async (conn: DataSource) => {
       password: await hashPassword('12345'),
       email: 'carvu@gmail.com',
       id: 0,
-      first_name: '',
-      last_name: '',
-      view_accept_privacy: true,
+      name: 'carvu',
+      accept_privacy: true,
+      status: true,
     },
   ];
 
   await userRepo.save(data);
-  console.log('User seeded', conn);
+  console.log('User seeded');
 };
 
 const hashPassword = async (pass: string) => {

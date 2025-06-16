@@ -10,16 +10,19 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
+export enum UserType {
+  BUYER = 1,
+  SELLER = 2,
+  MODERATOR = 3,
+}
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ type: 'varchar', length: 50 })
-  first_name: string;
-
-  @Column({ type: 'varchar', length: 50 })
-  last_name: string;
+  name: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   avatar: string | null;
@@ -36,20 +39,14 @@ export class User {
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone_number: string | null;
 
-  @Column({ type: 'boolean', nullable: true, default: false })
+  @Column({ type: 'boolean', nullable: true, default: true })
   status: boolean;
 
-  @Column({ type: 'boolean', nullable: true, default: false })
-  have_dealership: boolean;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  website: string | null;
-
-  @Column({ type: 'varchar', nullable: true })
-  license_class: string | null;
-
   @Column({ type: 'boolean' })
-  view_accept_privacy: boolean;
+  accept_privacy: boolean;
+
+  @Column({ type: 'enum', enum: UserType, default: UserType.BUYER })
+  account_type: string;
 
   @CreateDateColumn()
   created_at: Date;
