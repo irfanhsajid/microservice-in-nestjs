@@ -6,17 +6,12 @@ import {
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
-  IsUrl,
 } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty()
   @IsString()
-  first_name: string;
-
-  @ApiProperty()
-  @IsString()
-  last_name: string;
+  name: string;
 
   @ApiProperty()
   @IsEmail()
@@ -36,20 +31,5 @@ export class CreateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsBoolean()
-  have_dealership: boolean;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsUrl()
-  website: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  license_class: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsBoolean()
-  car_view_accept_privacy: boolean;
+  accept_privacy: boolean;
 }
