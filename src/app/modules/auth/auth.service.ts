@@ -12,6 +12,7 @@ import { SigninDto } from '../user/dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserResource } from '../user/resource/user.resource';
 import { ConfigService } from '@nestjs/config';
+import { BlacklistTokenStorageProvider } from 'src/app/common/interfaces/blacklist-token-storeage-provider';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +28,9 @@ export class AuthService {
     private grpcClient: ClientGrpc,
 
     private jwtService: JwtService,
+
+    @Inject('BLACKLIST_TOKEN_STORAGE_PROVIDER')
+    private readonly blackListTokenStoreProvider: BlacklistTokenStorageProvider,
   ) {}
 
   async register(dto: CreateUserDto) {
@@ -59,7 +63,8 @@ export class AuthService {
     });
 
     const configService = this.configService;
-    const expiresIn = configService.get<string>('jwt.expireIn') || '20s';
+    const expiresIn =
+      configService.get<string>('session.token_lifetime') || '7d';
 
     // Calculate expiration time
     const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);
@@ -70,6 +75,27 @@ export class AuthService {
       expired_at: expiredAt,
       user: new UserResource(user),
     };
+  }
+
+  // New function to validate JWT token
+  async validateJwtToken(token: string): Promise<boolean> {
+    try {
+      // Verify the token using JwtService
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>('app.key'),
+      });
+      console.log('token payload', payload);
+      // Validate payload structure
+      if (!payload.sub || !payload.email) {
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      // Handle specific JWT errors
+      console.info('error from token verification', error);
+      return false;
+    }
   }
 
   private parseExpiresInToSeconds(expiresIn: string): number {
@@ -95,5 +121,33 @@ export class AuthService {
     const authService =
       this.grpcClient.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
     return authService.requestAuthorization(dto);
+  }
+
+  async revokeToken(token: string, userId: number) {
+    try {
+      // Verify token before revoking
+      const decoded = await this.jwtService.verifyAsync(token);
+      const user = await this.userService.getById(userId);
+      if (!user) {
+        throw new UnauthorizedException('Invalid user');
+      }
+      const alreadBlackListed =
+        await this.blackListTokenStoreProvider.isTokenBlacklisted(token);
+      if (alreadBlackListed) {
+        throw new UnauthorizedException('Invalid user');
+      }
+      await this.blackListTokenStoreProvider.storeToken(
+        token,
+        userId,
+        new Date(decoded.exp * 1000),
+      );
+    } catch (error) {
+      console.info(error);
+      throw new UnauthorizedException('Invalid token or user');
+    }
+  }
+
+  async isTokenBlacklisted(token: string): Promise<boolean> {
+    return await this.blackListTokenStoreProvider.isTokenBlacklisted(token);
   }
 }

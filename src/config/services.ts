@@ -15,9 +15,6 @@ interface Services {
       host: string;
       port: number;
     };
-    jwt: {
-      expireIn: string;
-    };
   };
 }
 export default () =>
@@ -37,9 +34,6 @@ export default () =>
       grpc: {
         host: process.env.GRPC_HOST || '0.0.0.0',
         port: process.env.GRPC_PORT || 5000,
-      },
-      jwt: {
-        expireIn: '20s',
       },
     },
   }) as Services;
