@@ -13,6 +13,7 @@ const userSeeder = async (conn: DataSource) => {
       name: 'carvu',
       accept_privacy: true,
       status: true,
+      email_verified_at: new Date(),
     },
   ];
 
