@@ -64,7 +64,7 @@ export class AuthService {
 
     const configService = this.configService;
     const expiresIn =
-      configService.get<string>('services.jwt.expireIn') || '7d';
+      configService.get<string>('session.token_lifetime') || '7d';
 
     // Calculate expiration time
     const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);

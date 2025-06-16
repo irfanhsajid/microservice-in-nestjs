@@ -44,7 +44,7 @@ export class AuthController {
 
   @UseGuards(ApiGuard)
   @ApiOperation({ summary: 'Revoke the current JWT token' })
-  @ApiBearerAuth('JWT')
+  @ApiBearerAuth('jwt')
   @Post('/logout')
   async revokeToken(@Request() req: any) {
     try {

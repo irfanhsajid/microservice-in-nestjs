@@ -38,7 +38,7 @@ export class AuthGrpcController implements AuthServiceController {
         console.info('error ver', e);
         return {
           status: false,
-          errors: '',
+          errors: e,
         };
       });
   }
