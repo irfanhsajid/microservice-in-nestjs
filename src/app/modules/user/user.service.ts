@@ -63,8 +63,14 @@ export class UserService {
       }
       return user;
     } catch (error) {
-      console.info('user getting error', error);
-      return null;
+      this.logger.error(error);
+      if (!(error instanceof HttpException)) {
+        throw new HttpException(
+          'Failed to create user',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw error;
     }
   }
 
@@ -82,7 +88,14 @@ export class UserService {
       this.logger.error(
         `Failed to update email_verified_at for ${email}: ${error}`,
       );
-      return null;
+      this.logger.error(error);
+      if (!(error instanceof HttpException)) {
+        throw new HttpException(
+          'Failed to create user',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw error;
     }
   }
 
