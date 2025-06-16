@@ -15,6 +15,8 @@ export class RedisBlacklistTokenStorageProvider
     expiresAt: Date,
   ): Promise<void> {
     const ttl = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+    console.log('actual expired time', expiresAt);
+    console.log('generated one', ttl);
     await this.redis.set(`token:${userId}:${token}`, 'blacklisted', 'EX', ttl);
   }
 
