@@ -1,4 +1,7 @@
-import { User } from '../../app/modules/user/entities/user.entity';
+import {
+  User,
+  UserAccountType,
+} from '../../app/modules/user/entities/user.entity';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
@@ -14,6 +17,7 @@ const userSeeder = async (conn: DataSource) => {
       accept_privacy: true,
       status: true,
       email_verified_at: new Date(),
+      account_type: UserAccountType.MODERATOR,
     },
   ];
 

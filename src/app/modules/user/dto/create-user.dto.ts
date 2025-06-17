@@ -2,11 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEmail,
+  IsEnum,
   IsOptional,
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
+
+import { UserAccountType } from '../entities/user.entity';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -32,4 +35,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsBoolean()
   accept_privacy: boolean;
+
+  @ApiProperty({ enum: UserAccountType })
+  @IsEnum(UserAccountType)
+  account_type: UserAccountType;
 }

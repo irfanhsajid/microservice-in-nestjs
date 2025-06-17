@@ -13,10 +13,11 @@ import * as bcrypt from 'bcrypt';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { Attachment } from '../../attachment/entities/attachment.entity';
 
-export enum AccountType {
-  BUYER = '1',
-  SELLER = '2',
-  MODERATOR = '3',
+export enum UserAccountType {
+  BUYER = 'BUYER',
+  DEALER = 'DEALER',
+  MODERATOR = 'MODERATOR',
+  OTHER = 'OTHER',
 }
 
 @Entity('users')
@@ -48,7 +49,11 @@ export class User {
   @Column({ type: 'boolean' })
   accept_privacy: boolean;
 
-  @Column({ type: 'enum', enum: AccountType, default: AccountType.BUYER })
+  @Column({
+    type: 'enum',
+    enum: UserAccountType,
+    default: UserAccountType.BUYER,
+  })
   account_type: string;
 
   @CreateDateColumn()
