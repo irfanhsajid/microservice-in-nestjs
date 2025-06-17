@@ -24,7 +24,7 @@ export class EnsureEmailVerifiedGuard implements CanActivate {
     }
 
     try {
-      const isEmailVerified = await this.userService.CheckEmailVerifyedat(
+      const isEmailVerified = await this.userService.CheckEmailVerified(
         user.email,
       );
 
