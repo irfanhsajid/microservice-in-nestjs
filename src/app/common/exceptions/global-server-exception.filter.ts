@@ -3,12 +3,12 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { CustomLogger } from '../../modules/logger/logger.service';
 
 export class GlobalServerExceptionsFilter implements ExceptionFilter {
-  private readonly logger = new Logger(GlobalServerExceptionsFilter.name);
+  private readonly logger = new CustomLogger(GlobalServerExceptionsFilter.name);
 
   constructor(private httpAdapterHost: HttpAdapterHost) {}
 

@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { globSync } from 'glob';
 import { CARVU_PACKAGE_NAME } from 'src/grpc/types/auth/auth.pb';
-import { MailModule } from '../mail/mail.module';
 import { AuthConsumer } from './jobs/auth.queue';
 import { Module } from '@nestjs/common';
 import { UserModule } from '../user/user.module';
@@ -24,6 +23,7 @@ import { BlacklistTokenStore } from './entities/blacklist-token-store.entity';
 import { RegisteredController } from './controllers/auth.registered.controller';
 import { VerifyEmailController } from './controllers/auth.verifyemail.controller';
 import { PasswordResetLinkController } from './controllers/auth.passwordresetlink.controller';
+import { AuthMailService } from './mail/auth.service';
 
 @Module({
   imports: [
@@ -52,7 +52,6 @@ import { PasswordResetLinkController } from './controllers/auth.passwordresetlin
     BullModule.registerQueue({
       name: 'auth',
     }),
-    MailModule,
     JwtModule.registerAsync({
       global: true,
       inject: [ConfigService],
@@ -85,6 +84,7 @@ import { PasswordResetLinkController } from './controllers/auth.passwordresetlin
   providers: [
     AuthService,
     AuthConsumer,
+    AuthMailService,
     DocsLocalAuthStrategyService,
     JwtAuthStrategyService,
     TypeOrmBlacklistTokenStorageProvider,

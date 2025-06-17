@@ -2,17 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
-export class MailService {
-  constructor(private readonly mailerService: MailerService) {}
-
-  async sendWelcomeEmail(to: string, name: string) {
-    return await this.mailerService.sendMail({
-      to,
-      subject: 'Welcome!',
-      template: 'welcome',
-      context: { name },
-    });
-  }
+export class AuthMailService {
+  constructor(protected readonly mailerService: MailerService) {}
 
   async sendVerificationEmail(to: string, name: string, url: string) {
     return await this.mailerService.sendMail({
@@ -26,11 +17,23 @@ export class MailService {
     });
   }
 
-  async sendVerifycationSuccessEmail(to: string, name: string, url: string) {
+  async sendVerificationSuccessEmail(to: string, name: string, url: string) {
     return await this.mailerService.sendMail({
       to,
       subject: 'Email verification success',
       template: 'verify-email-success',
+      context: {
+        name,
+        url,
+      },
+    });
+  }
+
+  async sendResetLink(to: string, name: string, url: string) {
+    return await this.mailerService.sendMail({
+      to,
+      subject: 'Password Reset Link',
+      template: 'password-reset-link',
       context: {
         name,
         url,

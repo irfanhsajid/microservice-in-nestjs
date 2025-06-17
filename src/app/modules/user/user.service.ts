@@ -91,7 +91,30 @@ export class UserService {
       this.logger.error(error);
       if (!(error instanceof HttpException)) {
         throw new HttpException(
-          'Failed to create user',
+          'Failed to update user',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw error;
+    }
+  }
+
+  async updatePassword(email: string, password: string): Promise<User | null> {
+    try {
+      const user = await this.userRepository.findOne({ where: { email } });
+      if (!user) {
+        return null;
+      }
+
+      user.password = password;
+      await this.userRepository.save(user);
+      return user;
+    } catch (error) {
+      this.logger.error(`Failed to update password for ${email}: ${error}`);
+      this.logger.error(error);
+      if (!(error instanceof HttpException)) {
+        throw new HttpException(
+          'Failed to update user',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

@@ -1,6 +1,6 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { MailService } from '../../mail/mail.service';
+import { AuthMailService } from '../mail/auth.service';
 import { CustomLogger } from '../../logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 
@@ -9,7 +9,7 @@ export class AuthConsumer extends WorkerHost {
   private readonly logger = new CustomLogger(AuthConsumer.name);
 
   constructor(
-    private readonly mailService: MailService,
+    private readonly mailService: AuthMailService,
     private readonly configService: ConfigService,
   ) {
     super();
@@ -42,6 +42,27 @@ export class AuthConsumer extends WorkerHost {
         return;
       }
 
+      case 'send-reset-link': {
+        const email = job.data?.email;
+        const token = job.data?.token;
+        if (!email || !token) {
+          this.logger.error(
+            'Error sending verification email: email or token is missing',
+          );
+          return;
+        }
+        const url =
+          this.configService.get<string>('app.web_url') +
+          '/password-reset?token=' +
+          job.data.token +
+          '&email=' +
+          email;
+
+        await this.mailService.sendResetLink(email, job.data?.name || '', url);
+        this.logger.log('Success: Email verification send to: ' + email);
+        return;
+      }
+
       case 'send-verification-success': {
         const email = job.data?.email;
         const token = job.data?.token;
@@ -55,7 +76,7 @@ export class AuthConsumer extends WorkerHost {
           this.configService.get<string>('app.web_url') +
           '/verify-email-success';
 
-        await this.mailService.sendVerifycationSuccessEmail(
+        await this.mailService.sendVerificationSuccessEmail(
           email,
           job.data?.name || '',
           url,
