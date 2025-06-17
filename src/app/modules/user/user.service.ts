@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -37,13 +32,7 @@ export class UserService {
       return await this.userRepository.save(user);
     } catch (error) {
       this.logger.error(error);
-      if (!(error instanceof HttpException)) {
-        throw new HttpException(
-          'Failed to create user',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      throw error;
+      return throwCatchError(error);
     }
   }
 

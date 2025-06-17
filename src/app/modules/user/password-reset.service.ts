@@ -1,15 +1,11 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { CustomLogger } from '../logger/logger.service';
 import { PasswordReset } from './entities/password-reset.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { randomBytes } from 'crypto';
 import { ConfigService } from '@nestjs/config';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
 
 @Injectable()
 export class PasswordResetService {
@@ -33,13 +29,7 @@ export class PasswordResetService {
       return passwordResetToken;
     } catch (error) {
       this.logger.error(error);
-      if (!(error instanceof HttpException)) {
-        throw new HttpException(
-          'Failed to create user',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      throw error;
+      return throwCatchError(error);
     }
   }
 
@@ -61,13 +51,7 @@ export class PasswordResetService {
       return await this.passwordResetRepository.save(newToken);
     } catch (error) {
       this.logger.error(error);
-      if (!(error instanceof HttpException)) {
-        throw new HttpException(
-          'Failed to create user',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      throw error;
+      return throwCatchError(error);
     }
   }
 
@@ -84,19 +68,13 @@ export class PasswordResetService {
       const now = new Date();
       if (record.expires_at < now) {
         await this.passwordResetRepository.delete({ id: record.id });
-        throw new HttpException('Invalid token', 498);
+        throw new HttpException({ message: 'Invalid token' }, 498);
       }
 
       return record;
     } catch (error) {
       this.logger.error(error);
-      if (!(error instanceof HttpException)) {
-        throw new HttpException(
-          'Failed to create user',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      throw error;
+      return throwCatchError(error);
     }
   }
 }
