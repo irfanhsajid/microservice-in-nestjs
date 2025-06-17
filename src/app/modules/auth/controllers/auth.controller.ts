@@ -21,15 +21,15 @@ export class AuthenticatedController {
 
   @ApiOperation({ summary: 'Login user' })
   @Post('/login')
-  async tokenBasedLogin(@Body() dto: SigninDto) {
-    return await this.authService.signin(dto);
+  async login(@Body() dto: SigninDto) {
+    return await this.authService.login(dto);
   }
 
   @UseGuards(ApiGuard)
   @ApiOperation({ summary: 'Revoke the current JWT token' })
   @ApiBearerAuth('jwt')
   @Post('/logout')
-  async revokeToken(@Request() req: any) {
+  async logout(@Request() req: any) {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
       const userId = req.user.sub;
