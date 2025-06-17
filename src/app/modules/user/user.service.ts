@@ -85,7 +85,22 @@ export class UserService {
       this.logger.error(
         `Failed to update email_verified_at for ${email}: ${error}`,
       );
-      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  async updatePassword(email: string, password: string): Promise<User | null> {
+    try {
+      const user = await this.userRepository.findOne({ where: { email } });
+      if (!user) {
+        return null;
+      }
+
+      user.password = password;
+      await this.userRepository.save(user);
+      return user;
+    } catch (error) {
+      this.logger.error(`Failed to update password for ${email}: ${error}`);
       return throwCatchError(error);
     }
   }

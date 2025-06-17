@@ -14,7 +14,6 @@ import { driver } from '../database/driver';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerModule } from './modules/logger/logger.module';
-import { MailModule } from './modules/mail/mail.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { AppThrottlerModule } from './modules/throttler/throttler.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
@@ -85,7 +84,6 @@ import { EnsureEmailVerifiedGuard } from './modules/auth/ensure-email-verified.g
     }),
     AuthModule,
     PaymentModule,
-    MailModule,
     UserModule,
     GrpcModule,
     LoggerModule,

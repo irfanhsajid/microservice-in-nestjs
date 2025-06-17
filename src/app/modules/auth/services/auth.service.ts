@@ -13,6 +13,8 @@ import { User } from '../../user/entities/user.entity';
 import { ResendVerifyEmailDto } from '../dto/resend-verify-email.dto';
 import { AuthInterface } from './auth.base.interface';
 import { Service } from './service';
+import { ResetPasswordDto } from '../dto/password-reset.dto';
+import { NewPasswordDto } from '../dto/new-password.dto';
 
 @Injectable()
 export class AuthService extends Service implements AuthInterface {
@@ -31,6 +33,8 @@ export class AuthService extends Service implements AuthInterface {
         ...token,
         user: new UserResource(user),
       };
+      await this.sendLinkToEmail(user, 'send-verification-email');
+      return new UserResource(user);
     } catch (error) {
       return error;
     }
@@ -141,12 +145,56 @@ export class AuthService extends Service implements AuthInterface {
       if (!user) {
         throw new NotFoundException('User not found');
       }
-      await this.sendVerificationEmail(user);
+      await this.sendLinkToEmail(user, 'send-verification-email');
       return {
         message: 'Verification email send to: ' + dto.email,
       };
     } catch (error) {
       return error;
     }
+  }
+
+  async sendResetLink(dto: ResetPasswordDto) {
+    try {
+      // 1. Find user by email
+      const user = await this.userService.getUserByEmail(dto.email);
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      await this.sendLinkToEmail(user, 'send-reset-link');
+      return {
+        message: 'Password reset link send to: ' + dto.email,
+      };
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async resetPassword(dto: NewPasswordDto) {
+    try {
+      await this.userService.updatePassword(dto.email, dto.password);
+      return {
+        message: 'User Password reset successfully!',
+      };
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async sendLinkToEmail(user: User, queue: string): Promise<void> {
+    // 1. Generate email verification token
+    const newVerifyEmailToken = await this.passwordResetService.create(
+      user.email,
+    );
+
+    if (!newVerifyEmailToken) {
+      this.logger.error('Error generating token');
+    }
+    // 2. Send email otp by as email or sms
+    await this.authQueue.add(queue, {
+      name: user.name,
+      email: user.email,
+      token: newVerifyEmailToken?.token,
+    });
   }
 }
