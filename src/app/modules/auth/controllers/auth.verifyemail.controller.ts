@@ -1,6 +1,6 @@
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Post } from '@nestjs/common';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { ResendVerifyEmailDto } from '../dto/resend-verify-email.dto';
 

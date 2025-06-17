@@ -4,8 +4,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { CreateUserDto } from '../user/dto/create-user.dto';
+import { UserService } from '../../user/user.service';
+import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -13,16 +13,16 @@ import {
   AUTH_SERVICE_NAME,
   AuthServiceClient,
 } from 'src/grpc/types/auth/auth.pb';
-import { SigninDto } from '../user/dto/signin.dto';
+import { SigninDto } from '../../user/dto/signin.dto';
 import { JwtService } from '@nestjs/jwt';
-import { UserResource } from '../user/resource/user.resource';
+import { UserResource } from '../../user/resource/user.resource';
 import { ConfigService } from '@nestjs/config';
 import { BlacklistTokenStorageProvider } from 'src/app/common/interfaces/blacklist-token-storeage-provider';
-import { PasswordResetService } from '../user/password-reset.service';
-import { CustomLogger } from '../logger/logger.service';
-import { VerifyEmailDto } from './dto/verify-email.dto';
-import { User } from '../user/entities/user.entity';
-import { ResendVerifyEmailDto } from './dto/resend-verify-email.dto';
+import { PasswordResetService } from '../../user/password-reset.service';
+import { CustomLogger } from '../../logger/logger.service';
+import { VerifyEmailDto } from '../dto/verify-email.dto';
+import { User } from '../../user/entities/user.entity';
+import { ResendVerifyEmailDto } from '../dto/resend-verify-email.dto';
 
 @Injectable()
 export class AuthService {

@@ -8,7 +8,7 @@ import {
   ResponseAuthorizationPayload,
 } from '../types/auth/auth.pb';
 import { SkipThrottle } from '@nestjs/throttler';
-import { AuthService } from 'src/app/modules/auth/auth.service';
+import { AuthService } from 'src/app/modules/auth/services/auth.service';
 
 @SkipThrottle()
 @Controller('authGrpc')

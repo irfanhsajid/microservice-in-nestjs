@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan } from 'typeorm';
-import { UserService } from '../user/user.service';
+import { UserService } from '../../user/user.service';
 import { BlacklistTokenStorageProvider } from 'src/app/common/interfaces/blacklist-token-storeage-provider';
-import { BlacklistTokenStore } from './entities/blacklist-token-store.entity';
+import { BlacklistTokenStore } from '../entities/blacklist-token-store.entity';
 
 @Injectable()
 export class TypeOrmBlacklistTokenStorageProvider

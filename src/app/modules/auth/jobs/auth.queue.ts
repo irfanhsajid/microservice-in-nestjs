@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { MailService } from '../mail/mail.service';
-import { CustomLogger } from '../logger/logger.service';
+import { MailService } from '../../mail/mail.service';
+import { CustomLogger } from '../../logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 
 @Processor('auth')
