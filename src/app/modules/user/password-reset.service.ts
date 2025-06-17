@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../logger/logger.service';
 import { PasswordReset } from './entities/password-reset.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { randomBytes } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
@@ -10,7 +10,7 @@ import { throwCatchError } from 'src/app/common/utils/throw-error';
 @Injectable()
 export class PasswordResetService {
   private readonly logger = new CustomLogger(PasswordResetService.name);
-  private tokenLifeTime = 0.5; // in munites
+  private tokenLifeTime = 5; // in munites
 
   constructor(
     @InjectRepository(PasswordReset)
@@ -58,7 +58,7 @@ export class PasswordResetService {
   async verify(email: string, token: string): Promise<PasswordReset> {
     try {
       const record = await this.passwordResetRepository.findOne({
-        where: { email: String(email).trim(), token: String(token).trim() },
+        where: { email, token, expires_at: MoreThan(new Date()) },
       });
 
       if (!record) {
@@ -68,14 +68,6 @@ export class PasswordResetService {
         );
       }
 
-      const now = new Date();
-      if (record.expires_at < now) {
-        await this.passwordResetRepository.delete({ id: record.id });
-        throw new HttpException(
-          { message: 'Invalid token or expired token' },
-          498,
-        );
-      }
       // Remove any existing token for the email
       await this.passwordResetRepository.delete({ email });
 
