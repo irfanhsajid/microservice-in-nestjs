@@ -44,8 +44,7 @@ export class AuthConsumer extends WorkerHost {
 
       case 'send-verification-success': {
         const email = job.data?.email;
-        const token = job.data?.token;
-        if (!email || !token) {
+        if (!email) {
           this.logger.error(
             'Error sending verification success email: email or token is missing',
           );

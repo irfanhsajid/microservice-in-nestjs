@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
 
 @Injectable()
 export class UserService {
@@ -55,22 +56,29 @@ export class UserService {
       if (!(await user.comparePassword(dto.password))) {
         return null;
       }
-      if (!user.email_verified_at) {
-        return null;
-      }
       if (!user.status) {
         return null;
       }
       return user;
     } catch (error) {
       this.logger.error(error);
-      if (!(error instanceof HttpException)) {
-        throw new HttpException(
-          'Failed to create user',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+      return throwCatchError(error);
+    }
+  }
+
+  async CheckEmailVerifyedat(email: string): Promise<boolean> {
+    try {
+      const user = await this.getUserByEmail(email);
+      if (!user) {
+        return false;
       }
-      throw error;
+      if (!user.email_verified_at) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
     }
   }
 
@@ -89,13 +97,7 @@ export class UserService {
         `Failed to update email_verified_at for ${email}: ${error}`,
       );
       this.logger.error(error);
-      if (!(error instanceof HttpException)) {
-        throw new HttpException(
-          'Failed to create user',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      throw error;
+      return throwCatchError(error);
     }
   }
 

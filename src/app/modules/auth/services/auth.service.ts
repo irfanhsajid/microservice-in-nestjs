@@ -1,4 +1,6 @@
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -21,7 +23,14 @@ export class AuthService extends Service implements AuthInterface {
 
       // 2. Send verification email
       await this.sendVerificationEmail(user);
-      return new UserResource(user);
+
+      // Generate token
+      const token = await this.createJwtToken(user);
+
+      return {
+        ...token,
+        user: new UserResource(user),
+      };
     } catch (error) {
       return error;
     }
@@ -32,25 +41,42 @@ export class AuthService extends Service implements AuthInterface {
     if (!user) {
       throw new UnauthorizedException('Invalid user credentials');
     }
-    // generate jwt token
-    const token = await this.jwtService.signAsync({
-      sub: user?.id,
-      email: user.email,
-    });
 
-    const configService = this.configService;
-    const expiresIn =
-      configService.get<string>('session.token_lifetime') || '7d';
-
-    // Calculate expiration time
-    const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);
-    const expiredAt = new Date(Date.now() + expiresInSeconds * 1000);
+    // Generate jwt token
+    const token = await this.createJwtToken(user);
 
     return {
-      access_token: token,
-      expired_at: expiredAt,
+      ...token,
       user: new UserResource(user),
     };
+  }
+
+  // create jwt token
+  async createJwtToken(
+    user: User,
+  ): Promise<{ access_token: string; expired_at: Date }> {
+    try {
+      const token = await this.jwtService.signAsync({
+        sub: user.id,
+        email: user.email,
+      });
+      const expiresIn =
+        this.configService.get<string>('session.token_lifetime') || '7d';
+      // Calculate expiration time
+      const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);
+      const expiredAt = new Date(Date.now() + expiresInSeconds * 1000);
+
+      return {
+        access_token: token,
+        expired_at: expiredAt,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async sendVerificationEmail(user: User): Promise<void> {

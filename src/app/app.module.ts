@@ -21,6 +21,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
 import { ApiGuard } from './modules/auth/api.guard';
 import session from '../config/session';
+import { EnsureEmailVerifiedGuard } from './modules/auth/ensure-email-verified.guard';
 
 @Module({
   imports: [
@@ -91,6 +92,6 @@ import session from '../config/session';
     UploadsModule,
   ],
   controllers: [AppController],
-  providers: [ApiGuard],
+  providers: [ApiGuard, EnsureEmailVerifiedGuard],
 })
 export class AppModule {}
