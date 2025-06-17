@@ -5,15 +5,18 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
+import { Attachment } from '../../attachment/entities/attachment.entity';
 
-export enum UserType {
-  BUYER = 1,
-  SELLER = 2,
-  MODERATOR = 3,
+export enum AccountType {
+  BUYER = '1',
+  SELLER = '2',
+  MODERATOR = '3',
 }
 
 @Entity('users')
@@ -45,7 +48,7 @@ export class User {
   @Column({ type: 'boolean' })
   accept_privacy: boolean;
 
-  @Column({ type: 'enum', enum: UserType, default: UserType.BUYER })
+  @Column({ type: 'enum', enum: AccountType, default: AccountType.BUYER })
   account_type: string;
 
   @CreateDateColumn()
@@ -56,6 +59,12 @@ export class User {
 
   @DeleteDateColumn()
   deleted_at: Date | null;
+
+  @OneToMany(() => UserDealership, (userDealership) => userDealership.user)
+  user_dealerships: UserDealership[];
+
+  @OneToMany(() => Attachment, (attachment) => attachment.user)
+  attachments: Attachment[];
 
   @BeforeInsert()
   @BeforeUpdate()
