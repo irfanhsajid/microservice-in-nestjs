@@ -1,4 +1,5 @@
 import {
+  HttpException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -142,6 +143,15 @@ export class AuthService extends Service implements AuthInterface {
 
   async resetPassword(dto: NewPasswordDto) {
     try {
+      // verify token
+      const passwordReset = await this.passwordResetService.verify(
+        dto.email,
+        dto.token,
+      );
+      if (!passwordReset) {
+        throw new HttpException({ message: 'Invalid token!' }, 498);
+      }
+
       await this.userService.updatePassword(dto.email, dto.password);
       return {
         message: 'User Password reset successfully!',
