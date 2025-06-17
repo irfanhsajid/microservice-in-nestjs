@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../logger/logger.service';
 import { PasswordReset } from './entities/password-reset.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,7 +10,7 @@ import { throwCatchError } from 'src/app/common/utils/throw-error';
 @Injectable()
 export class PasswordResetService {
   private readonly logger = new CustomLogger(PasswordResetService.name);
-  private tokenLifeTime = 5; // in munites
+  private tokenLifeTime = 0.5; // in munites
 
   constructor(
     @InjectRepository(PasswordReset)
@@ -58,18 +58,26 @@ export class PasswordResetService {
   async verify(email: string, token: string): Promise<PasswordReset> {
     try {
       const record = await this.passwordResetRepository.findOne({
-        where: { email, token },
+        where: { email: String(email).trim(), token: String(token).trim() },
       });
 
       if (!record) {
-        throw new NotFoundException('Invalid token');
+        throw new HttpException(
+          { message: 'Invalid token or expired token' },
+          498,
+        );
       }
 
       const now = new Date();
       if (record.expires_at < now) {
         await this.passwordResetRepository.delete({ id: record.id });
-        throw new HttpException({ message: 'Invalid token' }, 498);
+        throw new HttpException(
+          { message: 'Invalid token or expired token' },
+          498,
+        );
       }
+      // Remove any existing token for the email
+      await this.passwordResetRepository.delete({ email });
 
       return record;
     } catch (error) {
