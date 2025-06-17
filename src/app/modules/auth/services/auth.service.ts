@@ -1,6 +1,4 @@
 import {
-  HttpException,
-  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -15,6 +13,7 @@ import { AuthInterface } from './auth.base.interface';
 import { Service } from './service';
 import { ResetPasswordDto } from '../dto/password-reset.dto';
 import { NewPasswordDto } from '../dto/new-password.dto';
+import { throwCatchError } from '../../../common/utils/throw-error';
 
 @Injectable()
 export class AuthService extends Service implements AuthInterface {
@@ -29,14 +28,13 @@ export class AuthService extends Service implements AuthInterface {
       // Generate token
       const token = await this.createJwtToken(user);
 
+      await this.sendLinkToEmail(user, 'send-verification-email');
       return {
         ...token,
         user: new UserResource(user),
       };
-      await this.sendLinkToEmail(user, 'send-verification-email');
-      return new UserResource(user);
     } catch (error) {
-      return error;
+      return throwCatchError(error);
     }
   }
 
@@ -53,34 +51,6 @@ export class AuthService extends Service implements AuthInterface {
       ...token,
       user: new UserResource(user),
     };
-  }
-
-  // create jwt token
-  async createJwtToken(
-    user: User,
-  ): Promise<{ access_token: string; expired_at: Date }> {
-    try {
-      const token = await this.jwtService.signAsync({
-        sub: user.id,
-        email: user.email,
-      });
-      const expiresIn =
-        this.configService.get<string>('session.token_lifetime') || '7d';
-      // Calculate expiration time
-      const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);
-      const expiredAt = new Date(Date.now() + expiresInSeconds * 1000);
-
-      return {
-        access_token: token,
-        expired_at: expiredAt,
-      };
-    } catch (error) {
-      this.logger.error(error);
-      throw new HttpException(
-        'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
   }
 
   async sendVerificationEmail(user: User): Promise<void> {
@@ -134,7 +104,7 @@ export class AuthService extends Service implements AuthInterface {
         message: 'Your account activated successfully',
       };
     } catch (error) {
-      return error;
+      return throwCatchError(error);
     }
   }
 
@@ -150,7 +120,7 @@ export class AuthService extends Service implements AuthInterface {
         message: 'Verification email send to: ' + dto.email,
       };
     } catch (error) {
-      return error;
+      return throwCatchError(error);
     }
   }
 
@@ -166,7 +136,7 @@ export class AuthService extends Service implements AuthInterface {
         message: 'Password reset link send to: ' + dto.email,
       };
     } catch (error) {
-      return error;
+      return throwCatchError(error);
     }
   }
 
@@ -177,7 +147,7 @@ export class AuthService extends Service implements AuthInterface {
         message: 'User Password reset successfully!',
       };
     } catch (error) {
-      return error;
+      return throwCatchError(error);
     }
   }
 

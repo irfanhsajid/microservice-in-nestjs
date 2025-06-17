@@ -7,10 +7,10 @@ import { ResetPasswordDto } from '../dto/password-reset.dto';
 import { NewPasswordDto } from '../dto/new-password.dto';
 
 export interface AuthInterface {
-  register(dto: CreateUserDto): Promise<User>;
+  register(dto: CreateUserDto): Promise<any>;
   login(dto: SigninDto): Promise<any>;
   verifyEmail(dto: VerifyEmailDto): Promise<any>;
   resendVerificationEmail(dto: ResendVerifyEmailDto): Promise<any>;
-  sendResetLink(dto: ResetPasswordDto): Promise<void>;
+  sendResetLink(dto: ResetPasswordDto): Promise<any>;
   resetPassword(dto: NewPasswordDto): Promise<any>;
 }

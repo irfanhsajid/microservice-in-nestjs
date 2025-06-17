@@ -12,6 +12,8 @@ import { CustomLogger } from '../../logger/logger.service';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { PasswordResetService } from '../../user/password-reset.service';
+import { User } from '../../user/entities/user.entity';
+import { throwCatchError } from '../../../common/utils/throw-error';
 
 export class Service {
   protected readonly logger = new CustomLogger(Service.name);
@@ -110,5 +112,30 @@ export class Service {
   // Check is token is in blacklisted or not
   async isTokenBlacklisted(token: string): Promise<boolean> {
     return await this.blackListTokenStoreProvider.isTokenBlacklisted(token);
+  }
+
+  // create jwt token
+  protected async createJwtToken(
+    user: User,
+  ): Promise<{ access_token: string; expired_at: Date }> {
+    try {
+      const token = await this.jwtService.signAsync({
+        sub: user.id,
+        email: user.email,
+      });
+      const expiresIn =
+        this.configService.get<string>('session.token_lifetime') || '7d';
+      // Calculate expiration time
+      const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);
+      const expiredAt = new Date(Date.now() + expiresInSeconds * 1000);
+
+      return {
+        access_token: token,
+        expired_at: expiredAt,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
   }
 }

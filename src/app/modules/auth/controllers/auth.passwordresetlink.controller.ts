@@ -18,6 +18,6 @@ export class PasswordResetLinkController {
   @ApiOperation({ summary: 'Set new password' })
   @Put('/reset-password')
   async store(@Body() dto: NewPasswordDto) {
-    return this.authService.sendResetLink(dto);
+    return this.authService.resetPassword(dto);
   }
 }
