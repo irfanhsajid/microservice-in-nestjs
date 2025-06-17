@@ -23,9 +23,6 @@ export class AuthService extends Service implements AuthInterface {
       // 1. Create user
       const user = await this.userService.createUser(dto);
 
-      // 2. Send verification email
-      await this.sendVerificationEmail(user);
-
       // Generate token
       const token = await this.createJwtToken(user);
 
@@ -82,6 +79,7 @@ export class AuthService extends Service implements AuthInterface {
         dto.email,
         dto.token,
       );
+      this.logger.log(token);
       if (!token) {
         throw new Error('Token validation failed');
       }
