@@ -7,13 +7,13 @@ import { MailModule } from '../mail/mail.module';
 import { AuthConsumer } from './auth.queue';
 import { Module } from '@nestjs/common';
 import { UserModule } from '../user/user.module';
-import { AuthController } from './auth.controller';
+import { AuthenticatedController } from './controllers/auth.controller';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Session } from './entities/session.entity';
 import { PassportModule } from '@nestjs/passport';
-import { DocsController } from './docs-auth.controller';
+import { DocsController } from './controllers/docs-auth.controller';
 import { DocsLocalAuthStrategyService } from './docs-auth.strategy';
 import { JwtAuthStrategyService } from './jwt-auth.strategy';
 import { RedisModule } from '@nestjs-modules/ioredis';
@@ -21,6 +21,9 @@ import { BlacklistTokenStorageProvider } from 'src/app/common/interfaces/blackli
 import { TypeOrmBlacklistTokenStorageProvider } from './typeorm-blacklist-token-store.provider';
 import { RedisBlacklistTokenStorageProvider } from './redis-blacklist-token-store.provider';
 import { BlacklistTokenStore } from './entities/blacklist-token-store.entity';
+import { RegisteredController } from './controllers/auth.registered.controller';
+import { VerifyEmailController } from './controllers/auth.verifyemail.controller';
+import { PasswordResetLinkController } from './controllers/auth.passwordresetlink.controller';
 
 @Module({
   imports: [
@@ -72,7 +75,13 @@ import { BlacklistTokenStore } from './entities/blacklist-token-store.entity';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController, DocsController],
+  controllers: [
+    AuthenticatedController,
+    DocsController,
+    RegisteredController,
+    VerifyEmailController,
+    PasswordResetLinkController,
+  ],
   providers: [
     AuthService,
     AuthConsumer,

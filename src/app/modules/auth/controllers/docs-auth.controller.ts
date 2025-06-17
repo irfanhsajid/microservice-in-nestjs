@@ -6,10 +6,10 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { CustomLogger } from '../logger/logger.service';
+import { CustomLogger } from '../../logger/logger.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiExcludeController } from '@nestjs/swagger';
-import { UserResource } from '../user/resource/user.resource';
+import { UserResource } from '../../user/resource/user.resource';
 
 @ApiExcludeController()
 @Controller()
