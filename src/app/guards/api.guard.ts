@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from '../modules/user/user.service';
-import { UserResource } from '../modules/user/resource/user.resource';
 
 @Injectable()
 export class ApiGuard implements CanActivate {

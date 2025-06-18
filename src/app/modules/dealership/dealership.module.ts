@@ -8,6 +8,7 @@ import { DealershipPaymentInfoController } from './controllers/dealership.paymen
 import { DealershipPaymentInfoService } from './services/dealership.paymentinfo.service';
 import { DealershipInformationService } from './services/dealship.inforation.service';
 import { DealershipInformationController } from './controllers/dealership.information.controller';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { DealershipInformationController } from './controllers/dealership.inform
       DealershipPaymentInfo,
       UserDealership,
     ]),
+    UserModule,
   ],
   providers: [DealershipPaymentInfoService, DealershipInformationService],
   controllers: [
