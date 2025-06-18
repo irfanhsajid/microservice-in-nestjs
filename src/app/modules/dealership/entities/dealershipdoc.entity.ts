@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Dealership } from './dealerships.entity';
 
@@ -26,4 +27,7 @@ export class DealershipDoc {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @DeleteDateColumn()
+  deleted_at: Date;
 }

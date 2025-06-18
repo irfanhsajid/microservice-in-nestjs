@@ -23,7 +23,7 @@ export class Attachment {
   entity_type: string;
 
   @Column({ type: 'integer', nullable: true })
-  entity_id: number | null;
+  entity_id: number;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
@@ -47,5 +47,5 @@ export class Attachment {
   updated_at: Date;
 
   @DeleteDateColumn()
-  deleted_at: Date | null;
+  deleted_at: Date;
 }
