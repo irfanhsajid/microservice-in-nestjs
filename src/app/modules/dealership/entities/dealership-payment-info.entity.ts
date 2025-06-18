@@ -6,7 +6,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
-  OneToOne, DeleteDateColumn,
+  OneToOne,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Dealership } from './dealerships.entity';
 import { User } from '../../user/entities/user.entity';
@@ -15,6 +16,18 @@ import { User } from '../../user/entities/user.entity';
 export class DealershipPaymentInfo {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @OneToOne(() => Dealership, (dealership) => dealership.payment_infos, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'dealership_id' })
+  dealership: Dealership;
+
+  @ManyToOne(() => User, (user) => user.payment_infos, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column({ type: 'varchar', length: 100 })
   account_name: string;
@@ -42,12 +55,4 @@ export class DealershipPaymentInfo {
 
   @DeleteDateColumn()
   deleted_at: Date;
-
-  @OneToOne(() => Dealership, (dealership) => dealership.payment_infos)
-  @JoinColumn({ name: 'dealership_id' })
-  dealership: Dealership;
-
-  @ManyToOne(() => User, (user) => user.payment_infos)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
 }
