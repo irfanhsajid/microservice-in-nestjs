@@ -294,7 +294,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           }
         }
       }
-
+      console.info('new', dealership);
       return dealership;
     } catch (error) {
       this.logger.error(
