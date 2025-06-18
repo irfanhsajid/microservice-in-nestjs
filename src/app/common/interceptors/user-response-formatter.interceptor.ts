@@ -15,7 +15,7 @@ export class UserResponseFormatterInterceptor implements NestInterceptor {
     const request = httpContext.getRequest();
     const accept = request.headers['accept'];
 
-    // ignore fromatting the text/html data
+    // ignore formatting the text/html data
     if (accept && accept.includes('text/html')) {
       return next.handle();
     }
@@ -27,22 +27,22 @@ export class UserResponseFormatterInterceptor implements NestInterceptor {
         if (request.url.includes('/docs')) {
           return data;
         }
-
-        if (data.status >= 400 && data.status < 500) {
+        const status = data?.status ?? 500;
+        if (status >= 400 && status < 500) {
           return {
-            statusCode: data.status,
+            statusCode: status,
             errors: data.response,
             message: data?.message,
           };
-        } else if (data.status >= 100 && data.status < 400) {
+        } else if (status >= 100 && status < 400) {
           return {
-            statusCode: data.status || 200,
+            statusCode: status || 200,
             message: data?.message,
             data: data.response || null,
           };
-        } else if (data.status >= 500) {
+        } else if (status >= 500) {
           return {
-            statusCode: data.status || 500,
+            statusCode: status || 500,
             message: data?.message,
             errors: data?.response,
           };

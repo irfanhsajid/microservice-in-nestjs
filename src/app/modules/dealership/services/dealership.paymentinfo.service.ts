@@ -1,13 +1,46 @@
 import { Injectable } from '@nestjs/common';
 import { OnboardingInterface } from './interfaces/onboard.interface';
 import { DealershipPaymentInfo } from '../entities/dealership-payment-info.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserDealership } from '../entities/user-dealership.entity';
+import { Request } from 'express';
+import { User } from '../../user/entities/user.entity';
 
 @Injectable()
 export class DealershipPaymentInfoService
   implements OnboardingInterface<DealershipPaymentInfo>
 {
-  show(): Promise<DealershipPaymentInfo> {
-    throw new Error('Method not implemented.');
+  constructor(
+    @InjectRepository(UserDealership)
+    protected readonly userDealershipRepository: Repository<UserDealership>,
+
+    @InjectRepository(DealershipPaymentInfo)
+    protected readonly dealershipPaymentInfo: Repository<DealershipPaymentInfo>,
+  ) {}
+  async show(request: Request): Promise<DealershipPaymentInfo | null> {
+    const user = request.user as User;
+    const userDealership = await this.userDealershipRepository.findOne({
+      where: {
+        user: {
+          id: user?.id,
+        },
+        is_default: true,
+      },
+    });
+
+    console.log(user, userDealership);
+
+    return await this.dealershipPaymentInfo.findOne({
+      where: {
+        dealership: {
+          id: userDealership?.dealership.id,
+        },
+        user: {
+          id: user?.id,
+        },
+      },
+    });
   }
   updateOrCreate(): Promise<any> {
     throw new Error('Method not implemented.');

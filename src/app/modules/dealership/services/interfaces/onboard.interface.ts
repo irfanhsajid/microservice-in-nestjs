@@ -1,4 +1,6 @@
+import { Request } from 'express';
+
 export interface OnboardingInterface<T extends Record<string, any>> {
-  show(): Promise<T>;
+  show(request: Request): Promise<T | null>;
   updateOrCreate(dto: Record<string, any>): Promise<any>;
 }
