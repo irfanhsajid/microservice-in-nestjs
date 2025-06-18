@@ -42,7 +42,7 @@ export class DealershipPaymentInfoController {
   ): Promise<any> {
     try {
       await this.paymentInfoService.updateOrCreate(request, dto);
-      return responseReturn('Dealer payment info update successfully!');
+      return responseReturn('Dealer payment info save successfully!');
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
