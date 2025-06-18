@@ -33,7 +33,7 @@ export class DealershipPaymentInfoService
     return await this.dealershipPaymentInfo.findOne({
       where: {
         dealership: {
-          id: userDealership?.dealership.id,
+          id: userDealership?.dealership?.id,
         },
         user: {
           id: user?.id,
@@ -53,7 +53,10 @@ export class DealershipPaymentInfoService
         },
         is_default: true,
       },
+      relations: ['dealership'],
     });
+
+    console.log(userDealership);
 
     const exitingPaymentInfo = await this.dealershipPaymentInfo.findOne({
       where: {
@@ -61,7 +64,7 @@ export class DealershipPaymentInfoService
           id: user?.id,
         },
         dealership: {
-          id: userDealership?.dealership.id,
+          id: userDealership?.dealership?.id,
         },
       },
     });
@@ -77,6 +80,6 @@ export class DealershipPaymentInfoService
     }
     this.dealershipPaymentInfo.merge(exitingPaymentInfo, dto);
 
-    return this.dealershipPaymentInfo.save(exitingPaymentInfo);
+    return await this.dealershipPaymentInfo.save(exitingPaymentInfo);
   }
 }

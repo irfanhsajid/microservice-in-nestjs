@@ -36,13 +36,19 @@ export class DealershipPaymentInfoController {
 
   @ApiOperation({ summary: 'Dealership bank payment info update' })
   @Post('/payment-info')
-  async update(
+  async updateOrCreate(
     @Body() dto: DealershipPaymentInfoDto,
     @Request() request: any,
   ): Promise<any> {
     try {
-      await this.paymentInfoService.updateOrCreate(request, dto);
-      return responseReturn('Dealer payment info save successfully!');
+      const paymentInfo = await this.paymentInfoService.updateOrCreate(
+        request,
+        dto,
+      );
+      return responseReturn(
+        'Dealer payment info save successfully!',
+        paymentInfo,
+      );
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
