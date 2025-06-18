@@ -30,7 +30,13 @@ export class DealershipInformationController {
   @ApiOperation({ summary: 'Get dealership information' })
   @Get('/dealership')
   async show(@Request() req: any) {
-    return this.dealershipInformationService.show(req);
+    try {
+      const dealership = await this.dealershipInformationService.show(req);
+      return responseReturn('', dealership);
+    } catch (error) {
+      this.logger.error(error);
+      throwCatchError(error);
+    }
   }
 
   @ApiOperation({ summary: 'Store dealership information' })
