@@ -28,8 +28,8 @@ export class DealershipInformationController {
 
   @ApiOperation({ summary: 'Get dealership information' })
   @Get('/dealership-info')
-  async show() {
-    return this.dealershipInformationService.show();
+  async show(@Request() req: any) {
+    return this.dealershipInformationService.show(req);
   }
 
   @ApiOperation({ summary: 'Store dealership information' })

@@ -9,11 +9,13 @@ import { AddressService } from '../../address/address.service';
 import { UserDealership } from '../entities/user-dealership.entity';
 import { User } from '../../user/entities/user.entity';
 import { AddressType } from '../../address/entities/address.entity';
+import { OnboardingInterface } from './interfaces/onboard.interface';
+import { Request } from 'express';
 
 const ENTITY_TYPE = 'dealership';
 
 @Injectable()
-export class DealershipInformationService {
+export class DealershipInformationService implements OnboardingInterface<any> {
   private readonly logger = new CustomLogger(DealershipInformationService.name);
 
   constructor(
@@ -26,7 +28,8 @@ export class DealershipInformationService {
     private readonly userDealershipRepository: Repository<UserDealership>,
   ) {}
 
-  async show(): Promise<any> {
+  async show(req: Request): Promise<any> {
+    console.info(req);
     try {
       // Implement logic to show dealership information (e.g., fetch all or by some criteria)
       const dealerships = await this.dealershipRepository.find({

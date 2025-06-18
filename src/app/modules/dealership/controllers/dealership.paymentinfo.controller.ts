@@ -7,7 +7,6 @@ import {
   Body,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { DealershipPaymentInfo } from '../entities/dealership-payment-info.entity';
 import { DealershipPaymentInfoService } from '../services/dealership.paymentinfo.service';
 import { ApiGuard } from '../../../guards/api.guard';
 import { responseReturn } from '../../../common/utils/response-return';
