@@ -13,13 +13,13 @@ export class DealershipPaymentInfoController {
   );
 
   @ApiOperation({ summary: 'Dealership bank payment info' })
-  @Get('/login')
+  @Get('/payment-info')
   async show(): Promise<DealershipPaymentInfo> {
     return this.paymentInfoService.show();
   }
 
   @ApiOperation({ summary: 'Dealership bank payment info update' })
-  @Post('/login')
+  @Post('/payment-info')
   async update(): Promise<DealershipPaymentInfo> {
     return this.paymentInfoService.update();
   }
