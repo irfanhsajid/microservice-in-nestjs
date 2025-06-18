@@ -39,7 +39,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
       });
 
       if (!userDealership) {
-        throw new NotFoundException('No dealership found');
+        return {} as Dealership;
       }
 
       // Fetch the dealership with its addresses
@@ -48,17 +48,15 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           id: userDealership.dealership.id,
         },
       });
-      if (!dealerships) {
-        throw new NotFoundException('No dealership found');
+      let addresses: Address[] = [];
+      if (dealerships) {
+        addresses = await this.addressService.findByEntityId(dealerships?.id);
       }
-      const addresses = await this.addressService.findByEntityId(
-        dealerships?.id,
-      );
 
       return {
         ...dealerships,
-        addresses: addresses ?? [],
-      };
+        addresses: addresses,
+      } as Dealership;
     } catch (error) {
       this.logger.error(
         `Error showing dealerships: ${error.message}`,
