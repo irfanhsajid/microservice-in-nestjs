@@ -6,8 +6,8 @@ import {
   UnauthorizedException,
   ForbiddenException,
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { CustomLogger } from '../logger/logger.service';
+import { UserService } from '../modules/user/user.service';
+import { CustomLogger } from '../modules/logger/logger.service';
 
 @Injectable()
 export class EnsureEmailVerifiedGuard implements CanActivate {

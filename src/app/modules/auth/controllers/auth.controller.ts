@@ -11,7 +11,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CustomLogger } from '../../logger/logger.service';
 import { AuthService } from '../services/auth.service';
 import { SigninDto } from '../../user/dto/signin.dto';
-import { ApiGuard } from '../api.guard';
+import { ApiGuard } from '../../../guards/api.guard';
 
 @ApiTags('Auth')
 @Controller('api/v1')

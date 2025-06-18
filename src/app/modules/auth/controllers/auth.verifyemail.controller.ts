@@ -3,7 +3,7 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { ResendVerifyEmailDto } from '../dto/resend-verify-email.dto';
-import { ApiGuard } from '../api.guard';
+import { ApiGuard } from '../../../guards/api.guard';
 
 @ApiTags('Auth')
 @Controller('api/v1')
