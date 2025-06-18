@@ -1,4 +1,11 @@
-import { Controller, Post, Get, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  UseGuards,
+  Request,
+  Body,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DealershipPaymentInfo } from '../entities/dealership-payment-info.entity';
 import { DealershipPaymentInfoService } from '../services/dealership.paymentinfo.service';
@@ -6,6 +13,7 @@ import { ApiGuard } from '../../../guards/api.guard';
 import { responseReturn } from '../../../common/utils/response-return';
 import { throwCatchError } from '../../../common/utils/throw-error';
 import { CustomLogger } from '../../logger/logger.service';
+import { DealershipPaymentInfoDto } from '../dto/dealership-paymentinfo.dto';
 
 @ApiTags('Onboarding')
 @ApiBearerAuth('jwt')
@@ -29,7 +37,16 @@ export class DealershipPaymentInfoController {
 
   @ApiOperation({ summary: 'Dealership bank payment info update' })
   @Post('/payment-info')
-  async update(): Promise<DealershipPaymentInfo> {
-    return await this.paymentInfoService.updateOrCreate();
+  async update(
+    @Body() dto: DealershipPaymentInfoDto,
+    @Request() request: any,
+  ): Promise<any> {
+    try {
+      await this.paymentInfoService.updateOrCreate(request, dto);
+      return responseReturn('Dealer payment info update successfully!');
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
   }
 }
