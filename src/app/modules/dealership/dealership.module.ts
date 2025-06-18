@@ -6,8 +6,8 @@ import { DealershipPaymentInfo } from './entities/dealership-payment-info.entity
 import { UserDealership } from './entities/user-dealership.entity';
 import { DealershipPaymentInfoController } from './controllers/dealership.paymentinfo.controller';
 import { DealershipPaymentInfoService } from './services/dealership.paymentinfo.service';
-import { DealershipService } from './services/dealship.service';
-import { DealershipController } from './controllers/dealership.controller';
+import { DealershipInformationService } from './services/dealship.inforation.service';
+import { DealershipInformationController } from './controllers/dealership.information.controller';
 
 @Module({
   imports: [
@@ -18,8 +18,11 @@ import { DealershipController } from './controllers/dealership.controller';
       UserDealership,
     ]),
   ],
-  providers: [DealershipPaymentInfoService, DealershipService],
-  controllers: [DealershipPaymentInfoController, DealershipController],
+  providers: [DealershipPaymentInfoService, DealershipInformationService],
+  controllers: [
+    DealershipPaymentInfoController,
+    DealershipInformationController,
+  ],
   exports: [],
 })
 export class DealershipModule {}

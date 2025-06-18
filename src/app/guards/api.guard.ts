@@ -7,12 +7,15 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { UserService } from '../modules/user/user.service';
+import { UserResource } from '../modules/user/resource/user.resource';
 
 @Injectable()
 export class ApiGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly userService: UserService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -27,7 +30,13 @@ export class ApiGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('app.key'),
       });
-      request['user'] = payload;
+      const user = await this.userService.getUserByEmail(payload?.email);
+
+      if (!user) {
+        throw new UnauthorizedException();
+      }
+
+      request['user'] = user;
     } catch (error) {
       console.info(error);
       throw new UnauthorizedException();
