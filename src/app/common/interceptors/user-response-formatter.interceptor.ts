@@ -27,7 +27,7 @@ export class UserResponseFormatterInterceptor implements NestInterceptor {
         if (request.url.includes('/docs')) {
           return data;
         }
-        const status = data?.status ?? 500;
+        const status = data?.status;
         if (status >= 400 && status < 500) {
           return {
             statusCode: status,
