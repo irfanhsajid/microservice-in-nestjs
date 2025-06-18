@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Password visibility toggle
   const passwordToggle = document.querySelector('.password-toggle');
   const passwordInput = document.getElementById('password');
+  const errorMessageElement = document.getElementById('error-message');
 
   if (passwordToggle && passwordInput) {
     passwordToggle.addEventListener('click', () => {
@@ -25,6 +26,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Function to display error messages
+  const showErrorMessage = (message) => {
+    if (errorMessageElement) {
+      errorMessageElement.textContent = message;
+      errorMessageElement.style.display = 'block';
+      errorMessageElement.style.marginBottom = '8px';
+    }
+  };
+
+  // Function to clear error messages
+  const clearErrorMessage = () => {
+    if (errorMessageElement) {
+      errorMessageElement.textContent = '';
+      errorMessageElement.style.display = 'none';
+    }
+  };
+
   // Handle form submission
   const loginForm = document.querySelector('.login-form');
   if (loginForm) {
@@ -35,9 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const passwordInput = document.getElementById('password');
 
       if (!emailInput.value || !passwordInput.value) {
-        alert('Please fill in all required fields');
+        showErrorMessage('Please fill in all required fields');
         return;
       }
+
+      // Clear any previous error messages
+      clearErrorMessage();
 
       const loginButton = document.querySelector('.login-button');
       if (loginButton) {
@@ -69,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch((error) => {
           console.error('Login failed:', error);
-          alert(`Login failed: ${error.message}`);
+          showErrorMessage(`Login failed: ${error.message}`);
         })
         .finally(() => {
           if (loginButton) {
@@ -102,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch((error) => {
           console.error('Logout failed:', error);
-          alert(`Logout failed: ${error.message}`);
+          showErrorMessage(`Logout failed: ${error.message}`);
         });
     });
   }
