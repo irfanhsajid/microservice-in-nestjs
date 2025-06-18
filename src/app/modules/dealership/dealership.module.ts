@@ -9,6 +9,8 @@ import { DealershipPaymentInfoService } from './services/dealership.paymentinfo.
 import { DealershipInformationService } from './services/dealship.inforation.service';
 import { DealershipInformationController } from './controllers/dealership.information.controller';
 import { UserModule } from '../user/user.module';
+import { AddressModule } from '../address/address.module';
+import { AttachmentModule } from '../attachment/attachment.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { UserModule } from '../user/user.module';
       UserDealership,
     ]),
     UserModule,
+    AddressModule,
+    AttachmentModule,
   ],
   providers: [DealershipPaymentInfoService, DealershipInformationService],
   controllers: [

@@ -7,14 +7,13 @@ import {
   IsPhoneNumber,
   IsString,
   IsUrl,
-  Max,
   ValidateNested,
 } from 'class-validator';
 import { BusinessType, LicenseClass } from '../entities/dealerships.entity';
 import { AddressDto } from '../../address/dto/address.dto';
 import { Type } from 'class-transformer';
 
-export class DealershipDeatilsDto {
+export class DealershipDetailsDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
@@ -42,17 +41,17 @@ export class DealershipDeatilsDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @Max(100)
+  @IsString()
   business_number: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  @Max(100)
+  @IsString()
   omvic_number: string;
 
   @ApiProperty()
   @IsNotEmpty()
-  @Max(100)
+  @IsString()
   tax_identifier: string;
 
   @ApiProperty()
