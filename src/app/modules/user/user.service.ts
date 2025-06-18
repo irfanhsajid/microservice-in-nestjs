@@ -55,7 +55,7 @@ export class UserService {
     }
   }
 
-  async CheckEmailVerifyedat(email: string): Promise<boolean> {
+  async CheckEmailVerified(email: string): Promise<boolean> {
     try {
       const user = await this.getUserByEmail(email);
       if (!user) {
@@ -71,7 +71,7 @@ export class UserService {
     }
   }
 
-  async updateEmailVerifyedAt(email: string): Promise<User | null> {
+  async updateEmailVerifiedAt(email: string): Promise<User | null> {
     try {
       const user = await this.userRepository.findOne({ where: { email } });
       if (!user) {
