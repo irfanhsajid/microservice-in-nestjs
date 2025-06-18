@@ -1,10 +1,13 @@
-import { Controller, Post, Get } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Post, Get, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CustomLogger } from '../../logger/logger.service';
 import { DealershipPaymentInfo } from '../entities/dealership-payment-info.entity';
 import { DealershipPaymentInfoService } from '../services/dealership.paymentinfo.service';
+import { ApiGuard } from 'src/app/guards/api.guard';
 
 @ApiTags('Onboarding')
+@UseGuards(ApiGuard)
+@ApiBearerAuth('jwt')
 @Controller('api/v1')
 export class DealershipPaymentInfoController {
   constructor(protected paymentInfoService: DealershipPaymentInfoService) {}
