@@ -6,15 +6,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum EntityType {
-  PRIMARY = 'PRIMARY',
-  MAILLING = 'MAILLING',
-  SHIPPING = 'SHIPPING',
-}
-
 export enum AddressType {
   PRIMARY = 'PRIMARY',
-  SECONDARY = 'SECONDARY',
+  MAILING = 'MAILING',
+  SHIPPING = 'SHIPPING',
 }
 
 @Entity('addresses')

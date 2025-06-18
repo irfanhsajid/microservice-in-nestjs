@@ -5,13 +5,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany,
+  OneToMany, OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { Attachment } from '../../attachment/entities/attachment.entity';
+import { DealershipPaymentInfo } from '../../dealership/entities/dealership-payment-info.entity';
 
 export enum UserAccountType {
   BUYER = 'BUYER',
@@ -65,10 +66,19 @@ export class User {
   @DeleteDateColumn()
   deleted_at: Date | null;
 
-  @OneToMany(() => UserDealership, (userDealership) => userDealership.user)
+  @OneToMany(() => UserDealership, (userDealership) => userDealership.user, {
+    cascade: true,
+  })
   user_dealerships: UserDealership[];
 
-  @OneToMany(() => Attachment, (attachment) => attachment.user)
+  @OneToMany(() => DealershipPaymentInfo, (paymentInfo) => paymentInfo.user, {
+    cascade: true,
+  })
+  payment_infos: DealershipPaymentInfo[];
+
+  @OneToMany(() => Attachment, (attachment) => attachment.user, {
+    cascade: true,
+  })
   attachments: Attachment[];
 
   @BeforeInsert()

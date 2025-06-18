@@ -5,7 +5,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
+  DeleteDateColumn, OneToOne,
 } from 'typeorm';
 import { UserDealership } from './user-dealership.entity';
 import { DealershipPaymentInfo } from './dealership-payment-info.entity';
@@ -44,7 +44,7 @@ export class Dealership {
   business_type: BusinessType;
 
   @Column({ type: 'varchar', length: 50 })
-  license_number: string;
+  business_number: string;
 
   @Column({ type: 'varchar', length: 20 })
   omvic_number: string;
@@ -73,12 +73,18 @@ export class Dealership {
   @OneToMany(
     () => UserDealership,
     (userDealership) => userDealership.dealership,
+    {
+      cascade: true,
+    },
   )
   user_dealerships: UserDealership[];
 
-  @OneToMany(
+  @OneToOne(
     () => DealershipPaymentInfo,
     (paymentInfo) => paymentInfo.dealership,
+    {
+      cascade: true,
+    },
   )
   payment_infos: DealershipPaymentInfo[];
 

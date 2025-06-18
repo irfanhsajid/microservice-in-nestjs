@@ -35,5 +35,5 @@ export class UserDealership {
   updated_at: Date;
 
   @DeleteDateColumn()
-  deleted_at: Date | null;
+  deleted_at: Date;
 }
