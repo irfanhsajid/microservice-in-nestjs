@@ -130,23 +130,170 @@ export class DealershipInformationService implements OnboardingInterface<any> {
         }
       }
 
-      // // Handle shipping addresses
-      // if (dto.shipping_address && dto.shipping_address.length > 0) {
-      //   for (const address of dto.shipping_address) {
-      //     address.entity_type = ENTITY_TYPE;
-      //     address.entity_id = dealership.id;
-      //     await this.addressService.create(address);
-      //   }
-      // }
+      // Handle shipping addresses
+      if (dto.shipping_address && dto.shipping_address.length > 0) {
+        // find shipping addresses
+        const shippingAddresses = await this.addressService.findByEntityIdAndId(
+          dealership.id,
+          AddressType.SHIPPING,
+        );
+        if (shippingAddresses?.length > 0) {
+          const defferent =
+            shippingAddresses?.length - dto.shipping_address.length;
+          if (defferent > 0) {
+            // delete the find address by id and update remaining with new address list
+            // More existing addresses than new ones - delete the excess
+            const addressesToDelete = shippingAddresses.slice(
+              dto.shipping_address.length,
+            );
+            for (const address of addressesToDelete) {
+              await this.addressService.deleteById(address.id);
+              this.logger.log(
+                `Deleted excess shipping address with id: ${address.id}`,
+              );
+            }
 
-      // // Handle mailing addresses
-      // if (dto.mailing_address && dto.mailing_address.length > 0) {
-      //   for (const address of dto.mailing_address) {
-      //     address.entity_type = ENTITY_TYPE;
-      //     address.entity_id = dealership.id;
-      //     await this.addressService.create(address);
-      //   }
-      // }
+            // Update the remaining existing addresses with new data
+            for (let i = 0; i < dto.shipping_address.length; i++) {
+              dto.shipping_address[i].entity_type = ENTITY_TYPE;
+              dto.shipping_address[i].entity_id = dealership.id;
+              await this.addressService.update(
+                shippingAddresses[i].id,
+                dto.shipping_address[i],
+              );
+              this.logger.log(
+                `Updated shipping address with id: ${shippingAddresses[i].id}`,
+              );
+            }
+          } else if (defferent < 0) {
+            // Create there defferent number of address and replace remailing
+            for (let i = 0; i < shippingAddresses.length; i++) {
+              dto.shipping_address[i].entity_type = ENTITY_TYPE;
+              dto.shipping_address[i].entity_id = dealership.id;
+              await this.addressService.update(
+                shippingAddresses[i].id,
+                dto.shipping_address[i],
+              );
+              this.logger.log(
+                `Updated shipping address with id: ${shippingAddresses[i].id}`,
+              );
+            }
+            for (
+              let i = shippingAddresses.length;
+              i < dto.shipping_address.length;
+              i++
+            ) {
+              dto.shipping_address[i].entity_type = ENTITY_TYPE;
+              dto.shipping_address[i].entity_id = dealership.id;
+              await this.addressService.create(dto.shipping_address[i]);
+              this.logger.log(`Created new shipping address`);
+            }
+          } else {
+            // Equal number of addresses - update all
+            for (let i = 0; i < dto.shipping_address.length; i++) {
+              dto.shipping_address[i].entity_type = ENTITY_TYPE;
+              dto.shipping_address[i].entity_id = dealership.id;
+              await this.addressService.update(
+                shippingAddresses[i].id,
+                dto.shipping_address[i],
+              );
+              this.logger.log(
+                `Updated shipping address with id: ${shippingAddresses[i].id}`,
+              );
+            }
+          }
+        } else {
+          for (const address of dto.shipping_address) {
+            address.entity_type = ENTITY_TYPE;
+            address.entity_id = dealership.id;
+            await this.addressService.create(address);
+          }
+        }
+      }
+
+      // Handle mailing addresses
+      if (dto.mailing_address && dto.mailing_address.length > 0) {
+        // Find existing mailing addresses
+        const mailingAddresses = await this.addressService.findByEntityIdAndId(
+          dealership.id,
+          AddressType.MAILING,
+        );
+
+        if (mailingAddresses?.length > 0) {
+          const difference =
+            mailingAddresses.length - dto.mailing_address.length;
+
+          if (difference > 0) {
+            // More existing addresses than new ones - delete the excess
+            const addressesToDelete = mailingAddresses.slice(
+              dto.mailing_address.length,
+            );
+            for (const address of addressesToDelete) {
+              await this.addressService.deleteById(address.id);
+              this.logger.log(
+                `Deleted excess mailing address with id: ${address.id}`,
+              );
+            }
+
+            // Update the remaining existing addresses with new data
+            for (let i = 0; i < dto.mailing_address.length; i++) {
+              dto.mailing_address[i].entity_type = ENTITY_TYPE;
+              dto.mailing_address[i].entity_id = dealership.id;
+              await this.addressService.update(
+                mailingAddresses[i].id,
+                dto.mailing_address[i],
+              );
+              this.logger.log(
+                `Updated mailing address with id: ${mailingAddresses[i].id}`,
+              );
+            }
+          } else if (difference < 0) {
+            // More new addresses than existing ones - update existing and create the difference
+            for (let i = 0; i < mailingAddresses.length; i++) {
+              dto.mailing_address[i].entity_type = ENTITY_TYPE;
+              dto.mailing_address[i].entity_id = dealership.id;
+              await this.addressService.update(
+                mailingAddresses[i].id,
+                dto.mailing_address[i],
+              );
+              this.logger.log(
+                `Updated mailing address with id: ${mailingAddresses[i].id}`,
+              );
+            }
+            for (
+              let i = mailingAddresses.length;
+              i < dto.mailing_address.length;
+              i++
+            ) {
+              dto.mailing_address[i].entity_type = ENTITY_TYPE;
+              dto.mailing_address[i].entity_id = dealership.id;
+              await this.addressService.create(dto.mailing_address[i]);
+              this.logger.log(`Created new mailing address`);
+            }
+          } else {
+            // Equal number of addresses - update all
+            for (let i = 0; i < dto.mailing_address.length; i++) {
+              dto.mailing_address[i].entity_type = ENTITY_TYPE;
+              dto.mailing_address[i].entity_id = dealership.id;
+              await this.addressService.update(
+                mailingAddresses[i].id,
+                dto.mailing_address[i],
+              );
+              this.logger.log(
+                `Updated mailing address with id: ${mailingAddresses[i].id}`,
+              );
+            }
+          }
+        } else {
+          // No existing mailing addresses - create all new ones
+          for (const address of dto.mailing_address) {
+            address.entity_type = ENTITY_TYPE;
+            address.entity_id = dealership.id;
+            await this.addressService.create(address);
+            this.logger.log(`Created new mailing address`);
+          }
+        }
+      }
 
       return dealership;
     } catch (error) {
