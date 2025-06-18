@@ -5,13 +5,13 @@ import { DealershipService } from '../services/dealship.service';
 import { ApiGuard } from 'src/app/guards/api.guard';
 
 @ApiTags('Onboarding')
+@UseGuards(ApiGuard)
 @Controller('api/v1')
+@ApiBearerAuth('jwt')
 export class DealershipController {
   constructor(private readonly dealershipService: DealershipService) {}
 
-  @UseGuards(ApiGuard)
   @ApiOperation({ summary: 'Store dealership information' })
-  @ApiBearerAuth('jwt')
   @Post('/dealership-info')
   async storeDealershipInfo(@Body() dto: DealershipDeatilsDto) {
     return this.dealershipService.updateOrCreate(dto);
