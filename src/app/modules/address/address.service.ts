@@ -26,7 +26,7 @@ export class AddressService {
     }
   }
 
-  async getByEntityIdAndId(
+  async findByEntityIdAndId(
     entityId: number,
     type: AddressType,
   ): Promise<Address[]> {
@@ -46,7 +46,31 @@ export class AddressService {
       return address;
     } catch (error) {
       this.logger.error(error);
-      return throwCatchError(error);
+      return [];
+    }
+  }
+
+  async findOneByEntityIdAndId(
+    entityId: number,
+    type: AddressType,
+  ): Promise<Address | null> {
+    try {
+      const address = await this.addressRepository.findOne({
+        where: { entity_id: entityId, type: type },
+      });
+
+      if (!address) {
+        this.logger.warn(
+          `Address not found for entityId: ${entityId}, type: ${type}`,
+        );
+        throw new NotFoundException(
+          `Address not found for entityId: ${entityId}, type: ${type}`,
+        );
+      }
+      return address;
+    } catch (error) {
+      this.logger.error(error);
+      return null;
     }
   }
 

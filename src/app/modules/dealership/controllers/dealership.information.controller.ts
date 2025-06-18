@@ -1,9 +1,17 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { DealershipDeatilsDto } from '../dto/dealership-details.dto';
+import { DealershipDetailsDto } from '../dto/dealership-details.dto';
 import { DealershipInformationService } from '../services/dealship.inforation.service';
 import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
 
 @ApiTags('Onboarding')
 @UseGuards(ApiGuard)
@@ -18,14 +26,20 @@ export class DealershipInformationController {
     private readonly dealershipInformationService: DealershipInformationService,
   ) {}
 
-  async show(@Request() req: any) {
-    this.logger.log(req);
+  @ApiOperation({ summary: 'Get dealership information' })
+  @Get('/dealership-info')
+  async show() {
     return this.dealershipInformationService.show();
   }
 
   @ApiOperation({ summary: 'Store dealership information' })
   @Post('/dealership-info')
-  async update(@Body() dto: DealershipDeatilsDto) {
-    return this.dealershipInformationService.updateOrCreate(dto);
+  async update(@Request() req: any, @Body() dto: DealershipDetailsDto) {
+    try {
+      return await this.dealershipInformationService.updateOrCreate(req, dto);
+    } catch (error) {
+      this.logger.error(error);
+      throwCatchError(error);
+    }
   }
 }
