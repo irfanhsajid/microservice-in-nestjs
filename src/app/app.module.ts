@@ -21,6 +21,9 @@ import { UserModule } from './modules/user/user.module';
 import { ApiGuard } from './modules/auth/api.guard';
 import session from '../config/session';
 import { EnsureEmailVerifiedGuard } from './modules/auth/ensure-email-verified.guard';
+import { DealershipModule } from './modules/dealership/dealership.module';
+import { AddressModule } from './modules/address/address.module';
+import { AttachmentModule } from './modules/attachment/attachment.module';
 
 @Module({
   imports: [
@@ -88,6 +91,9 @@ import { EnsureEmailVerifiedGuard } from './modules/auth/ensure-email-verified.g
     GrpcModule,
     LoggerModule,
     UploadsModule,
+    DealershipModule,
+    AddressModule,
+    AttachmentModule,
   ],
   controllers: [AppController],
   providers: [ApiGuard, EnsureEmailVerifiedGuard],

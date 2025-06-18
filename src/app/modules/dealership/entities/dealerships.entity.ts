@@ -5,7 +5,8 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
-  DeleteDateColumn, OneToOne,
+  DeleteDateColumn,
+  OneToOne,
 } from 'typeorm';
 import { UserDealership } from './user-dealership.entity';
 import { DealershipPaymentInfo } from './dealership-payment-info.entity';
@@ -43,16 +44,16 @@ export class Dealership {
   @Column({ type: 'enum', enum: BusinessType })
   business_type: BusinessType;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 100 })
   business_number: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 100 })
   omvic_number: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 100 })
   tax_identifier: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 100 })
   phone_number: string;
 
   @Column({ type: 'varchar', length: 255 })
