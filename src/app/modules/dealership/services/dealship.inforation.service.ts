@@ -8,7 +8,7 @@ import { Repository } from 'typeorm';
 import { AddressService } from '../../address/address.service';
 import { UserDealership } from '../entities/user-dealership.entity';
 import { User } from '../../user/entities/user.entity';
-import { AddressType } from '../../address/entities/address.entity';
+import { Address, AddressType } from '../../address/entities/address.entity';
 import { OnboardingInterface } from './interfaces/onboard.interface';
 import { Request } from 'express';
 
@@ -28,14 +28,37 @@ export class DealershipInformationService implements OnboardingInterface<any> {
     private readonly userDealershipRepository: Repository<UserDealership>,
   ) {}
 
-  async show(req: Request): Promise<any> {
-    console.info(req);
+  async show(req: Request): Promise<Dealership> {
     try {
-      // Implement logic to show dealership information (e.g., fetch all or by some criteria)
-      const dealerships = await this.dealershipRepository.find({
-        relations: ['addresses'], // Load related addresses
+      const user = req['user'] as User;
+
+      // Find user dealership by user id with dealership relation
+      const userDealership = await this.userDealershipRepository.findOne({
+        where: { user: { id: user?.id }, is_default: true },
+        relations: ['dealership'],
       });
-      return dealerships;
+
+      if (!userDealership) {
+        throw new NotFoundException('No dealership found');
+      }
+
+      // Fetch the dealership with its addresses
+      const dealerships = await this.dealershipRepository.findOne({
+        where: {
+          id: userDealership.dealership.id,
+        },
+      });
+      if (!dealerships) {
+        throw new NotFoundException('No dealership found');
+      }
+      const addresses = await this.addressService.findByEntityId(
+        dealerships?.id,
+      );
+
+      return {
+        ...dealerships,
+        addresses: addresses ?? [],
+      };
     } catch (error) {
       this.logger.error(
         `Error showing dealerships: ${error.message}`,
@@ -108,10 +131,12 @@ export class DealershipInformationService implements OnboardingInterface<any> {
         this.logger.log(`Dealership with email ${dto.email} updated`);
       }
 
+      const addresses: Address[] = [];
       // Handle primary address
       if (dto.primary_address) {
         dto.primary_address.entity_type = ENTITY_TYPE;
         dto.primary_address.entity_id = dealership.id;
+        let newAddress: Address;
         // check primary address already exist
         const primaryAddress = await this.addressService.findOneByEntityIdAndId(
           dealership.id,
@@ -120,15 +145,18 @@ export class DealershipInformationService implements OnboardingInterface<any> {
         if (primaryAddress) {
           // Update primary address
           this.logger.log('Primary address updated');
-          await this.addressService.update(
+          const d = await this.addressService.update(
             primaryAddress?.id,
             dto.primary_address,
           );
+          newAddress = d;
         } else {
           // create new primary address
           this.logger.log('New Primary address created');
-          await this.addressService.create(dto.primary_address);
+          const d = await this.addressService.create(dto.primary_address);
+          newAddress = d;
         }
+        addresses.push(newAddress);
       }
 
       // Handle shipping addresses
@@ -158,10 +186,11 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             for (let i = 0; i < dto.shipping_address.length; i++) {
               dto.shipping_address[i].entity_type = ENTITY_TYPE;
               dto.shipping_address[i].entity_id = dealership.id;
-              await this.addressService.update(
+              const a = await this.addressService.update(
                 shippingAddresses[i].id,
                 dto.shipping_address[i],
               );
+              addresses.push(a);
               this.logger.log(
                 `Updated shipping address with id: ${shippingAddresses[i].id}`,
               );
@@ -171,10 +200,11 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             for (let i = 0; i < shippingAddresses.length; i++) {
               dto.shipping_address[i].entity_type = ENTITY_TYPE;
               dto.shipping_address[i].entity_id = dealership.id;
-              await this.addressService.update(
+              const a = await this.addressService.update(
                 shippingAddresses[i].id,
                 dto.shipping_address[i],
               );
+              addresses.push(a);
               this.logger.log(
                 `Updated shipping address with id: ${shippingAddresses[i].id}`,
               );
@@ -186,7 +216,10 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             ) {
               dto.shipping_address[i].entity_type = ENTITY_TYPE;
               dto.shipping_address[i].entity_id = dealership.id;
-              await this.addressService.create(dto.shipping_address[i]);
+              const a = await this.addressService.create(
+                dto.shipping_address[i],
+              );
+              addresses.push(a);
               this.logger.log(`Created new shipping address`);
             }
           } else {
@@ -194,10 +227,11 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             for (let i = 0; i < dto.shipping_address.length; i++) {
               dto.shipping_address[i].entity_type = ENTITY_TYPE;
               dto.shipping_address[i].entity_id = dealership.id;
-              await this.addressService.update(
+              const a = await this.addressService.update(
                 shippingAddresses[i].id,
                 dto.shipping_address[i],
               );
+              addresses.push(a);
               this.logger.log(
                 `Updated shipping address with id: ${shippingAddresses[i].id}`,
               );
@@ -207,7 +241,8 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           for (const address of dto.shipping_address) {
             address.entity_type = ENTITY_TYPE;
             address.entity_id = dealership.id;
-            await this.addressService.create(address);
+            const a = await this.addressService.create(address);
+            addresses.push(a);
           }
         }
       }
@@ -225,8 +260,6 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           const difference =
             mailingAddresses.length - dto.mailing_address.length;
 
-          console.log('difference', difference);
-
           if (difference > 0) {
             // More existing addresses than new ones - delete the excess
             const addressesToDelete = mailingAddresses.slice(
@@ -243,10 +276,11 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             for (let i = 0; i < dto.mailing_address.length; i++) {
               dto.mailing_address[i].entity_type = ENTITY_TYPE;
               dto.mailing_address[i].entity_id = dealership.id;
-              await this.addressService.update(
+              const a = await this.addressService.update(
                 mailingAddresses[i].id,
                 dto.mailing_address[i],
               );
+              addresses.push(a);
               this.logger.log(
                 `Updated mailing address with id: ${mailingAddresses[i].id}`,
               );
@@ -256,10 +290,11 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             for (let i = 0; i < mailingAddresses.length; i++) {
               dto.mailing_address[i].entity_type = ENTITY_TYPE;
               dto.mailing_address[i].entity_id = dealership.id;
-              await this.addressService.update(
+              const a = await this.addressService.update(
                 mailingAddresses[i].id,
                 dto.mailing_address[i],
               );
+              addresses.push(a);
               this.logger.log(
                 `Updated mailing address with id: ${mailingAddresses[i].id}`,
               );
@@ -271,7 +306,10 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             ) {
               dto.mailing_address[i].entity_type = ENTITY_TYPE;
               dto.mailing_address[i].entity_id = dealership.id;
-              await this.addressService.create(dto.mailing_address[i]);
+              const a = await this.addressService.create(
+                dto.mailing_address[i],
+              );
+              addresses.push(a);
               this.logger.log(`Created new mailing address`);
             }
           } else {
@@ -279,10 +317,11 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             for (let i = 0; i < dto.mailing_address.length; i++) {
               dto.mailing_address[i].entity_type = ENTITY_TYPE;
               dto.mailing_address[i].entity_id = dealership.id;
-              await this.addressService.update(
+              const a = await this.addressService.update(
                 mailingAddresses[i].id,
                 dto.mailing_address[i],
               );
+              addresses.push(a);
               this.logger.log(
                 `Updated mailing address with id: ${mailingAddresses[i].id}`,
               );
@@ -293,12 +332,16 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           for (const address of dto.mailing_address) {
             address.entity_type = ENTITY_TYPE;
             address.entity_id = dealership.id;
-            await this.addressService.create(address);
+            const a = await this.addressService.create(address);
+            addresses.push(a);
             this.logger.log(`Created new mailing address`);
           }
         }
       }
-      return dealership;
+      return {
+        ...dealership,
+        addresses: addresses,
+      };
     } catch (error) {
       this.logger.error(
         `Error updating or creating dealership: ${error.message}`,
