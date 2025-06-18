@@ -28,13 +28,13 @@ export class DealershipInformationController {
   ) {}
 
   @ApiOperation({ summary: 'Get dealership information' })
-  @Get('/dealership-info')
+  @Get('/dealership')
   async show(@Request() req: any) {
     return this.dealershipInformationService.show(req);
   }
 
   @ApiOperation({ summary: 'Store dealership information' })
-  @Post('/dealership-info')
+  @Post('/dealership')
   async update(@Request() req: any, @Body() dto: DealershipDetailsDto) {
     try {
       const dealership = await this.dealershipInformationService.updateOrCreate(

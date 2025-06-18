@@ -56,7 +56,6 @@ export class DealershipInformationService implements OnboardingInterface<any> {
         where: { user: { id: user?.id }, is_default: true },
         relations: ['dealership'],
       });
-      console.info('User dealership', userDealership);
       let dealership: Dealership;
       // if user default dealership not found create one
       if (!userDealership) {
@@ -120,12 +119,14 @@ export class DealershipInformationService implements OnboardingInterface<any> {
         );
         if (primaryAddress) {
           // Update primary address
+          this.logger.log('Primary address updated');
           await this.addressService.update(
             primaryAddress?.id,
             dto.primary_address,
           );
         } else {
           // create new primary address
+          this.logger.log('New Primary address created');
           await this.addressService.create(dto.primary_address);
         }
       }
@@ -219,9 +220,12 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           AddressType.MAILING,
         );
 
+        console.info('mailing addresses', mailingAddresses);
         if (mailingAddresses?.length > 0) {
           const difference =
             mailingAddresses.length - dto.mailing_address.length;
+
+          console.log('difference', difference);
 
           if (difference > 0) {
             // More existing addresses than new ones - delete the excess
@@ -294,7 +298,6 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           }
         }
       }
-      console.info('new', dealership);
       return dealership;
     } catch (error) {
       this.logger.error(
