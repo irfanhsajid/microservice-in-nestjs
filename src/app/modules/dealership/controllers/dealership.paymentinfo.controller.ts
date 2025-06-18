@@ -21,6 +21,6 @@ export class DealershipPaymentInfoController {
   @ApiOperation({ summary: 'Dealership bank payment info update' })
   @Post('/payment-info')
   async update(): Promise<DealershipPaymentInfo> {
-    return this.paymentInfoService.update();
+    return this.paymentInfoService.updateOrCreate();
   }
 }

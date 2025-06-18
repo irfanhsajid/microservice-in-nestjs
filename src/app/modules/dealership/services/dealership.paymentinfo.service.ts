@@ -9,7 +9,7 @@ export class DealershipPaymentInfoService
   show(): Promise<DealershipPaymentInfo> {
     throw new Error('Method not implemented.');
   }
-  update(): Promise<any> {
+  updateOrCreate(): Promise<any> {
     throw new Error('Method not implemented.');
   }
 }
