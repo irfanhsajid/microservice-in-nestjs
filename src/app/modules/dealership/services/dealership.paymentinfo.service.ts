@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PaymentInfoInterface } from './interfaces/paymentinfo.interface';
+import { OnboardingInterface } from './interfaces/onboard.interface';
 import { DealershipPaymentInfo } from '../entities/dealership-payment-info.entity';
 
 @Injectable()
-export class DealershipPaymentInfoService implements PaymentInfoInterface {
+export class DealershipPaymentInfoService
+  implements OnboardingInterface<DealershipPaymentInfo>
+{
   show(): Promise<DealershipPaymentInfo> {
     throw new Error('Method not implemented.');
   }
