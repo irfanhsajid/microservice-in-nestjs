@@ -12,6 +12,7 @@ import { DealershipInformationService } from '../services/dealship.inforation.se
 import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { responseReturn } from 'src/app/common/utils/response-return';
 
 @ApiTags('Onboarding')
 @UseGuards(ApiGuard)
@@ -36,7 +37,14 @@ export class DealershipInformationController {
   @Post('/dealership-info')
   async update(@Request() req: any, @Body() dto: DealershipDetailsDto) {
     try {
-      return await this.dealershipInformationService.updateOrCreate(req, dto);
+      const dealership = await this.dealershipInformationService.updateOrCreate(
+        req,
+        dto,
+      );
+      return responseReturn(
+        'Dealership information saved successfully',
+        dealership,
+      );
     } catch (error) {
       this.logger.error(error);
       throwCatchError(error);

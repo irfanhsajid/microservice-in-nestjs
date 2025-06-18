@@ -74,6 +74,30 @@ export class AddressService {
     }
   }
 
+  async deleteById(id: number): Promise<Address | null> {
+    try {
+      // Find the address to delete
+      const address = await this.addressRepository.findOne({ where: { id } });
+
+      if (!address) {
+        this.logger.warn(`Address not found for id: ${id}`);
+        return null;
+      }
+
+      // Perform hard delete
+      await this.addressRepository.delete(id);
+
+      this.logger.log(`Address with id: ${id} hard deleted successfully`);
+      return address;
+    } catch (error) {
+      this.logger.error(
+        `Error deleting address with id: ${id}: ${error.message}`,
+        error.stack,
+      );
+      return null;
+    }
+  }
+
   async update(id: number, dto: UpdateAddressDto): Promise<Address> {
     try {
       const existingAddress = await this.addressRepository.findOne({

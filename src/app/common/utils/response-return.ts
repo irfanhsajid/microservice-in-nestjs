@@ -6,6 +6,6 @@ export const responseReturn = (
   return {
     message: message,
     status: code,
-    ...data,
+    response: data,
   };
 };
