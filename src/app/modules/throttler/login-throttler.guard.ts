@@ -5,7 +5,7 @@ import { minutes, ThrottlerGuard } from '@nestjs/throttler';
 @Injectable()
 export class LoginThrottlerGuard extends ThrottlerGuard {
   protected override getTracker(req: Record<string, any>): Promise<string> {
-    // Track by IP for login attempts (could be enhanced to track by username too)
+    // Track by IP for login attempts
     return Promise.resolve(req.ip);
   }
 

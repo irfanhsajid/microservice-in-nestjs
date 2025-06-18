@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { OnboardingInterface } from './interfaces/onboard.interface';
 import { DealershipPaymentInfo } from '../entities/dealership-payment-info.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -67,11 +67,16 @@ export class DealershipPaymentInfoService
     });
 
     if (!exitingPaymentInfo) {
-      throw new NotFoundException('Dealer payment info not found!');
-    }
+      const newPaymentInfo = this.dealershipPaymentInfo.create({
+        ...dto,
+        user,
+        dealership: userDealership?.dealership,
+      });
 
+      return await this.dealershipPaymentInfo.save(newPaymentInfo);
+    }
     this.dealershipPaymentInfo.merge(exitingPaymentInfo, dto);
 
-    return null;
+    return this.dealershipPaymentInfo.save(exitingPaymentInfo);
   }
 }
