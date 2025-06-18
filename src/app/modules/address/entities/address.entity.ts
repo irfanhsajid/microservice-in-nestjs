@@ -17,7 +17,7 @@ export class Address {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 100 })
   entity_type: string;
 
   @Column({ type: 'integer', nullable: false })
@@ -35,8 +35,8 @@ export class Address {
   @Column({ type: 'varchar', length: 100 })
   city: string;
 
-  @Column({ type: 'varchar', length: 20 })
-  state_code: string;
+  @Column({ type: 'varchar', length: 100 })
+  state: string;
 
   @Column({ type: 'varchar', length: 20 })
   zip_code: string;
