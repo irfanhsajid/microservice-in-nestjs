@@ -18,13 +18,13 @@ import {
 } from '@nestjs/swagger';
 import { CustomLogger } from '../logger/logger.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { AuthService } from './auth.service';
 import { SigninDto } from '../user/dto/signin.dto';
 import { ApiGuard } from './api.guard';
+import { AuthService } from './auth.service';
 import { ResetPasswordDto } from './dto/password-reset.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendVerifyEmailDto } from './dto/resend-verify-email.dto';
 import { SetNewPasswordDto } from './dto/set-new-password.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @ApiTags('Auth')
 @Controller('api/v1')
