@@ -5,7 +5,6 @@ import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dealership } from '../entities/dealerships.entity';
 import { Repository } from 'typeorm';
-import { AddressService } from '../../address/address.service';
 import { UserDealership } from '../entities/user-dealership.entity';
 import { User } from '../../user/entities/user.entity';
 import { OnboardingInterface } from './interfaces/onboard.interface';
@@ -27,8 +26,6 @@ export class DealershipInformationService implements OnboardingInterface<any> {
   constructor(
     @InjectRepository(Dealership)
     private readonly dealershipRepository: Repository<Dealership>,
-
-    private readonly addressService: AddressService,
 
     @InjectRepository(UserDealership)
     private readonly userDealershipRepository: Repository<UserDealership>,
