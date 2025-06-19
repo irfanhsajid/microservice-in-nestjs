@@ -18,7 +18,6 @@ export class UserController {
   @ApiOperation({ summary: 'Revoke authenticate user' })
   async show(@Request() request: Request): Promise<UserResource | null> {
     try {
-      console.log(request['user']);
       const user = await this.userService.getUserByEmail(
         request['user'].email,
         ['user_dealerships'],

@@ -11,10 +11,11 @@ import mail from 'src/config/mail';
 import services from 'src/config/services';
 import { GrpcModule } from 'src/grpc/grpc.module';
 import { driver } from '../database/driver';
+import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { PaymentModule } from './modules/payment/payment.module';
-import { AppThrottlerModule } from './modules/throttler/throttler.module';
+// import { AppThrottlerModule } from './modules/throttler/throttler.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
 import { ApiGuard } from './guards/api.guard';
@@ -26,7 +27,7 @@ import { AttachmentModule } from './modules/attachment/attachment.module';
 
 @Module({
   imports: [
-    AppThrottlerModule,
+    // AppThrottlerModule,
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -94,7 +95,7 @@ import { AttachmentModule } from './modules/attachment/attachment.module';
     AddressModule,
     AttachmentModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [ApiGuard, EnsureEmailVerifiedGuard],
 })
 export class AppModule {}
