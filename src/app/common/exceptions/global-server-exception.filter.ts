@@ -37,6 +37,7 @@ export class GlobalServerExceptionsFilter implements ExceptionFilter {
           !Array.isArray(res.message)
         ) {
           message = res.message;
+          errorTitle = res;
         } else if (Array.isArray(res.message)) {
           const fieldErrors: Record<string, string[]> = {};
           for (const err of res.message) {
@@ -48,8 +49,15 @@ export class GlobalServerExceptionsFilter implements ExceptionFilter {
         } else {
           message = res.message || res.error || 'Unexpected error';
         }
-
-        errorTitle = res.error || HttpStatus[httpStatus] || 'Error';
+        if (
+          !(
+            res.message &&
+            typeof res.message === 'object' &&
+            !Array.isArray(res.message)
+          )
+        ) {
+          errorTitle = res.error || HttpStatus[httpStatus] || 'Error';
+        }
       }
     }
 

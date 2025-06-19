@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Dealership } from './entities/dealerships.entity';
-import { DealershipDoc } from './entities/dealershipdoc.entity';
 import { DealershipPaymentInfo } from './entities/dealership-payment-info.entity';
 import { UserDealership } from './entities/user-dealership.entity';
 import { DealershipPaymentInfoController } from './controllers/dealership.paymentinfo.controller';
@@ -11,14 +10,17 @@ import { DealershipInformationController } from './controllers/dealership.inform
 import { UserModule } from '../user/user.module';
 import { AddressModule } from '../address/address.module';
 import { AttachmentModule } from '../attachment/attachment.module';
+import { DealershipAddress } from './entities/dealership-address.entity';
+import { DealershipAttachment } from './entities/dealership-attachment.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Dealership,
-      DealershipDoc,
       DealershipPaymentInfo,
       UserDealership,
+      DealershipAddress,
+      DealershipAttachment,
     ]),
     UserModule,
     AddressModule,

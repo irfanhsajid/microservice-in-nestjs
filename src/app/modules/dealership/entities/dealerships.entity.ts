@@ -10,8 +10,11 @@ import {
 } from 'typeorm';
 import { UserDealership } from './user-dealership.entity';
 import { DealershipPaymentInfo } from './dealership-payment-info.entity';
-import { DealershipDoc } from './dealershipdoc.entity';
-import { Address } from '../../address/entities/address.entity';
+import {
+  DealershipAddress,
+  DealershipAddressType,
+} from './dealership-address.entity';
+import { DealershipAttachment } from './dealership-attachment.entity';
 
 // General Dealer (G), Wholesale Dealer, Outside Ontario Dealer
 export enum LicenseClass {
@@ -71,14 +74,8 @@ export class Dealership {
   @DeleteDateColumn()
   deleted_at: Date | null;
 
-  @OneToMany(
-    () => UserDealership,
-    (userDealership) => userDealership.dealership,
-    {
-      cascade: true,
-    },
-  )
-  user_dealerships: UserDealership[];
+  @OneToOne(() => UserDealership, (userDealership) => userDealership.dealership)
+  user_dealerships: UserDealership;
 
   @OneToOne(
     () => DealershipPaymentInfo,
@@ -89,13 +86,38 @@ export class Dealership {
   )
   payment_infos: DealershipPaymentInfo[];
 
-  @OneToMany(() => Address, (address) => address, {
-    cascade: true,
-  })
-  addresses: Address[];
+  @OneToMany(
+    () => DealershipAttachment,
+    (dealershipAttachment) => dealershipAttachment.dealership,
+    {
+      cascade: true,
+    },
+  )
+  attachments: DealershipAttachment[];
 
-  @OneToMany(() => DealershipDoc, (doc) => doc.dealership, {
+  @OneToMany(() => DealershipAddress, (address) => address.dealership, {
     cascade: true,
   })
-  docs: DealershipDoc[];
+  addresses: DealershipAddress[];
+
+  // Helper method to get the primary address
+  get primaryAddress(): DealershipAddress | undefined {
+    return this.addresses?.find(
+      (address) => address.type === DealershipAddressType.PRIMARY,
+    );
+  }
+
+  // Helper method to get the mailing address
+  get mailingAddress(): DealershipAddress | undefined {
+    return this.addresses?.find(
+      (address) => address.type === DealershipAddressType.MAILING,
+    );
+  }
+
+  // Helper method to get the shipping address
+  get shippingAddress(): DealershipAddress | undefined {
+    return this.addresses?.find(
+      (address) => address.type === DealershipAddressType.SHIPPING,
+    );
+  }
 }

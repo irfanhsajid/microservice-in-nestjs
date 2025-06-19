@@ -22,6 +22,7 @@ export class UserResponseFormatterInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data) => {
+        console.info('request hit here');
         // Skip formatting for specific routes (e.g., Swagger)
         const request = httpContext.getRequest();
         if (request.url.includes('/docs')) {

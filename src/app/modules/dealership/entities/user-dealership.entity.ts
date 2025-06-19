@@ -17,11 +17,14 @@ export class UserDealership {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.user_dealerships)
+  @ManyToOne(() => User, (user) => user.user_dealerships, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToOne(() => Dealership)
+  @OneToOne(() => Dealership, (dealership) => dealership.user_dealerships, {
+    cascade: true,
+    nullable: false,
+  })
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
 
