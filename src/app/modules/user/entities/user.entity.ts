@@ -11,8 +11,8 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
-import { Attachment } from '../../attachment/entities/attachment.entity';
 import { DealershipPaymentInfo } from '../../dealership/entities/dealership-payment-info.entity';
+import { DealershipAttachment } from '../../dealership/entities/dealership-attachment.entity';
 
 export enum UserAccountType {
   BUYER = 'BUYER',
@@ -76,10 +76,10 @@ export class User {
   })
   payment_infos: DealershipPaymentInfo[];
 
-  @OneToMany(() => Attachment, (attachment) => attachment.user, {
+  @OneToMany(() => DealershipAttachment, (attachment) => attachment.user, {
     cascade: true,
   })
-  attachments: Attachment[];
+  attachments: DealershipAttachment[];
 
   @BeforeInsert()
   @BeforeUpdate()

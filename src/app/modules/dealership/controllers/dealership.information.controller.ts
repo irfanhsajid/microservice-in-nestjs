@@ -43,6 +43,7 @@ export class DealershipInformationController {
   @Post('/dealership')
   async update(@Request() req: any, @Body() dto: DealershipDetailsDto) {
     try {
+      console.log('connected got here', dto);
       const dealership = await this.dealershipInformationService.updateOrCreate(
         req,
         dto,

@@ -61,7 +61,7 @@ export class DealershipDetailsDto {
 
   @ApiProperty({ type: () => DealershipAddressDto })
   @IsNotEmpty()
-  @ValidateNested()
+  @ValidateNested({ each: true })
   @Type(() => DealershipAddressDto)
   primary_address: DealershipAddressDto;
 

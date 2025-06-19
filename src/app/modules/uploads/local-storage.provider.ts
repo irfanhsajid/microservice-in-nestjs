@@ -3,6 +3,12 @@ import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
+import { pipeline, Readable } from 'stream';
+import * as file from 'fs';
+
+import { promisify } from 'util';
+
+const pipelineAsync = promisify(pipeline);
 
 @Injectable()
 export class LocalStorageProvider implements StorageProvider {
@@ -15,6 +21,28 @@ export class LocalStorageProvider implements StorageProvider {
     );
   }
 
+  async uploadFileStream(
+    fileStream: Readable,
+    fileName: string,
+    folder: string,
+  ): Promise<string> {
+    try {
+      const uploadPath = path.join(this.uploadDir, folder);
+      await fs.mkdir(uploadPath, { recursive: true });
+
+      const sanitizedFileName = `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const filePath = path.join(uploadPath, sanitizedFileName);
+
+      const writeStream = file.createWriteStream(filePath);
+      await pipelineAsync(fileStream, writeStream);
+
+      return path.join(folder, sanitizedFileName);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Local storage stream upload error: ${error.message}`,
+      );
+    }
+  }
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
     try {
       const uploadPath = path.join(this.uploadDir, folder);

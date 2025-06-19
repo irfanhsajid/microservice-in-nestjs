@@ -96,17 +96,32 @@ async function bootstrap() {
         exposeUnsetFields: false,
       },
       exceptionFactory: (errors) => {
-        const formattedErrors = errors.reduce(
-          (acc, err) => {
-            if (err.constraints) {
-              acc[err.property] = err.constraints
-                ? Object.values(err.constraints)
-                : [];
-            }
-            return acc;
-          },
-          {} as Record<string, string[]>,
-        );
+        const formatErrors = (
+          errs: any[],
+          parent = '',
+        ): Record<string, string[]> => {
+          return errs.reduce(
+            (acc, err) => {
+              const propertyPath = parent
+                ? `${parent}.${err.property}`
+                : err.property;
+
+              if (err.constraints) {
+                acc[propertyPath] = Object.values(err.constraints);
+              }
+
+              if (err.children && err.children.length > 0) {
+                Object.assign(acc, formatErrors(err.children, propertyPath));
+              }
+
+              return acc;
+            },
+            {} as Record<string, string[]>,
+          );
+        };
+
+        const formattedErrors = formatErrors(errors);
+
         return new UnprocessableEntityException({
           error: formattedErrors,
           message: 'Unprocessed content',

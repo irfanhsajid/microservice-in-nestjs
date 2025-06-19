@@ -22,26 +22,11 @@ export class DealershipAttachment {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'varchar', length: 50 })
-  entity_type: string;
-
-  @Column({ type: 'integer', nullable: true })
-  entity_id: number;
-
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
   @Column({ type: 'varchar', length: 255 })
   path: string;
-
-  @Column({ type: 'varchar', length: 20 })
-  state: string;
-
-  @Column({ type: 'integer' })
-  size: number;
-
-  @Column({ type: 'timestamp', nullable: true })
-  expired_at: Date | null;
 
   @CreateDateColumn()
   created_at: Date;
