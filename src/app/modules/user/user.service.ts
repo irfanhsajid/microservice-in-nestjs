@@ -1,7 +1,7 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
@@ -111,9 +111,14 @@ export class UserService {
     });
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
+  async getUserByEmail(
+    email: string,
+    relations: string[] = [],
+  ): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email: email },
+      cache: true,
+      relations: relations,
     });
   }
 }

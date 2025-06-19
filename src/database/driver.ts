@@ -8,6 +8,18 @@ const databaseConfig = database();
 
 export const driver = (config: ConfigService): TypeOrmModuleOptions => ({
   ...config.get(`database.connections[${config.get('database.default')}]`),
+  cache: {
+    type: 'ioredis',
+    duration: 30000,
+    options: {
+      socket: {
+        host: config.get('services.redis.host', 'localhost'),
+        port: config.get('services.redis.port', 6379),
+        password: config.get('services.redis.password', ''),
+        db: config.get('services.redis.db', 0),
+      },
+    },
+  },
 });
 
 export const dataSource = new DataSource({
