@@ -22,7 +22,7 @@ export class DealershipDetailsDto {
   @ApiProperty()
   @IsEnum(LicenseClass)
   @IsNotEmpty()
-  dealer_class: LicenseClass;
+  license_class: LicenseClass;
 
   @ApiProperty()
   @IsEmail()
@@ -77,5 +77,5 @@ export class DealershipDetailsDto {
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => DealershipAddressDto)
-  mailing_address: DealershipAddressDto[];
+  mailling_address: DealershipAddressDto[];
 }

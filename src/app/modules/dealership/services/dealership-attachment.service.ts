@@ -12,7 +12,6 @@ import { Dealership } from '../entities/dealerships.entity';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
 import { Request } from 'express';
-import { UserService } from '../../user/user.service';
 
 @Injectable()
 export class DealershipAttachmentService {
@@ -22,8 +21,6 @@ export class DealershipAttachmentService {
 
     @InjectRepository(Dealership)
     private dealershipRepository: Repository<Dealership>,
-
-    private userService: UserService,
 
     private fileUploaderService: FileUploaderService,
   ) {}
@@ -48,14 +45,6 @@ export class DealershipAttachmentService {
     if (!dealership) {
       throw new NotFoundException('Dealership not found');
     }
-
-    // Verify user exists
-    const user = await this.userService.getUserByEmail(currentUser.email);
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
     try {
       // Upload file stream to storage
       const folder = `dealerships/${dealership?.id}/attachments`;
@@ -67,7 +56,7 @@ export class DealershipAttachmentService {
 
       // Create attachment record
       const attachment = this.attachmentRepository.create({
-        user,
+        user: currentUser,
         dealership,
         name: dto.name,
         path: filePath,
@@ -82,7 +71,7 @@ export class DealershipAttachmentService {
     }
   }
 
-  async deleteAttachment(attachmentId: number): Promise<void> {
+  async deleteAttachment(attachmentId: number): Promise<any> {
     const attachment = await this.attachmentRepository.findOne({
       where: { id: attachmentId },
       relations: ['dealership'],
@@ -97,7 +86,7 @@ export class DealershipAttachmentService {
       await this.fileUploaderService.deleteFile(attachment.path);
 
       // Soft delete attachment record
-      await this.attachmentRepository.softDelete(attachmentId);
+      return await this.attachmentRepository.delete(attachmentId);
     } catch (error) {
       throw new BadRequestException(
         `Attachment deletion failed: ${error.message}`,
@@ -105,14 +94,18 @@ export class DealershipAttachmentService {
     }
   }
 
-  async getAttachmentsByDealership(
-    dealershipId: number,
-  ): Promise<DealershipAttachment[]> {
+  async getAttachments(req: Request): Promise<DealershipAttachment[]> {
+    const currentUser = req['user'] as User;
+
+    const deaultDealership = currentUser?.user_dealerships?.find(
+      (d) => d.is_default,
+    );
+
     const dealership = await this.dealershipRepository.findOne({
-      where: { id: dealershipId },
+      where: { id: deaultDealership?.dealership?.id },
     });
     if (!dealership) {
-      throw new NotFoundException('Dealership not found');
+      return [];
     }
 
     return await this.attachmentRepository.find({
@@ -121,7 +114,6 @@ export class DealershipAttachmentService {
           id: dealership?.id,
         },
       },
-      relations: ['user'],
     });
   }
 }

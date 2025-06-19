@@ -2,6 +2,9 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
+  Get,
+  Param,
   Post,
   Request,
   UseGuards,
@@ -9,6 +12,8 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -20,6 +25,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
 import { memoryStorage } from 'multer';
 import { Readable } from 'stream';
+import { DealershipAttachment } from '../entities/dealership-attachment.entity';
 
 @ApiTags('Onboarding')
 @UseGuards(ApiGuard)
@@ -34,11 +40,11 @@ export class DealershipAttachmentController {
     private readonly dealershipAttachementService: DealershipAttachmentService,
   ) {}
 
-  @Post('dealership/attachment')
+  @Post('dealership/attachments')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(), // Minimal buffering to access metadata
-      limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
+      // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
       fileFilter: (req, file, cb) => {
         const allowedMimeTypes = [
           'application/pdf',
@@ -59,6 +65,22 @@ export class DealershipAttachmentController {
     }),
   )
   @ApiOperation({ summary: 'Upload an attachment for a dealership' })
+  @ApiBody({
+    description: 'File upload along with metadata',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+        name: {
+          type: 'string',
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 201, description: 'Attachment uploaded successfully' })
   async uploadAttachment(
     @Request() req: any,
@@ -78,5 +100,37 @@ export class DealershipAttachmentController {
       fileStream,
       dto,
     );
+  }
+
+  @Get('dealership/attachments')
+  @ApiOperation({ summary: 'Get all attachments for a dealership' })
+  @ApiResponse({
+    status: 200,
+    description: 'Attachments retrieved successfully',
+    type: [DealershipAttachment],
+  })
+  async getAttachments(@Request() req: any): Promise<DealershipAttachment[]> {
+    try {
+      return await this.dealershipAttachementService.getAttachments(req);
+    } catch (error) {
+      this.logger.error(`Failed to retrieve attachments: ${error.message}`);
+      throw error;
+    }
+  }
+
+  @Delete('dealership/attachment/:attachmentId')
+  @ApiOperation({ summary: 'Delete an attachment by ID' })
+  @ApiResponse({ status: 200, description: 'Attachment deleted successfully' })
+  async deleteAttachment(
+    @Param('attachmentId') attachmentId: number,
+  ): Promise<any> {
+    try {
+      return await this.dealershipAttachementService.deleteAttachment(
+        attachmentId,
+      );
+    } catch (error) {
+      this.logger.error(`Failed to delete attachment: ${error.message}`);
+      throw error;
+    }
   }
 }

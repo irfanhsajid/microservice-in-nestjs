@@ -87,7 +87,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
         // Create a new dealership
         dealership = this.dealershipRepository.create({
           name: dto.name,
-          license_class: dto.dealer_class,
+          license_class: dto.license_class,
           business_type: dto.business_type,
           business_number: dto.business_number,
           omvic_number: dto.omvic_number,
@@ -117,7 +117,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
         if (!existingDealership) {
           dealership = this.dealershipRepository.create({
             name: dto.name,
-            license_class: dto.dealer_class,
+            license_class: dto.license_class,
             business_type: dto.business_type,
             business_number: dto.business_number,
             omvic_number: dto.omvic_number,
@@ -131,7 +131,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           // Update existing dealership
           this.dealershipRepository.merge(existingDealership, {
             name: dto.name,
-            license_class: dto.dealer_class,
+            license_class: dto.license_class,
             business_type: dto.business_type,
             business_number: dto.business_number,
             omvic_number: dto.omvic_number,
@@ -193,10 +193,10 @@ export class DealershipInformationService implements OnboardingInterface<any> {
       }
 
       // Handle mailing addresses
-      if (dto.mailing_address && dto.mailing_address.length > 0) {
+      if (dto.mailling_address && dto.mailling_address.length > 0) {
         mailing_address = await this.updateOrStoreAddresses(
           dealership,
-          dto.mailing_address,
+          dto.mailling_address,
           DealershipAddressType.MAILING,
         );
       }

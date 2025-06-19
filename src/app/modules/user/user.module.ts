@@ -7,8 +7,8 @@ import { PasswordResetService } from './password-reset.service';
 import { UserController } from './controllers/user.controller';
 
 @Module({
-  controllers: [UserController],
   imports: [TypeOrmModule.forFeature([User, PasswordReset])],
+  controllers: [UserController],
   providers: [UserService, PasswordResetService],
   exports: [UserService, PasswordResetService, TypeOrmModule],
 })

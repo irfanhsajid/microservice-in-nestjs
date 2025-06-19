@@ -7,12 +7,12 @@ import { DealershipPaymentInfoController } from './controllers/dealership.paymen
 import { DealershipPaymentInfoService } from './services/dealership.paymentinfo.service';
 import { DealershipInformationService } from './services/dealship.inforation.service';
 import { DealershipInformationController } from './controllers/dealership.information.controller';
-import { UserModule } from '../user/user.module';
 import { DealershipAddress } from './entities/dealership-address.entity';
 import { DealershipAttachment } from './entities/dealership-attachment.entity';
 import { DealershipAttachmentController } from './controllers/dealership.attachment.controller';
 import { DealershipAttachmentService } from './services/dealership-attachment.service';
 import { UploadsModule } from '../uploads/uploads.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -36,6 +36,6 @@ import { UploadsModule } from '../uploads/uploads.module';
     DealershipInformationController,
     DealershipAttachmentController,
   ],
-  exports: [DealershipInformationService],
+  exports: [DealershipInformationService, TypeOrmModule],
 })
 export class DealershipModule {}

@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from '../modules/user/user.service';
-import { DealershipInformationService } from '../modules/dealership/services/dealship.inforation.service';
+// import { DealershipInformationService } from '../modules/dealership/services/dealship.inforation.service';
 
 @Injectable()
 export class ApiGuard implements CanActivate {
@@ -16,7 +16,7 @@ export class ApiGuard implements CanActivate {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly userService: UserService,
-    private readonly dealershipInformationService: DealershipInformationService,
+    // private readonly dealershipInformationService: DealershipInformationService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -37,7 +37,8 @@ export class ApiGuard implements CanActivate {
         throw new UnauthorizedException();
       }
 
-      //request['default_dealership'] = await this.dealershipInformationService.userDefaultDealership(user);
+      // request['default_dealership'] =
+      //   await this.dealershipInformationService.userDefaultDealership(user);
 
       request['user'] = user;
 
