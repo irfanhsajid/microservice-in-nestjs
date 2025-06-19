@@ -18,10 +18,7 @@ export class UserController {
   @ApiOperation({ summary: 'Revoke authenticate user' })
   async show(@Request() request: Request): Promise<UserResource | null> {
     try {
-      const user = await this.userService.getUserByEmail(
-        request['user'].email,
-        ['user_dealerships'],
-      );
+      const user = await this.userService.getUserByEmail(request['user'].email);
       if (!user) return null;
       return new UserResource(user);
     } catch (e) {

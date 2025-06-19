@@ -84,7 +84,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
       let dealership: Dealership;
       // if user default dealership not found create one
       if (!userDealership) {
-        // Create new dealership
+        // Create a new dealership
         dealership = this.dealershipRepository.create({
           name: dto.name,
           license_class: dto.dealer_class,
@@ -108,7 +108,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
 
         await this.userDealershipRepository.save(newUserDealership);
       } else {
-        // Check if dealership exists (e.g., by email or another unique field)
+        // Check if a dealership exists (e.g., by email or another unique field)
         const existingDealership = await this.dealershipRepository.findOne({
           where: {
             id: userDealership.dealership.id,
@@ -172,7 +172,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             newAddress = a;
           }
         } else {
-          // create new primary address
+          // create a new primary address
           this.logger.log('New Primary address created');
           const a = await this.createAddress(dealership, dto.primary_address);
           if (a) {
@@ -219,6 +219,30 @@ export class DealershipInformationService implements OnboardingInterface<any> {
     }
   }
 
+  async userDefaultDealership(user: User): Promise<Dealership | null> {
+    try {
+      const userDealership = await this.userDealershipRepository.findOne({
+        where: {
+          user: {
+            id: user?.id,
+          },
+          is_default: true,
+        },
+        cache: true,
+      });
+
+      return await this.dealershipRepository.findOne({
+        where: {
+          id: userDealership?.dealership.id,
+        },
+        cache: true,
+      });
+    } catch (e) {
+      this.logger.error(e);
+      return throwCatchError(e);
+    }
+  }
+
   private async updateOrStoreAddresses(
     dealership: Dealership,
     dto: DealershipAddressDto[],
@@ -231,8 +255,8 @@ export class DealershipInformationService implements OnboardingInterface<any> {
     });
 
     if (oldAddresses?.length > 0) {
-      const defferent = oldAddresses?.length - dto.length;
-      if (defferent > 0) {
+      const different = oldAddresses?.length - dto.length;
+      if (different > 0) {
         // delete the find address by id and update remaining with new address list
         // More existing addresses than new ones - delete the excess
         const addressesToDelete = oldAddresses.slice(dto.length);
@@ -258,8 +282,8 @@ export class DealershipInformationService implements OnboardingInterface<any> {
             `Updated shipping address with id: ${oldAddresses[i].id}`,
           );
         }
-      } else if (defferent < 0) {
-        // Create there defferent number of address and replace remailing
+      } else if (different < 0) {
+        // Create there different number of address and replace remailing
         for (let i = 0; i < oldAddresses.length; i++) {
           dto[i].entity_type = ENTITY_TYPE;
           dto[i].entity_id = dealership.id;

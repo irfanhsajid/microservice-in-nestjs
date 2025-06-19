@@ -18,7 +18,7 @@ export class UserService {
 
   async createUser(dto: CreateUserDto): Promise<User> {
     try {
-      // Check if user already exists by email
+      // Check if a user already exists by email
       const userExistWithEmail = await this.getUserByEmail(dto.email);
 
       if (userExistWithEmail) {
@@ -38,7 +38,7 @@ export class UserService {
 
   async validateUser(dto: SigninDto): Promise<User | null> {
     try {
-      const user = await this.getUserByEmail(dto.email, [], false);
+      const user = await this.getUserByEmail(dto.email, false);
       if (!user) {
         return null;
       }
@@ -113,13 +113,11 @@ export class UserService {
 
   async getUserByEmail(
     email: string,
-    relations: string[] = [],
     cache: boolean = true,
   ): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email: email },
       cache: cache,
-      relations: relations,
     });
   }
 }

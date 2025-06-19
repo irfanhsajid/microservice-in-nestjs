@@ -10,6 +10,6 @@ import { UserController } from './controllers/user.controller';
   controllers: [UserController],
   imports: [TypeOrmModule.forFeature([User, PasswordReset])],
   providers: [UserService, PasswordResetService],
-  exports: [UserService, PasswordResetService],
+  exports: [UserService, PasswordResetService, TypeOrmModule],
 })
 export class UserModule {}

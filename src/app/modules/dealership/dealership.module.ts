@@ -36,6 +36,6 @@ import { UploadsModule } from '../uploads/uploads.module';
     DealershipInformationController,
     DealershipAttachmentController,
   ],
-  exports: [],
+  exports: [DealershipInformationService],
 })
 export class DealershipModule {}
