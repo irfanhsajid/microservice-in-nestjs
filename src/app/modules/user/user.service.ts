@@ -38,7 +38,7 @@ export class UserService {
 
   async validateUser(dto: SigninDto): Promise<User | null> {
     try {
-      const user = await this.getUserByEmail(dto.email);
+      const user = await this.getUserByEmail(dto.email, [], false);
       if (!user) {
         return null;
       }
@@ -114,10 +114,11 @@ export class UserService {
   async getUserByEmail(
     email: string,
     relations: string[] = [],
+    cache: boolean = true,
   ): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email: email },
-      cache: true,
+      cache: cache,
       relations: relations,
     });
   }
