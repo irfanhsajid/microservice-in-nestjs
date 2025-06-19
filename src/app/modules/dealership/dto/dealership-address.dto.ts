@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
 } from 'class-validator';
 import { DealershipAddressType } from '../entities/dealership-address.entity';
@@ -30,7 +31,7 @@ export class DealershipAddressDto {
   city: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   state: string;
 
@@ -45,12 +46,12 @@ export class DealershipAddressDto {
   make_as_default: boolean;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   entity_type: string;
 
   @ApiProperty()
-  @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   entity_id: number;
 }

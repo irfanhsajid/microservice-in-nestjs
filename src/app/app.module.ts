@@ -21,7 +21,6 @@ import { ApiGuard } from './guards/api.guard';
 import session from '../config/session';
 import { EnsureEmailVerifiedGuard } from './guards/ensure-email-verified.guard';
 import { DealershipModule } from './modules/dealership/dealership.module';
-import { AttachmentModule } from './modules/attachment/attachment.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -91,7 +90,6 @@ import { AppController } from './app.controller';
     LoggerModule,
     UploadsModule,
     DealershipModule,
-    AttachmentModule,
   ],
   controllers: [AppController],
   providers: [ApiGuard, EnsureEmailVerifiedGuard],

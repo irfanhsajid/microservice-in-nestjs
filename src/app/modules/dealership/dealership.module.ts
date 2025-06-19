@@ -8,9 +8,11 @@ import { DealershipPaymentInfoService } from './services/dealership.paymentinfo.
 import { DealershipInformationService } from './services/dealship.inforation.service';
 import { DealershipInformationController } from './controllers/dealership.information.controller';
 import { UserModule } from '../user/user.module';
-import { AttachmentModule } from '../attachment/attachment.module';
 import { DealershipAddress } from './entities/dealership-address.entity';
 import { DealershipAttachment } from './entities/dealership-attachment.entity';
+import { DealershipAttachmentController } from './controllers/dealership.attachment.controller';
+import { DealershipAttachmentService } from './services/dealership-attachment.service';
+import { UploadsModule } from '../uploads/uploads.module';
 
 @Module({
   imports: [
@@ -22,12 +24,17 @@ import { DealershipAttachment } from './entities/dealership-attachment.entity';
       DealershipAttachment,
     ]),
     UserModule,
-    AttachmentModule,
+    UploadsModule,
   ],
-  providers: [DealershipPaymentInfoService, DealershipInformationService],
+  providers: [
+    DealershipPaymentInfoService,
+    DealershipInformationService,
+    DealershipAttachmentService,
+  ],
   controllers: [
     DealershipPaymentInfoController,
     DealershipInformationController,
+    DealershipAttachmentController,
   ],
   exports: [],
 })

@@ -1,5 +1,6 @@
 import { Inject, Injectable, BadRequestException } from '@nestjs/common';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
+import { Readable } from 'stream';
 
 @Injectable()
 export class FileUploaderService {
@@ -17,6 +18,27 @@ export class FileUploaderService {
 
     try {
       const filePath = await this.storageProvider.uploadFile(file, folder);
+      return filePath;
+    } catch (error) {
+      throw new BadRequestException(`File upload failed: ${error.message}`);
+    }
+  }
+
+  async uploadFileStream(
+    fileStream: Readable,
+    fileName: string,
+    folder: string = '',
+  ): Promise<string> {
+    if (!fileStream || !fileName) {
+      throw new BadRequestException('File stream or file name not provided');
+    }
+
+    try {
+      const filePath = await this.storageProvider.uploadFileStream(
+        fileStream,
+        fileName,
+        folder,
+      );
       return filePath;
     } catch (error) {
       throw new BadRequestException(`File upload failed: ${error.message}`);
