@@ -24,6 +24,7 @@ import { EnsureEmailVerifiedGuard } from './guards/ensure-email-verified.guard';
 import { DealershipModule } from './modules/dealership/dealership.module';
 import { AddressModule } from './modules/address/address.module';
 import { AttachmentModule } from './modules/attachment/attachment.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
