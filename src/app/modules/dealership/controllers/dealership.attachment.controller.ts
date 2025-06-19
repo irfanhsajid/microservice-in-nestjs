@@ -26,9 +26,10 @@ import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
 import { memoryStorage } from 'multer';
 import { Readable } from 'stream';
 import { DealershipAttachment } from '../entities/dealership-attachment.entity';
+import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 
 @ApiTags('Onboarding')
-@UseGuards(ApiGuard)
+@UseGuards(ApiGuard, EnsureEmailVerifiedGuard)
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
 export class DealershipAttachmentController {

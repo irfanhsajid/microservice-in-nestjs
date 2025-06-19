@@ -13,6 +13,7 @@ export class UserResource extends Resource<User> {
       accept_privacy: this.view_accept_privacy,
       created_at: this.created_at,
       updated_at: this.updated_at,
+      email_verified_at: this.email_verified_at || null,
     };
   }
 }

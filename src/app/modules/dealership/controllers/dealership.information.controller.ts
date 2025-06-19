@@ -13,9 +13,10 @@ import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { responseReturn } from 'src/app/common/utils/response-return';
+import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 
 @ApiTags('Onboarding')
-@UseGuards(ApiGuard)
+@UseGuards(ApiGuard, EnsureEmailVerifiedGuard)
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
 export class DealershipInformationController {
