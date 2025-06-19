@@ -79,7 +79,8 @@ export class UserService {
       }
 
       user.email_verified_at = new Date();
-      await this.userRepository.save(user);
+      const newUser = await this.userRepository.save(user);
+      console.log(newUser);
       return user;
     } catch (error) {
       this.logger.error(
@@ -113,7 +114,7 @@ export class UserService {
 
   async getUserByEmail(
     email: string,
-    cache: boolean = true,
+    cache: boolean = false,
   ): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email: email },

@@ -31,7 +31,7 @@ export class ApiGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('app.key'),
       });
-      const user = await this.userService.getUserByEmail(payload?.email);
+      const user = await this.userService.getUserByEmail(payload?.email, false);
 
       if (!user) {
         throw new UnauthorizedException();
