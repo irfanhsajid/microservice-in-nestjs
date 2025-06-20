@@ -7,39 +7,42 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CreateRoleManagementDto } from './dto/create-role-management.dto';
-import { UpdateRoleManagementDto } from './dto/update-role-management.dto';
-import { RoleManagementService } from './role.service';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import { RoleService } from './services/role.service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CustomLogger } from '../logger/logger.service';
 
-@Controller('role-management')
-export class RoleManagementController {
-  constructor(private readonly roleManagementService: RoleManagementService) {}
+@ApiTags('Roles')
+@Controller('roles')
+export class RoleController {
+  constructor(private readonly roleService: RoleService) {}
+  private readonly logger = new CustomLogger(RoleController.name);
 
+  @ApiOperation({ summary: 'Create role' })
   @Post()
-  create(@Body() createRoleManagementDto: CreateRoleManagementDto) {
-    return this.roleManagementService.create(createRoleManagementDto);
+  async create(@Body() createRoleDto: CreateRoleDto) {
+    return await this.roleService.create(createRoleDto);
   }
 
+  @ApiOperation({ summary: 'Get all roles' })
   @Get()
   findAll() {
-    return this.roleManagementService.findAll();
+    return this.roleService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.roleManagementService.findOne(+id);
+    return this.roleService.findOne(+id);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateRoleManagementDto: UpdateRoleManagementDto,
-  ) {
-    return this.roleManagementService.update(+id, updateRoleManagementDto);
+  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
+    return this.roleService.update(+id, updateRoleDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.roleManagementService.remove(+id);
+    return this.roleService.remove(+id);
   }
 }

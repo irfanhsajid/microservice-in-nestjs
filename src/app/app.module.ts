@@ -21,6 +21,7 @@ import session from '../config/session';
 import { DealershipModule } from './modules/dealership/dealership.module';
 import { AppController } from './app.controller';
 import { GuardsModule } from './guards/guards.module';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { GuardsModule } from './guards/guards.module';
     LoggerModule,
     UploadsModule,
     GuardsModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -4,8 +4,8 @@ import { UserDealership } from '../dealership/entities/user-dealership.entity';
 import { Permission } from './entities/permission.entity';
 import { RoleHasPermission } from './entities/role-has-permission.entity';
 import { Role } from './entities/role.entity';
-import { RoleManagementController } from './role.controller';
-import { RoleManagementService } from './role.service';
+import { RoleController } from './role.controller';
+import { RoleService } from './services/role.service';
 
 @Module({
   imports: [
@@ -16,8 +16,8 @@ import { RoleManagementService } from './role.service';
       UserDealership,
     ]),
   ],
-  controllers: [RoleManagementController],
-  providers: [RoleManagementService],
-  exports: [RoleManagementService],
+  controllers: [RoleController],
+  providers: [RoleService],
+  exports: [RoleService],
 })
-export class RoleManagementModule {}
+export class RoleModule {}
