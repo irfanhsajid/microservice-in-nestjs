@@ -13,8 +13,6 @@ const permissionSeeder = async (conn: DataSource) => {
     name: permission.name,
     guard_name: permission.guard_name,
     group_name: permission.group_name,
-    created_at: permission.created_at,
-    updated_at: permission.updated_at,
   }));
 
   // Check for existing permissions to avoid duplicates
