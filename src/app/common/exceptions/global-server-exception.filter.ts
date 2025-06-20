@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { CustomLogger } from '../../modules/logger/logger.service';
+import { QueryFailedError } from 'typeorm';
 
 export class GlobalServerExceptionsFilter implements ExceptionFilter {
   private readonly logger = new CustomLogger(GlobalServerExceptionsFilter.name);
@@ -20,7 +21,28 @@ export class GlobalServerExceptionsFilter implements ExceptionFilter {
     let message: string | Record<string, string[]> = 'Internal server error';
     let errorTitle = 'Internal Server Error';
 
-    if (exception instanceof HttpException) {
+    // Handle TypeORM exception
+    if (exception instanceof QueryFailedError) {
+      if (
+        exception.driverError.code === '23505' ||
+        exception.driverError.errno === 1062
+      ) {
+        httpStatus = HttpStatus.CONFLICT;
+        errorTitle = 'Unique Constraint Violation';
+
+        const detail =
+          exception.driverError.detail || exception.driverError.message;
+        const fieldMatch =
+          detail?.match(/Key \((.*?)\)=/) ||
+          detail?.match(/Duplicate entry '.*?' for key '(.*?)'/);
+        const field = fieldMatch ? fieldMatch[1] : 'unknown field';
+        message = `A record with this ${field} already exists.`;
+      } else {
+        // Handle other QueryFailedError cases
+        message = 'Database error occurred';
+        errorTitle = 'Database Error';
+      }
+    } else if (exception instanceof HttpException) {
       httpStatus = exception.getStatus();
       const response = exception.getResponse();
 
