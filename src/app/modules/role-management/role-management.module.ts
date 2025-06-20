@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserDealership } from '../dealership/entities/user-dealership.entity';
 import { Permission } from './entities/permission.entity';
 import { RoleHasPermission } from './entities/role-has-permission.entity';
 import { Role } from './entities/role.entity';
-import { UserRoleDealership } from './entities/user-role-dealership.entity';
 import { RoleManagementController } from './role-management.controller';
 import { RoleManagementService } from './role-management.service';
 
@@ -13,7 +13,7 @@ import { RoleManagementService } from './role-management.service';
       Role,
       Permission,
       RoleHasPermission,
-      UserRoleDealership,
+      UserDealership,
     ]),
   ],
   controllers: [RoleManagementController],

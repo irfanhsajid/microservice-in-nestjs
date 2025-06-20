@@ -1,14 +1,15 @@
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  JoinColumn,
   ManyToOne,
   OneToOne,
-  JoinColumn,
-  CreateDateColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
 } from 'typeorm';
+import { Role } from '../../role-management/entities/role.entity';
 import { User } from '../../user/entities/user.entity';
 import { Dealership } from './dealerships.entity';
 
@@ -31,8 +32,10 @@ export class UserDealership {
   @Column({ type: 'bool', default: false })
   is_default: boolean;
 
-  @Column({ type: 'int', nullable: true })
-  role_id: number;
+  // added role_id to make the relationship with the role table
+  @ManyToOne(() => Role, (role) => role.user_roles, { nullable: true })
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 
   @CreateDateColumn()
   created_at: Date;

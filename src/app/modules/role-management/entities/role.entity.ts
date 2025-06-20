@@ -6,8 +6,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { RoleHasPermission } from './role-has-permission.entity';
-import { UserRoleDealership } from './user-role-dealership.entity';
 
 @Entity('roles')
 export class Role {
@@ -29,6 +29,6 @@ export class Role {
   @OneToMany(() => RoleHasPermission, (rolePermission) => rolePermission.role)
   permissions: RoleHasPermission[];
 
-  @OneToMany(() => UserRoleDealership, (userRole) => userRole.role)
-  user_roles: UserRoleDealership[];
+  @OneToMany(() => UserDealership, (userRole) => userRole.role)
+  user_roles: UserDealership[];
 }
