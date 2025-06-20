@@ -1,4 +1,15 @@
-export const PERMISSIONS = [
+interface Permission {
+  name: string;
+  guard_name: string;
+  group_name: string;
+  parent_id: number | null;
+  children: any[];
+  created_at: Date;
+  updated_at: Date;
+  roles: any[];
+}
+
+export const PERMISSIONS: Permission[] = [
   {
     name: 'Dashboard:View',
     guard_name: 'web',
@@ -120,3 +131,7 @@ export const PERMISSIONS = [
     roles: [],
   },
 ];
+
+export default () => ({
+  permissions: PERMISSIONS,
+});
