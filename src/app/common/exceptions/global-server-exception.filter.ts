@@ -29,7 +29,6 @@ export class GlobalServerExceptionsFilter implements ExceptionFilter {
         errorTitle = HttpStatus[httpStatus] || 'Error';
       } else if (typeof response === 'object') {
         const res: any = response;
-
         // Handle ValidationPipe formatted errors
         if (
           res.message &&
@@ -56,7 +55,7 @@ export class GlobalServerExceptionsFilter implements ExceptionFilter {
             !Array.isArray(res.message)
           )
         ) {
-          errorTitle = res.error || HttpStatus[httpStatus] || 'Error';
+          errorTitle = res.error || res || HttpStatus[httpStatus] || 'Error';
         }
       }
     }

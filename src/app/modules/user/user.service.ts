@@ -1,6 +1,6 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
+import { User, UserAccountType } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
@@ -85,7 +85,10 @@ export class UserService {
       if (!user) {
         return false;
       }
-      if (!user.profile_completed) {
+      if (
+        user.account_type === UserAccountType.DEALER &&
+        !user.profile_completed
+      ) {
         return false;
       }
       return true;
