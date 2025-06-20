@@ -58,7 +58,7 @@ export class User {
     enum: UserAccountType,
     default: UserAccountType.BUYER,
   })
-  account_type: string;
+  account_type: UserAccountType;
 
   @CreateDateColumn()
   created_at: Date;
