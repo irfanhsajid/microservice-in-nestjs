@@ -18,8 +18,11 @@ export class Permission {
   @Column({ type: 'varchar', length: 100, nullable: false })
   name: string;
 
+  @Column({ type: 'varchar', length: 35, nullable: true })
+  guard_name: string;
+
   @Column({ type: 'varchar', length: 255, nullable: true })
-  routes: string;
+  group_name: string;
 
   @Column({ type: 'integer', nullable: true })
   parent_id: number;
