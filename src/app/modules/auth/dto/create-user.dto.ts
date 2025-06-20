@@ -10,7 +10,11 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 
-import { UserAccountType } from '../../user/entities/user.entity';
+export enum UserAccountType {
+  BUYER = 'BUYER',
+  DEALER = 'DEALER',
+  OTHER = 'OTHER',
+}
 
 export class CreateUserDto {
   @ApiProperty()
