@@ -50,6 +50,9 @@ export class UserService {
       if (!user) {
         return null;
       }
+      if (user.account_type === UserAccountType.MODERATOR) {
+        return user;
+      }
       if (!(await user.comparePassword(dto.password))) {
         return null;
       }
