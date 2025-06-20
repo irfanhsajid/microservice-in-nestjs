@@ -1,4 +1,4 @@
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { SigninDto } from '../../user/dto/signin.dto';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { ResendVerifyEmailDto } from '../dto/resend-verify-email.dto';

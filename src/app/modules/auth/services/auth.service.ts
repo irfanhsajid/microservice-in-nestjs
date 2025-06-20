@@ -4,7 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { SigninDto } from '../../user/dto/signin.dto';
 import { UserResource } from '../../user/resource/user.resource';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
