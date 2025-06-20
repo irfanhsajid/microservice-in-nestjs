@@ -35,10 +35,10 @@ export class User {
   @Column({ type: 'varchar', length: 100, unique: true })
   email: string;
 
-  @Column({ type: 'date', nullable: true, default: null })
+  @Column({ type: 'timestamp', nullable: true, default: null })
   email_verified_at: Date | null;
 
-  @Column({ type: 'date', nullable: true, default: null })
+  @Column({ type: 'timestamp', nullable: true, default: null })
   profile_completed: Date | null;
 
   @Column({ type: 'varchar', length: 255, select: true })
