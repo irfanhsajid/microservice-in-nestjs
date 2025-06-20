@@ -68,8 +68,22 @@ export class RoleService {
     }));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+  async findOne(id: number) {
+    const role = await this.roleRepository.findOne({
+      where: { id },
+      relations: ['roleHasPermissions', 'roleHasPermissions.permission'],
+    });
+
+    if (!role) return null;
+
+    return {
+      id: role?.id,
+      name: role?.name,
+      status: role?.status,
+      permissions: role?.roleHasPermissions.map((rhp) => rhp.permission),
+      created_at: role?.created_at,
+      updated_at: role?.updated_at,
+    };
   }
 
   update(id: number, updateRoleDto: UpdateRoleDto) {
