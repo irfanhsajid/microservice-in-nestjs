@@ -29,22 +29,22 @@ export class DealershipPaymentInfo {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 255 })
   account_name: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 255 })
   bank_name: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 50 })
   transit_number: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 50 })
   institution_number: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 50 })
   account_number: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 255 })
   email: string;
 
   @CreateDateColumn()
