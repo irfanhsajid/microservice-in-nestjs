@@ -116,8 +116,14 @@ export class RoleService {
     return this.getSingleRoleResponse(newRole);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async remove(id: number) {
+    const role = await this.roleRepository.findOne({ where: { id } });
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${id} not found`);
+    }
+
+    await this.roleRepository.delete(id);
+    return 'Role deleted successfully';
   }
 
   async validatePermissionIds(permissions: number[]) {
