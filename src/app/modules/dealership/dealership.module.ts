@@ -1,34 +1,41 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Dealership } from './entities/dealerships.entity';
-import { DealershipDoc } from './entities/dealershipdoc.entity';
 import { DealershipPaymentInfo } from './entities/dealership-payment-info.entity';
 import { UserDealership } from './entities/user-dealership.entity';
 import { DealershipPaymentInfoController } from './controllers/dealership.paymentinfo.controller';
 import { DealershipPaymentInfoService } from './services/dealership.paymentinfo.service';
 import { DealershipInformationService } from './services/dealship.inforation.service';
 import { DealershipInformationController } from './controllers/dealership.information.controller';
+import { DealershipAddress } from './entities/dealership-address.entity';
+import { DealershipAttachment } from './entities/dealership-attachment.entity';
+import { DealershipAttachmentController } from './controllers/dealership.attachment.controller';
+import { DealershipAttachmentService } from './services/dealership-attachment.service';
+import { UploadsModule } from '../uploads/uploads.module';
 import { UserModule } from '../user/user.module';
-import { AddressModule } from '../address/address.module';
-import { AttachmentModule } from '../attachment/attachment.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Dealership,
-      DealershipDoc,
       DealershipPaymentInfo,
       UserDealership,
+      DealershipAddress,
+      DealershipAttachment,
     ]),
     UserModule,
-    AddressModule,
-    AttachmentModule,
+    UploadsModule,
   ],
-  providers: [DealershipPaymentInfoService, DealershipInformationService],
+  providers: [
+    DealershipPaymentInfoService,
+    DealershipInformationService,
+    DealershipAttachmentService,
+  ],
   controllers: [
     DealershipPaymentInfoController,
     DealershipInformationController,
+    DealershipAttachmentController,
   ],
-  exports: [],
+  exports: [DealershipInformationService],
 })
 export class DealershipModule {}

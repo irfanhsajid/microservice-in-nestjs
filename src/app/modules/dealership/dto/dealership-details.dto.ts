@@ -10,8 +10,8 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { BusinessType, LicenseClass } from '../entities/dealerships.entity';
-import { AddressDto } from '../../address/dto/address.dto';
 import { Type } from 'class-transformer';
+import { DealershipAddressDto } from './dealership-address.dto';
 
 export class DealershipDetailsDto {
   @ApiProperty()
@@ -22,7 +22,7 @@ export class DealershipDetailsDto {
   @ApiProperty()
   @IsEnum(LicenseClass)
   @IsNotEmpty()
-  dealer_class: LicenseClass;
+  license_class: LicenseClass;
 
   @ApiProperty()
   @IsEmail()
@@ -59,23 +59,23 @@ export class DealershipDetailsDto {
   @IsUrl()
   website: string;
 
-  @ApiProperty({ type: () => AddressDto })
+  @ApiProperty({ type: () => DealershipAddressDto })
   @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => AddressDto)
-  primary_address: AddressDto;
+  @ValidateNested({ each: true })
+  @Type(() => DealershipAddressDto)
+  primary_address: DealershipAddressDto;
 
-  @ApiProperty({ type: () => AddressDto, isArray: true })
+  @ApiProperty({ type: () => DealershipAddressDto, isArray: true })
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => AddressDto)
-  shipping_address: AddressDto[];
+  @Type(() => DealershipAddressDto)
+  shipping_address: DealershipAddressDto[];
 
-  @ApiProperty({ type: () => AddressDto, isArray: true })
+  @ApiProperty({ type: () => DealershipAddressDto, isArray: true })
   @IsArray()
   @IsNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => AddressDto)
-  mailing_address: AddressDto[];
+  @Type(() => DealershipAddressDto)
+  mailling_address: DealershipAddressDto[];
 }

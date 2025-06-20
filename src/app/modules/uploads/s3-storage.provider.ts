@@ -6,6 +6,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
+import { Readable } from 'stream';
 
 @Injectable()
 export class S3StorageProvider implements StorageProvider {
@@ -15,6 +16,30 @@ export class S3StorageProvider implements StorageProvider {
   constructor(private configService: ConfigService) {
     this.bucket =
       this.configService.get<string>('fileSystems.disk.s3.bucket') || '';
+  }
+
+  async uploadFileStream(
+    fileStream: Readable,
+    fileName: string,
+    folder: string,
+  ): Promise<string> {
+    try {
+      const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const key = folder ? `${folder}/${sanitizedFileName}` : sanitizedFileName;
+
+      const command = new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: fileStream,
+      });
+
+      await this.s3Client.send(command);
+      return `https://${this.bucket}.s3.amazonaws.com/${key}`;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `S3 stream upload error: ${error.message}`,
+      );
+    }
   }
 
   setClient(client: S3Client) {

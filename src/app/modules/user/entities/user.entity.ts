@@ -10,7 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Attachment } from '../../attachment/entities/attachment.entity';
+import { DealershipAttachment } from '../../dealership/entities/dealership-attachment.entity';
 import { DealershipPaymentInfo } from '../../dealership/entities/dealership-payment-info.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
@@ -37,6 +37,9 @@ export class User {
 
   @Column({ type: 'date', nullable: true, default: null })
   email_verified_at: Date | null;
+
+  @Column({ type: 'date', nullable: true, default: null })
+  profile_completed: Date | null;
 
   @Column({ type: 'varchar', length: 255, select: true })
   password: string;
@@ -76,10 +79,10 @@ export class User {
   })
   payment_infos: DealershipPaymentInfo[];
 
-  @OneToMany(() => Attachment, (attachment) => attachment.user, {
+  @OneToMany(() => DealershipAttachment, (attachment) => attachment.user, {
     cascade: true,
   })
-  attachments: Attachment[];
+  attachments: DealershipAttachment[];
 
   @BeforeInsert()
   @BeforeUpdate()

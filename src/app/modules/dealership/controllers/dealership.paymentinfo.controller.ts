@@ -13,10 +13,11 @@ import { responseReturn } from '../../../common/utils/response-return';
 import { throwCatchError } from '../../../common/utils/throw-error';
 import { CustomLogger } from '../../logger/logger.service';
 import { DealershipPaymentInfoDto } from '../dto/dealership-paymentinfo.dto';
+import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 
 @ApiTags('Onboarding')
 @ApiBearerAuth('jwt')
-@UseGuards(ApiGuard)
+@UseGuards(ApiGuard, EnsureEmailVerifiedGuard)
 @Controller('api/v1')
 export class DealershipPaymentInfoController {
   private readonly logger = new CustomLogger(DealershipPaymentInfoService.name);

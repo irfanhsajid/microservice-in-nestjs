@@ -11,19 +11,16 @@ import mail from 'src/config/mail';
 import services from 'src/config/services';
 import { GrpcModule } from 'src/grpc/grpc.module';
 import { driver } from '../database/driver';
-import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { PaymentModule } from './modules/payment/payment.module';
 // import { AppThrottlerModule } from './modules/throttler/throttler.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
-import { ApiGuard } from './guards/api.guard';
 import session from '../config/session';
-import { EnsureEmailVerifiedGuard } from './guards/ensure-email-verified.guard';
 import { DealershipModule } from './modules/dealership/dealership.module';
-import { AddressModule } from './modules/address/address.module';
-import { AttachmentModule } from './modules/attachment/attachment.module';
+import { AppController } from './app.controller';
+import { GuardsModule } from './guards/guards.module';
 
 @Module({
   imports: [
@@ -85,17 +82,16 @@ import { AttachmentModule } from './modules/attachment/attachment.module';
         };
       },
     }),
+    DealershipModule,
+    UserModule,
     AuthModule,
     PaymentModule,
-    UserModule,
     GrpcModule,
     LoggerModule,
     UploadsModule,
-    DealershipModule,
-    AddressModule,
-    AttachmentModule,
+    GuardsModule,
   ],
   controllers: [AppController],
-  providers: [ApiGuard, EnsureEmailVerifiedGuard],
+  providers: [],
 })
 export class AppModule {}

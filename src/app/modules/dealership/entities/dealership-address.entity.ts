@@ -5,16 +5,18 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
 } from 'typeorm';
+import { Dealership } from './dealerships.entity';
 
-export enum AddressType {
+export enum DealershipAddressType {
   PRIMARY = 'PRIMARY',
   MAILING = 'MAILING',
   SHIPPING = 'SHIPPING',
 }
 
-@Entity('addresses')
-export class Address {
+@Entity('dealership_address')
+export class DealershipAddress {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -24,8 +26,12 @@ export class Address {
   @Column({ type: 'integer', nullable: false })
   entity_id: number;
 
-  @Column({ type: 'enum', enum: AddressType, default: AddressType.PRIMARY })
-  type: AddressType;
+  @Column({
+    type: 'enum',
+    enum: DealershipAddressType,
+    default: DealershipAddressType.PRIMARY,
+  })
+  type: DealershipAddressType;
 
   @Column({ type: 'bool', default: false })
   make_as_default: boolean;
@@ -53,4 +59,9 @@ export class Address {
 
   @DeleteDateColumn()
   deleted_at: Date;
+
+  @ManyToOne(() => Dealership, (dealership) => dealership.addresses, {
+    nullable: false,
+  })
+  dealership: Dealership;
 }

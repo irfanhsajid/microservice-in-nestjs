@@ -1,0 +1,119 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../../user/entities/user.entity';
+import { Readable } from 'stream';
+import { DealershipAttachment } from '../entities/dealership-attachment.entity';
+import { Dealership } from '../entities/dealerships.entity';
+import { FileUploaderService } from '../../uploads/file-uploader.service';
+import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
+import { Request } from 'express';
+
+@Injectable()
+export class DealershipAttachmentService {
+  constructor(
+    @InjectRepository(DealershipAttachment)
+    private attachmentRepository: Repository<DealershipAttachment>,
+
+    @InjectRepository(Dealership)
+    private dealershipRepository: Repository<Dealership>,
+
+    private fileUploaderService: FileUploaderService,
+  ) {}
+
+  async uploadAttachment(
+    req: Request,
+    fileStream: Readable,
+    dto: DealershipAttachementDto,
+  ): Promise<DealershipAttachment> {
+    if (!fileStream) {
+      throw new BadRequestException('File stream or file name not provided');
+    }
+    const currentUser = req['user'] as User;
+
+    const deaultDealership = currentUser?.user_dealerships?.find(
+      (d) => d.is_default,
+    );
+    // Verify dealership exists
+    const dealership = await this.dealershipRepository.findOne({
+      where: { id: deaultDealership?.dealership?.id },
+    });
+    if (!dealership) {
+      throw new NotFoundException('Dealership not found');
+    }
+    try {
+      // Upload file stream to storage
+      const folder = `dealerships/${dealership?.id}/attachments`;
+      const filePath = await this.fileUploaderService.uploadFileStream(
+        fileStream,
+        dto.name,
+        folder,
+      );
+
+      // Create attachment record
+      const attachment = this.attachmentRepository.create({
+        user: currentUser,
+        dealership,
+        name: dto.name,
+        path: filePath,
+      });
+
+      // Save to database
+      return await this.attachmentRepository.save(attachment);
+    } catch (error) {
+      throw new BadRequestException(
+        `Attachment upload failed: ${error.message}`,
+      );
+    }
+  }
+
+  async deleteAttachment(attachmentId: number): Promise<any> {
+    const attachment = await this.attachmentRepository.findOne({
+      where: { id: attachmentId },
+      relations: ['dealership'],
+    });
+
+    if (!attachment) {
+      throw new NotFoundException('Attachment not found');
+    }
+
+    try {
+      // Delete file from storage
+      await this.fileUploaderService.deleteFile(attachment.path);
+
+      // Soft delete attachment record
+      return await this.attachmentRepository.delete(attachmentId);
+    } catch (error) {
+      throw new BadRequestException(
+        `Attachment deletion failed: ${error.message}`,
+      );
+    }
+  }
+
+  async getAttachments(req: Request): Promise<DealershipAttachment[]> {
+    const currentUser = req['user'] as User;
+
+    const deaultDealership = currentUser?.user_dealerships?.find(
+      (d) => d.is_default,
+    );
+
+    const dealership = await this.dealershipRepository.findOne({
+      where: { id: deaultDealership?.dealership?.id },
+    });
+    if (!dealership) {
+      return [];
+    }
+
+    return await this.attachmentRepository.find({
+      where: {
+        dealership: {
+          id: dealership?.id,
+        },
+      },
+    });
+  }
+}

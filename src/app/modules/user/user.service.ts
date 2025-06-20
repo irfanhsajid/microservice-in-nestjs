@@ -6,6 +6,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { Dealership } from '../dealership/entities/dealerships.entity';
 
 @Injectable()
 export class UserService {
@@ -14,11 +15,14 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Dealership)
+    private readonly dealershipRepository: Repository<Dealership>,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<User> {
     try {
-      // Check if user already exists by email
+      // Check if a user already exists by email
       const userExistWithEmail = await this.getUserByEmail(dto.email);
 
       if (userExistWithEmail) {
@@ -38,7 +42,7 @@ export class UserService {
 
   async validateUser(dto: SigninDto): Promise<User | null> {
     try {
-      const user = await this.getUserByEmail(dto.email);
+      const user = await this.getUserByEmail(dto.email, false);
       if (!user) {
         return null;
       }
@@ -71,6 +75,22 @@ export class UserService {
     }
   }
 
+  async CheckProfileCompleted(email: string): Promise<boolean> {
+    try {
+      const user = await this.getUserByEmail(email);
+      if (!user) {
+        return false;
+      }
+      if (!user.profile_completed) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      this.logger.error(error);
+      return false;
+    }
+  }
+
   async updateEmailVerifiedAt(email: string): Promise<User | null> {
     try {
       const user = await this.userRepository.findOne({ where: { email } });
@@ -79,7 +99,8 @@ export class UserService {
       }
 
       user.email_verified_at = new Date();
-      await this.userRepository.save(user);
+      const newUser = await this.userRepository.save(user);
+      console.log(newUser);
       return user;
     } catch (error) {
       this.logger.error(
@@ -111,9 +132,13 @@ export class UserService {
     });
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
+  async getUserByEmail(
+    email: string,
+    cache: boolean = false,
+  ): Promise<User | null> {
     return this.userRepository.findOne({
       where: { email: email },
+      cache: cache,
     });
   }
 }
