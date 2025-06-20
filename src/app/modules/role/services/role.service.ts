@@ -88,8 +88,26 @@ export class RoleService {
     if (!role) {
       throw new NotFoundException(`Role with ID ${id} not found`);
     }
-    await this.roleRepository.update(id, updateRoleDto);
-    const newRole = await this.roleRepository.findOne({ where: { id }, relations: ['roleHasPermissions', 'roleHasPermissions.permission'] });
+    await this.roleRepository.update(id, {
+      name: updateRoleDto.name,
+      status: updateRoleDto.status,
+    });
+
+    if (updateRoleDto.permissions && updateRoleDto.permissions?.length > 0) {
+      await this.roleHasPermissionRepository.delete({ role_id: id });
+      await this.roleHasPermissionRepository.save(
+        updateRoleDto.permissions.map((permission) =>
+          this.roleHasPermissionRepository.create({
+            role_id: id,
+            permission_id: permission,
+          }),
+        ),
+      );
+    }
+    const newRole = await this.roleRepository.findOne({
+      where: { id },
+      relations: ['roleHasPermissions', 'roleHasPermissions.permission'],
+    });
 
     if (!newRole) {
       throw new NotFoundException(`Role with ID ${id} not found`);
