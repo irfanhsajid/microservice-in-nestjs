@@ -7,6 +7,7 @@ import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { Dealership } from '../dealership/entities/dealerships.entity';
+import { UserDealership } from '../dealership/entities/user-dealership.entity';
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,9 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(UserDealership)
+    private readonly userDealershipRepository: Repository<UserDealership>,
 
     @InjectRepository(Dealership)
     private readonly dealershipRepository: Repository<Dealership>,
@@ -140,5 +144,29 @@ export class UserService {
       where: { email: email },
       cache: cache,
     });
+  }
+
+  async userDefaultDealership(user: User): Promise<Dealership | null> {
+    try {
+      const userDealership = await this.userDealershipRepository.findOne({
+        where: {
+          user: {
+            id: user?.id,
+          },
+          is_default: true,
+        },
+        cache: true,
+      });
+
+      return await this.dealershipRepository.findOne({
+        where: {
+          id: userDealership?.dealership.id,
+        },
+        cache: true,
+      });
+    } catch (e) {
+      this.logger.error(e);
+      return throwCatchError(e);
+    }
   }
 }

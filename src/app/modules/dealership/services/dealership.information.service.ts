@@ -247,30 +247,6 @@ export class DealershipInformationService implements OnboardingInterface<any> {
     }
   }
 
-  async userDefaultDealership(user: User): Promise<Dealership | null> {
-    try {
-      const userDealership = await this.userDealershipRepository.findOne({
-        where: {
-          user: {
-            id: user?.id,
-          },
-          is_default: true,
-        },
-        cache: true,
-      });
-
-      return await this.dealershipRepository.findOne({
-        where: {
-          id: userDealership?.dealership.id,
-        },
-        cache: true,
-      });
-    } catch (e) {
-      this.logger.error(e);
-      return throwCatchError(e);
-    }
-  }
-
   private async updateOrStoreAddresses(
     dealership: Dealership,
     dto: DealershipAddressDto[],
