@@ -38,9 +38,9 @@ export class DealershipAttachmentService {
     fileSize: number,
   ): Promise<any> {
     if (!fileStream) {
-      throw new UnprocessableEntityException(
-        'File stream or file name not provided',
-      );
+      throw new UnprocessableEntityException({
+        file: 'File stream or file name not provided',
+      });
     }
     const currentUser = req['user'] as User;
     let tempFilePath: string = '';
@@ -103,8 +103,11 @@ export class DealershipAttachmentService {
       // Delete file from storage
       await this.fileUploaderService.deleteFile(attachment.path);
 
-      // Soft delete attachment record
-      return await this.attachmentRepository.delete(attachmentId);
+      // delete attachment record
+      await this.attachmentRepository.delete(attachmentId);
+      return {
+        message: `Attachment deleted successfully`,
+      };
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);

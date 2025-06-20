@@ -90,19 +90,20 @@ export class S3StorageProvider implements StorageProvider {
       }
 
       // Extract the key from the filePath
-      const urlPattern = new RegExp(
-        `https://${this.bucket}\\.s3\\.[a-z0-9-]+\\.amazonaws\\.com/(.+)`,
-      );
-      const match = filePath.match(urlPattern);
-      if (!match || !match[1]) {
-        throw new BadRequestException(`Invalid file path: ${filePath}`);
-      }
-      const key = match[1];
+      // const urlPattern = new RegExp(
+      //   `https://${this.bucket}\\.s3\\.[a-z0-9-]+\\.amazonaws\\.com/(.+)`,
+      // );
+      // const match = filePath.match(urlPattern);
+      // console.info('match path', match, urlPattern);
+      // if (!match || !match[1]) {
+      //   throw new BadRequestException(`Invalid file path: ${filePath}`);
+      // }
+      // const key = match[1];
 
-      console.info(`Deleting file from S3 with key: ${key}`);
+      // console.info(`Deleting file from S3 with key: ${key}`);
       const command = new DeleteObjectCommand({
         Bucket: this.bucket,
-        Key: key,
+        Key: filePath,
       });
 
       await this.s3Client.send(command);
