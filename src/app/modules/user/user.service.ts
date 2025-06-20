@@ -75,6 +75,22 @@ export class UserService {
     }
   }
 
+  async CheckProfileCompleted(email: string): Promise<boolean> {
+    try {
+      const user = await this.getUserByEmail(email);
+      if (!user) {
+        return false;
+      }
+      if (!user.profile_completed) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      this.logger.error(error);
+      return false;
+    }
+  }
+
   async updateEmailVerifiedAt(email: string): Promise<User | null> {
     try {
       const user = await this.userRepository.findOne({ where: { email } });

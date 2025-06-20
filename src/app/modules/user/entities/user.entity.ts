@@ -38,6 +38,9 @@ export class User {
   @Column({ type: 'date', nullable: true, default: null })
   email_verified_at: Date | null;
 
+  @Column({ type: 'date', nullable: true, default: null })
+  profile_completed: Date | null;
+
   @Column({ type: 'varchar', length: 255, select: true })
   password: string;
 

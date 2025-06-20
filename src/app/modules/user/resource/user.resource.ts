@@ -14,6 +14,7 @@ export class UserResource extends Resource<User> {
       created_at: this.created_at,
       updated_at: this.updated_at,
       email_verified_at: this.email_verified_at || null,
+      profile_completed: this.profile_completed || null,
     };
   }
 }

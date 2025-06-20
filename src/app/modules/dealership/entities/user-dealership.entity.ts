@@ -12,7 +12,7 @@ import {
 import { User } from '../../user/entities/user.entity';
 import { Dealership } from './dealerships.entity';
 
-@Entity('user_dealerships')
+@Entity('user_role_dealerships')
 export class UserDealership {
   @PrimaryGeneratedColumn()
   id: number;
@@ -30,6 +30,9 @@ export class UserDealership {
 
   @Column({ type: 'bool', default: false })
   is_default: boolean;
+
+  @Column({ type: 'int', nullable: true })
+  role_id: number;
 
   @CreateDateColumn()
   created_at: Date;
