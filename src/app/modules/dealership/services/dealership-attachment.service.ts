@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -31,7 +32,9 @@ export class DealershipAttachmentService {
     dto: DealershipAttachementDto,
   ): Promise<DealershipAttachment> {
     if (!fileStream) {
-      throw new BadRequestException('File stream or file name not provided');
+      throw new UnprocessableEntityException(
+        'File stream or file name not provided',
+      );
     }
     const currentUser = req['user'] as User;
 

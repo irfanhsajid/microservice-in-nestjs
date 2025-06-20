@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Request,
+  UnprocessableEntityException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -89,7 +90,7 @@ export class DealershipAttachmentController {
   ) {
     const file = req.file;
     if (!file) {
-      throw new BadRequestException('No file uploaded');
+      throw new UnprocessableEntityException('File is required');
     }
 
     // Create a readable stream from the file buffer (Multer still buffers in memoryStorage)
