@@ -27,8 +27,8 @@ export class RoleController {
 
   @ApiOperation({ summary: 'Get all roles' })
   @Get()
-  findAll() {
-    return this.roleService.findAll();
+  async findAll() {
+    return await this.roleService.findAll();
   }
 
   @Get(':id')

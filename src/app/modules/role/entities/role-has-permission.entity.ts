@@ -19,11 +19,11 @@ export class RoleHasPermission {
   @Column({ type: 'integer', nullable: false })
   permission_id: number;
 
-  @ManyToOne(() => Role, (role) => role.permissions)
+  @ManyToOne(() => Role, (role) => role.roleHasPermissions)
   @JoinColumn({ name: 'role_id' })
   role: Role;
 
-  @ManyToOne(() => Permission, (permission) => permission.roles)
+  @ManyToOne(() => Permission, (permission) => permission.roleHasPermissions)
   @JoinColumn({ name: 'permission_id' })
   permission: Permission;
 }

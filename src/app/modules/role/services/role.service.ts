@@ -53,10 +53,19 @@ export class RoleService {
     return role;
   }
 
-  findAll() {
-    return this.roleRepository.find({
-      relations: ['permissions'],
+  async findAll() {
+    const roles = await this.roleRepository.find({
+      relations: ['roleHasPermissions', 'roleHasPermissions.permission'],
     });
+
+    return roles.map((role) => ({
+      id: role.id,
+      name: role.name,
+      status: role.status,
+      permissions: role.roleHasPermissions.map((rhp) => rhp.permission),
+      created_at: role.created_at,
+      updated_at: role.updated_at,
+    }));
   }
 
   findOne(id: number) {

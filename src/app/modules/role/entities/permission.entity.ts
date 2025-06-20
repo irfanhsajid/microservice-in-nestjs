@@ -28,9 +28,8 @@ export class Permission {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(
-    () => RoleHasPermission,
-    (rolePermission) => rolePermission.permission,
-  )
-  roles: RoleHasPermission[];
+  @OneToMany(() => RoleHasPermission, (rhp) => rhp.permission, {
+    cascade: true,
+  })
+  roleHasPermissions: RoleHasPermission[];
 }
