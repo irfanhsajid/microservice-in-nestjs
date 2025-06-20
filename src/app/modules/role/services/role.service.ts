@@ -1,4 +1,8 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CreateRoleDto } from '../dto/create-role.dto';
 import { UpdateRoleDto } from '../dto/update-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -76,18 +80,22 @@ export class RoleService {
 
     if (!role) return null;
 
-    return {
-      id: role?.id,
-      name: role?.name,
-      status: role?.status,
-      permissions: role?.roleHasPermissions.map((rhp) => rhp.permission),
-      created_at: role?.created_at,
-      updated_at: role?.updated_at,
-    };
+    return this.getSingleRoleResponse(role);
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
+  async update(id: number, updateRoleDto: UpdateRoleDto) {
+    const role = await this.roleRepository.findOne({ where: { id } });
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${id} not found`);
+    }
+    await this.roleRepository.update(id, updateRoleDto);
+    const newRole = await this.roleRepository.findOne({ where: { id }, relations: ['roleHasPermissions', 'roleHasPermissions.permission'] });
+
+    if (!newRole) {
+      throw new NotFoundException(`Role with ID ${id} not found`);
+    }
+
+    return this.getSingleRoleResponse(newRole);
   }
 
   remove(id: number) {
@@ -101,5 +109,16 @@ export class RoleService {
     });
 
     return validPermissionIds;
+  }
+
+  getSingleRoleResponse(role: Role) {
+    return {
+      id: role.id,
+      name: role.name,
+      status: role.status,
+      permissions: role.roleHasPermissions.map((rhp) => rhp.permission),
+      created_at: role.created_at,
+      updated_at: role.updated_at,
+    };
   }
 }
