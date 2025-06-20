@@ -1,7 +1,7 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,9 +12,14 @@ import { Dealership } from '../entities/dealerships.entity';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
 import { Request } from 'express';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { CustomLogger } from '../../logger/logger.service';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class DealershipAttachmentService {
+  private readonly logger = new CustomLogger(DealershipAttachmentService.name);
+
   constructor(
     @InjectRepository(DealershipAttachment)
     private attachmentRepository: Repository<DealershipAttachment>,
@@ -27,13 +32,18 @@ export class DealershipAttachmentService {
 
   async uploadAttachment(
     req: Request,
+    originalFileName: string,
     fileStream: Readable,
     dto: DealershipAttachementDto,
-  ): Promise<DealershipAttachment> {
+    fileSize: number,
+  ): Promise<any> {
     if (!fileStream) {
-      throw new BadRequestException('File stream or file name not provided');
+      throw new UnprocessableEntityException({
+        file: 'File stream or file name not provided',
+      });
     }
     const currentUser = req['user'] as User;
+    let tempFilePath: string = '';
 
     const deaultDealership = currentUser?.user_dealerships?.find(
       (d) => d.is_default,
@@ -47,27 +57,35 @@ export class DealershipAttachmentService {
     }
     try {
       // Upload file stream to storage
-      const folder = `dealerships/${dealership?.id}/attachments`;
       const filePath = await this.fileUploaderService.uploadFileStream(
         fileStream,
-        dto.name,
-        folder,
+        originalFileName,
+        fileSize,
       );
+
+      tempFilePath = filePath;
 
       // Create attachment record
       const attachment = this.attachmentRepository.create({
         user: currentUser,
         dealership,
-        name: dto.name,
+        name: dto.name as unknown as string,
         path: filePath,
       });
 
       // Save to database
-      return await this.attachmentRepository.save(attachment);
+      await this.attachmentRepository.save(attachment);
+      const data = instanceToPlain(attachment);
+      delete data?.dealership;
+      delete data?.user;
+      return data;
     } catch (error) {
-      throw new BadRequestException(
-        `Attachment upload failed: ${error.message}`,
-      );
+      // delete file if attchement not created
+      if (tempFilePath) {
+        await this.fileUploaderService.deleteFile(tempFilePath);
+      }
+      this.logger.error(error);
+      return throwCatchError(error);
     }
   }
 
@@ -85,12 +103,14 @@ export class DealershipAttachmentService {
       // Delete file from storage
       await this.fileUploaderService.deleteFile(attachment.path);
 
-      // Soft delete attachment record
-      return await this.attachmentRepository.delete(attachmentId);
+      // delete attachment record
+      await this.attachmentRepository.delete(attachmentId);
+      return {
+        message: `Attachment deleted successfully`,
+      };
     } catch (error) {
-      throw new BadRequestException(
-        `Attachment deletion failed: ${error.message}`,
-      );
+      this.logger.error(error);
+      return throwCatchError(error);
     }
   }
 

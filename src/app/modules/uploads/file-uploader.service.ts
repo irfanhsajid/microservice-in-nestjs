@@ -27,6 +27,7 @@ export class FileUploaderService {
   async uploadFileStream(
     fileStream: Readable,
     fileName: string,
+    fileSize: number = 0,
     folder: string = '',
   ): Promise<string> {
     if (!fileStream || !fileName) {
@@ -38,6 +39,7 @@ export class FileUploaderService {
         fileStream,
         fileName,
         folder,
+        fileSize,
       );
       return filePath;
     } catch (error) {

@@ -6,6 +6,7 @@ export interface StorageProvider {
     fileStream: Readable,
     fileName: string,
     folder: string,
+    fileSize: number,
   ): Promise<string>;
   deleteFile(filePath: string): Promise<void>;
 }
