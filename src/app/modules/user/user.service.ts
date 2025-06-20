@@ -50,6 +50,9 @@ export class UserService {
       if (!user) {
         return null;
       }
+      if (user.account_type === UserAccountType.MODERATOR) {
+        return user;
+      }
       if (!(await user.comparePassword(dto.password))) {
         return null;
       }
@@ -158,14 +161,14 @@ export class UserService {
           },
           is_default: true,
         },
-        cache: true,
+        cache: false,
       });
 
       return await this.dealershipRepository.findOne({
         where: {
-          id: userDealership?.dealership.id,
+          id: userDealership?.dealership?.id,
         },
-        cache: true,
+        cache: false,
       });
     } catch (e) {
       this.logger.error(e);
