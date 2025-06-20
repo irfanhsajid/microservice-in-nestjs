@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,9 +12,13 @@ import { Dealership } from '../entities/dealerships.entity';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
 import { Request } from 'express';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { CustomLogger } from '../../logger/logger.service';
 
 @Injectable()
 export class DealershipAttachmentService {
+  private readonly logger = new CustomLogger(DealershipAttachmentService.name);
+
   constructor(
     @InjectRepository(DealershipAttachment)
     private attachmentRepository: Repository<DealershipAttachment>,
@@ -37,6 +40,7 @@ export class DealershipAttachmentService {
       );
     }
     const currentUser = req['user'] as User;
+    let tempFilePath = '';
 
     const deaultDealership = currentUser?.user_dealerships?.find(
       (d) => d.is_default,
@@ -53,24 +57,27 @@ export class DealershipAttachmentService {
       const folder = `dealerships/${dealership?.id}/attachments`;
       const filePath = await this.fileUploaderService.uploadFileStream(
         fileStream,
-        dto.name,
+        dto.name as unknown as string,
         folder,
       );
+
+      tempFilePath = filePath;
 
       // Create attachment record
       const attachment = this.attachmentRepository.create({
         user: currentUser,
         dealership,
-        name: dto.name,
+        name: dto.name as unknown as string,
         path: filePath,
       });
 
       // Save to database
       return await this.attachmentRepository.save(attachment);
     } catch (error) {
-      throw new BadRequestException(
-        `Attachment upload failed: ${error.message}`,
-      );
+      // delete file if attchement not created
+      await this.fileUploaderService.deleteFile(tempFilePath);
+      this.logger.error(error);
+      return throwCatchError(error);
     }
   }
 
@@ -91,9 +98,8 @@ export class DealershipAttachmentService {
       // Soft delete attachment record
       return await this.attachmentRepository.delete(attachmentId);
     } catch (error) {
-      throw new BadRequestException(
-        `Attachment deletion failed: ${error.message}`,
-      );
+      this.logger.error(error);
+      return throwCatchError(error);
     }
   }
 
