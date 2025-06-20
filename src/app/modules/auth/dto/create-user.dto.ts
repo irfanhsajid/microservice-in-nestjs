@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  Equals,
   IsBoolean,
   IsEmail,
   IsEnum,
@@ -9,7 +10,7 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 
-import { UserAccountType } from '../entities/user.entity';
+import { UserAccountType } from '../../user/entities/user.entity';
 
 export class CreateUserDto {
   @ApiProperty()
@@ -22,7 +23,13 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsString()
-  @IsStrongPassword()
+  @IsStrongPassword(
+    {},
+    {
+      message:
+        'Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one symbol.',
+    },
+  )
   password: string;
 
   @ApiProperty()
@@ -32,8 +39,8 @@ export class CreateUserDto {
   phone_number: string;
 
   @ApiProperty()
-  @IsOptional()
   @IsBoolean()
+  @Equals(true, { message: 'You must accept the privacy policy.' })
   accept_privacy: boolean;
 
   @ApiProperty({ enum: UserAccountType })

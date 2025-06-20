@@ -1,6 +1,6 @@
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Post } from '@nestjs/common';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { AuthService } from '../services/auth.service';
 import { responseReturn } from 'src/app/common/utils/response-return';
 import { throwCatchError } from 'src/app/common/utils/throw-error';

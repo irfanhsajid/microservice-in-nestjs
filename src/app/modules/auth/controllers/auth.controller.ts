@@ -32,7 +32,7 @@ export class AuthenticatedController {
   async logout(@Request() req: any) {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
-      const userId = req.user.sub;
+      const userId = req.user.id;
       const email = req.user.email;
 
       if (!token || !userId) {
