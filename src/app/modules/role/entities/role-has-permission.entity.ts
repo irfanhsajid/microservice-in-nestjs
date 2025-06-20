@@ -1,11 +1,9 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { Permission } from './permission.entity';
 import { Role } from './role.entity';
@@ -28,10 +26,4 @@ export class RoleHasPermission {
   @ManyToOne(() => Permission, (permission) => permission.roles)
   @JoinColumn({ name: 'permission_id' })
   permission: Permission;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }
