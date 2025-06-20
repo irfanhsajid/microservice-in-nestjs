@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -5,14 +6,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany, OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { Attachment } from '../../attachment/entities/attachment.entity';
 import { DealershipPaymentInfo } from '../../dealership/entities/dealership-payment-info.entity';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 export enum UserAccountType {
   BUYER = 'BUYER',
