@@ -36,6 +36,6 @@ import { UserModule } from '../user/user.module';
     DealershipInformationController,
     DealershipAttachmentController,
   ],
-  exports: [DealershipInformationService, TypeOrmModule],
+  exports: [DealershipInformationService],
 })
 export class DealershipModule {}

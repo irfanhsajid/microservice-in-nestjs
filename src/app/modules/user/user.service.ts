@@ -6,6 +6,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { Dealership } from '../dealership/entities/dealerships.entity';
 
 @Injectable()
 export class UserService {
@@ -14,6 +15,9 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Dealership)
+    private readonly dealershipRepository: Repository<Dealership>,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<User> {

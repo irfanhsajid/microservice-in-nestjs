@@ -5,9 +5,10 @@ import { User } from './entities/user.entity';
 import { PasswordReset } from './entities/password-reset.entity';
 import { PasswordResetService } from './password-reset.service';
 import { UserController } from './controllers/user.controller';
+import { Dealership } from '../dealership/entities/dealerships.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, PasswordReset])],
+  imports: [TypeOrmModule.forFeature([User, PasswordReset, Dealership])],
   controllers: [UserController],
   providers: [UserService, PasswordResetService],
   exports: [UserService, PasswordResetService, TypeOrmModule],
