@@ -13,6 +13,9 @@ export class DealershipPaymentInfoService
   implements OnboardingInterface<DealershipPaymentInfo>
 {
   constructor(
+    @InjectRepository(User)
+    protected readonly userRepository: Repository<User>,
+
     @InjectRepository(UserDealership)
     protected readonly userDealershipRepository: Repository<UserDealership>,
 
@@ -56,8 +59,6 @@ export class DealershipPaymentInfoService
       relations: ['dealership'],
     });
 
-    console.log(userDealership);
-
     const exitingPaymentInfo = await this.dealershipPaymentInfo.findOne({
       where: {
         user: {
@@ -68,6 +69,8 @@ export class DealershipPaymentInfoService
         },
       },
     });
+    user.profile_completed = new Date();
+    await this.userRepository.save(user);
 
     if (!exitingPaymentInfo) {
       const newPaymentInfo = this.dealershipPaymentInfo.create({

@@ -24,13 +24,13 @@ import { RegisteredController } from './controllers/auth.registered.controller';
 import { VerifyEmailController } from './controllers/auth.verifyemail.controller';
 import { PasswordResetLinkController } from './controllers/auth.passwordresetlink.controller';
 import { AuthMailService } from './mail/auth.service';
+import { User } from '../user/entities/user.entity';
 
 @Module({
   imports: [
     ConfigModule,
     UserModule,
-    UserModule,
-    TypeOrmModule.forFeature([Session, BlacklistTokenStore]),
+    TypeOrmModule.forFeature([Session, BlacklistTokenStore, User]),
     PassportModule.register({ session: true }),
     // Grpc client
     ClientsModule.registerAsync([

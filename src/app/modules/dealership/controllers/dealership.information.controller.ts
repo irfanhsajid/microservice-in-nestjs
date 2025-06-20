@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DealershipDetailsDto } from '../dto/dealership-details.dto';
-import { DealershipInformationService } from '../services/dealship.inforation.service';
+import { DealershipInformationService } from '../services/dealership.information.service';
 import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';

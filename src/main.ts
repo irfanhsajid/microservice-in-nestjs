@@ -15,6 +15,7 @@ import { UserResponseFormatterInterceptor } from './app/common/interceptors/user
 import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
 import { docsAuthMiddleware } from './utils/docs-auth.middleware';
 import { Session } from './app/modules/auth/entities/session.entity';
+import { ValidationError } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -85,7 +86,51 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  // Validation pipes errors
+  // // Validation pipes errors
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     whitelist: true,
+  //     forbidNonWhitelisted: true,
+  //     transform: true,
+  //     transformOptions: {
+  //       enableImplicitConversion: true,
+  //       exposeUnsetFields: false,
+  //     },
+  //     exceptionFactory: (errors) => {
+  //       const formatErrors = (
+  //         errs: any[],
+  //         parent = '',
+  //       ): Record<string, string[]> => {
+  //         return errs.reduce(
+  //           (acc, err) => {
+  //             const propertyPath = parent
+  //               ? `${parent}.${err.property}`
+  //               : err.property;
+
+  //             if (err.constraints) {
+  //               acc[propertyPath] = Object.values(err.constraints);
+  //             }
+
+  //             if (err.children && err.children.length > 0) {
+  //               Object.assign(acc, formatErrors(err.children, propertyPath));
+  //             }
+
+  //             return acc;
+  //           },
+  //           {} as Record<string, string[]>,
+  //         );
+  //       };
+
+  //       const formattedErrors = formatErrors(errors);
+
+  //       return new UnprocessableEntityException({
+  //         error: formattedErrors,
+  //         message: 'Unprocessed content',
+  //       });
+  //     },
+  //   }),
+  // );
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -95,37 +140,45 @@ async function bootstrap() {
         enableImplicitConversion: true,
         exposeUnsetFields: false,
       },
-      exceptionFactory: (errors) => {
-        const formatErrors = (
-          errs: any[],
-          parent = '',
-        ): Record<string, string[]> => {
-          return errs.reduce(
-            (acc, err) => {
-              const propertyPath = parent
-                ? `${parent}.${err.property}`
-                : err.property;
+      exceptionFactory: (errors: any) => {
+        // Only process class-validator errors
+        if (
+          errors &&
+          Array.isArray(errors) &&
+          errors.every((e) => e instanceof ValidationError)
+        ) {
+          const formatErrors = (
+            errs: ValidationError[],
+            parent = '',
+          ): Record<string, string[]> => {
+            return errs.reduce(
+              (acc, err) => {
+                const propertyPath = parent
+                  ? `${parent}.${err.property}`
+                  : err.property;
 
-              if (err.constraints) {
-                acc[propertyPath] = Object.values(err.constraints);
-              }
+                if (err.constraints) {
+                  acc[propertyPath] = Object.values(err.constraints);
+                }
 
-              if (err.children && err.children.length > 0) {
-                Object.assign(acc, formatErrors(err.children, propertyPath));
-              }
+                if (err.children && err.children.length > 0) {
+                  Object.assign(acc, formatErrors(err.children, propertyPath));
+                }
 
-              return acc;
-            },
-            {} as Record<string, string[]>,
-          );
-        };
+                return acc;
+              },
+              {} as Record<string, string[]>,
+            );
+          };
 
-        const formattedErrors = formatErrors(errors);
-
-        return new UnprocessableEntityException({
-          error: formattedErrors,
-          message: 'Unprocessed content',
-        });
+          const formattedErrors = formatErrors(errors);
+          return new UnprocessableEntityException({
+            error: formattedErrors,
+            message: 'Unprocessed content',
+          });
+        }
+        // If not a class-validator error, rethrow the original error
+        throw errors;
       },
     }),
   );
