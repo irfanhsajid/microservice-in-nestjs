@@ -15,12 +15,13 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { PaymentModule } from './modules/payment/payment.module';
 // import { AppThrottlerModule } from './modules/throttler/throttler.module';
-import { UploadsModule } from './modules/uploads/uploads.module';
-import { UserModule } from './modules/user/user.module';
 import session from '../config/session';
-import { DealershipModule } from './modules/dealership/dealership.module';
 import { AppController } from './app.controller';
 import { GuardsModule } from './guards/guards.module';
+import { DealershipModule } from './modules/dealership/dealership.module';
+import { RoleManagementModule } from './modules/role/role.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { GuardsModule } from './guards/guards.module';
     LoggerModule,
     UploadsModule,
     GuardsModule,
+    RoleManagementModule,
   ],
   controllers: [AppController],
   providers: [],

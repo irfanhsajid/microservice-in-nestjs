@@ -1,26 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRoleManagementDto } from './dto/create-role-management.dto';
-import { UpdateRoleManagementDto } from './dto/update-role-management.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Permission } from './entities/permission.entity';
+import { Role } from './entities/role.entity';
 
 @Injectable()
 export class RoleManagementService {
-  create(createRoleManagementDto: CreateRoleManagementDto) {
-    return 'This action adds a new roleManagement';
-  }
-
-  findAll() {
-    return `This action returns all roleManagement`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} roleManagement`;
-  }
-
-  update(id: number, updateRoleManagementDto: UpdateRoleManagementDto) {
-    return `This action updates a #${id} roleManagement`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} roleManagement`;
+  constructor(
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
+  ) {}
+  //get all permissions
+  async getPermissions() {
+    return this.permissionRepository.find();
   }
 }
