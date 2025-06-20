@@ -2,8 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -23,16 +21,6 @@ export class Permission {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   group_name: string;
-
-  @Column({ type: 'integer', nullable: true })
-  parent_id: number;
-
-  @ManyToOne(() => Permission, (permission) => permission.children)
-  @JoinColumn({ name: 'parent_id' })
-  parent: Permission;
-
-  @OneToMany(() => Permission, (permission) => permission.parent)
-  children: Permission[];
 
   @CreateDateColumn()
   created_at: Date;

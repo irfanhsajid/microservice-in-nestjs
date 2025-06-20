@@ -2,11 +2,12 @@ interface Permission {
   name: string;
   guard_name: string;
   group_name: string;
-  parent_id: number | null;
-  children: any[];
   created_at: Date;
   updated_at: Date;
-  roles: any[];
+}
+
+interface PermissionConfig {
+  permissions: Permission[];
 }
 
 export const PERMISSIONS: Permission[] = [
@@ -14,124 +15,89 @@ export const PERMISSIONS: Permission[] = [
     name: 'Dashboard:View',
     guard_name: 'web',
     group_name: 'Dashboard',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Dashboard:Edit',
     guard_name: 'web',
     group_name: 'Dashboard',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Billing Controls:View',
     guard_name: 'web',
     group_name: 'Billing Controls',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Billing Controls:Edit',
     guard_name: 'web',
     group_name: 'Billing Controls',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Plan Management:View',
     guard_name: 'web',
     group_name: 'Plan Management',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Plan Management:Edit',
     guard_name: 'web',
     group_name: 'Plan Management',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Role Management:View',
     guard_name: 'web',
     group_name: 'Role Management',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Role Management:Edit',
     guard_name: 'web',
     group_name: 'Role Management',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'User Management:View',
     guard_name: 'web',
     group_name: 'User Management',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'User Management:Edit',
     guard_name: 'web',
     group_name: 'User Management',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Dealer Management:View',
     guard_name: 'web',
     group_name: 'Dealer Management',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
   {
     name: 'Dealer Management:Edit',
     guard_name: 'web',
     group_name: 'Dealer Management',
-    parent_id: null,
-    children: [],
     created_at: new Date(),
     updated_at: new Date(),
-    roles: [],
   },
 ];
 
-export default () => ({
-  permissions: PERMISSIONS,
-});
+export default () =>
+  ({
+    permissions: PERMISSIONS,
+  }) as PermissionConfig;
