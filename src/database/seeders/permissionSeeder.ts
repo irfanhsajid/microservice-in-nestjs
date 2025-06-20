@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Permission } from '../../app/modules/role/entities/permission.entity';
-import permissionConfig from '../../config/permission';
+import permissionConfig from '../../config/permissions';
 
 const permissionSeeder = async (conn: DataSource) => {
   const permissionRepo = conn.getRepository(Permission);
