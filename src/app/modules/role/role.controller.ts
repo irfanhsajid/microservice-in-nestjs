@@ -31,16 +31,19 @@ export class RoleController {
     return await this.roleService.findAll();
   }
 
+  @ApiOperation({ summary: 'Get role by id' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.roleService.findOne(+id);
   }
 
+  @ApiOperation({ summary: 'Update role' })
   @Put(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.roleService.update(+id, updateRoleDto);
   }
 
+  @ApiOperation({ summary: 'Delete role' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.roleService.remove(+id);
