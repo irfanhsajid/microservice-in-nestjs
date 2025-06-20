@@ -17,8 +17,8 @@ export class Role {
   @Column({ type: 'varchar', length: 50, nullable: false })
   name: string;
 
-  @Column({ type: 'varchar', length: 30, nullable: true })
-  guard: string;
+  @Column({ type: 'boolean', default: true })
+  status: boolean;
 
   @CreateDateColumn()
   created_at: Date;
