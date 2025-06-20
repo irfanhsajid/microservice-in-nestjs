@@ -1,10 +1,10 @@
-import { Controller, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiGuard } from '../../../guards/api.guard';
-import { UserService } from '../user.service';
-import { CustomLogger } from '../../logger/logger.service';
 import { throwCatchError } from '../../../common/utils/throw-error';
+import { ApiGuard } from '../../../guards/api.guard';
+import { CustomLogger } from '../../logger/logger.service';
 import { UserResource } from '../resource/user.resource';
+import { UserService } from '../user.service';
 
 @ApiTags('User')
 @ApiBearerAuth('jwt')
