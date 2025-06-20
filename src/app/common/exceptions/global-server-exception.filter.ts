@@ -58,7 +58,7 @@ export class GlobalServerExceptionsFilter implements ExceptionFilter {
           errorTitle = res.error || HttpStatus[httpStatus] || 'Error';
         }
 
-        if (!res?.message || !res.statusCode) {
+        if (!res?.message && !res.statusCode && !res.error) {
           errorTitle = res;
         }
       }

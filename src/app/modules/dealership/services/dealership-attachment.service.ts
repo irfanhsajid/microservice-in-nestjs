@@ -14,6 +14,7 @@ import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
 import { Request } from 'express';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { CustomLogger } from '../../logger/logger.service';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class DealershipAttachmentService {
@@ -31,16 +32,18 @@ export class DealershipAttachmentService {
 
   async uploadAttachment(
     req: Request,
+    originalFileName: string,
     fileStream: Readable,
     dto: DealershipAttachementDto,
-  ): Promise<DealershipAttachment> {
+    fileSize: number,
+  ): Promise<any> {
     if (!fileStream) {
       throw new UnprocessableEntityException(
         'File stream or file name not provided',
       );
     }
     const currentUser = req['user'] as User;
-    let tempFilePath = '';
+    let tempFilePath: string = '';
 
     const deaultDealership = currentUser?.user_dealerships?.find(
       (d) => d.is_default,
@@ -54,11 +57,10 @@ export class DealershipAttachmentService {
     }
     try {
       // Upload file stream to storage
-      const folder = `dealerships/${dealership?.id}/attachments`;
       const filePath = await this.fileUploaderService.uploadFileStream(
         fileStream,
-        dto.name as unknown as string,
-        folder,
+        originalFileName,
+        fileSize,
       );
 
       tempFilePath = filePath;
@@ -72,10 +74,16 @@ export class DealershipAttachmentService {
       });
 
       // Save to database
-      return await this.attachmentRepository.save(attachment);
+      await this.attachmentRepository.save(attachment);
+      const data = instanceToPlain(attachment);
+      delete data?.dealership;
+      delete data?.user;
+      return data;
     } catch (error) {
       // delete file if attchement not created
-      await this.fileUploaderService.deleteFile(tempFilePath);
+      if (tempFilePath) {
+        await this.fileUploaderService.deleteFile(tempFilePath);
+      }
       this.logger.error(error);
       return throwCatchError(error);
     }

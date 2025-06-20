@@ -22,7 +22,10 @@ import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { DealershipAttachmentService } from '../services/dealership-attachment.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
+import {
+  DealershipAttachementDto,
+  DealershipAttachementFileType,
+} from '../dto/dealership-attachment.dto';
 import { memoryStorage } from 'multer';
 import { Readable } from 'stream';
 import { DealershipAttachment } from '../entities/dealership-attachment.entity';
@@ -50,9 +53,9 @@ export class DealershipAttachmentController {
       fileFilter: (req, file, cb) => {
         if (!allowedMimeTypes.includes(file.mimetype)) {
           return cb(
-            new UnprocessableEntityException(
-              `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,
-            ),
+            new UnprocessableEntityException({
+              file: `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,
+            }),
             false,
           );
         }
@@ -72,6 +75,7 @@ export class DealershipAttachmentController {
         },
         name: {
           type: 'string',
+          enum: Object.values(DealershipAttachementFileType),
         },
       },
     },
@@ -84,17 +88,25 @@ export class DealershipAttachmentController {
   ) {
     const file = req.file;
     if (!file) {
-      throw new UnprocessableEntityException('File is required');
+      throw new UnprocessableEntityException({
+        file: 'File is required',
+      });
     }
 
     // Create a readable stream from the file buffer (Multer still buffers in memoryStorage)
     // Note: This is not ideal for large files; see below for a fully streaming alternative
+    const originalFileName = file.originalname;
+
     const fileStream = Readable.from(file.buffer);
+
+    const fileSize = file.size;
 
     return this.dealershipAttachementService.uploadAttachment(
       req,
+      originalFileName,
       fileStream,
       dto,
+      fileSize,
     );
   }
 
