@@ -5,7 +5,7 @@ import { DealershipPaymentInfo } from './entities/dealership-payment-info.entity
 import { UserDealership } from './entities/user-dealership.entity';
 import { DealershipPaymentInfoController } from './controllers/dealership.paymentinfo.controller';
 import { DealershipPaymentInfoService } from './services/dealership.paymentinfo.service';
-import { DealershipInformationService } from './services/dealship.inforation.service';
+import { DealershipInformationService } from './services/dealership.information.service';
 import { DealershipInformationController } from './controllers/dealership.information.controller';
 import { DealershipAddress } from './entities/dealership-address.entity';
 import { DealershipAttachment } from './entities/dealership-attachment.entity';
