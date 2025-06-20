@@ -77,7 +77,11 @@ export class GlobalServerExceptionsFilter implements ExceptionFilter {
             !Array.isArray(res.message)
           )
         ) {
-          errorTitle = res.error || res || HttpStatus[httpStatus] || 'Error';
+          errorTitle = res.error || HttpStatus[httpStatus] || 'Error';
+        }
+
+        if (!res?.message && !res.statusCode && !res.error) {
+          errorTitle = res;
         }
       }
     }

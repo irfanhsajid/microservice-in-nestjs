@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,6 +6,7 @@ import {
   Param,
   Post,
   Request,
+  UnprocessableEntityException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,11 +22,15 @@ import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { DealershipAttachmentService } from '../services/dealership-attachment.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
+import {
+  DealershipAttachementDto,
+  DealershipAttachementFileType,
+} from '../dto/dealership-attachment.dto';
 import { memoryStorage } from 'multer';
 import { Readable } from 'stream';
 import { DealershipAttachment } from '../entities/dealership-attachment.entity';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
+import { allowedMimeTypes } from '../dto/allowed-file-type';
 
 @ApiTags('Onboarding')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard)
@@ -47,17 +51,11 @@ export class DealershipAttachmentController {
       storage: memoryStorage(), // Minimal buffering to access metadata
       // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
       fileFilter: (req, file, cb) => {
-        const allowedMimeTypes = [
-          'application/pdf',
-          'image/jpeg',
-          'image/png',
-          'text/plain',
-        ];
         if (!allowedMimeTypes.includes(file.mimetype)) {
           return cb(
-            new BadRequestException(
-              `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,
-            ),
+            new UnprocessableEntityException({
+              file: `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,
+            }),
             false,
           );
         }
@@ -77,6 +75,7 @@ export class DealershipAttachmentController {
         },
         name: {
           type: 'string',
+          enum: Object.values(DealershipAttachementFileType),
         },
       },
     },
@@ -89,17 +88,25 @@ export class DealershipAttachmentController {
   ) {
     const file = req.file;
     if (!file) {
-      throw new BadRequestException('No file uploaded');
+      throw new UnprocessableEntityException({
+        file: 'File is required',
+      });
     }
 
     // Create a readable stream from the file buffer (Multer still buffers in memoryStorage)
     // Note: This is not ideal for large files; see below for a fully streaming alternative
+    const originalFileName = file.originalname;
+
     const fileStream = Readable.from(file.buffer);
+
+    const fileSize = file.size;
 
     return this.dealershipAttachementService.uploadAttachment(
       req,
+      originalFileName,
       fileStream,
       dto,
+      fileSize,
     );
   }
 
