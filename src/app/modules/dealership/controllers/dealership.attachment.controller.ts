@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,6 +6,7 @@ import {
   Param,
   Post,
   Request,
+  UnprocessableEntityException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -27,6 +27,7 @@ import { memoryStorage } from 'multer';
 import { Readable } from 'stream';
 import { DealershipAttachment } from '../entities/dealership-attachment.entity';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
+import { allowedMimeTypes } from '../dto/allowed-file-type';
 
 @ApiTags('Onboarding')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard)
@@ -47,15 +48,9 @@ export class DealershipAttachmentController {
       storage: memoryStorage(), // Minimal buffering to access metadata
       // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
       fileFilter: (req, file, cb) => {
-        const allowedMimeTypes = [
-          'application/pdf',
-          'image/jpeg',
-          'image/png',
-          'text/plain',
-        ];
         if (!allowedMimeTypes.includes(file.mimetype)) {
           return cb(
-            new BadRequestException(
+            new UnprocessableEntityException(
               `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,
             ),
             false,
@@ -89,7 +84,7 @@ export class DealershipAttachmentController {
   ) {
     const file = req.file;
     if (!file) {
-      throw new BadRequestException('No file uploaded');
+      throw new UnprocessableEntityException('File is required');
     }
 
     // Create a readable stream from the file buffer (Multer still buffers in memoryStorage)
