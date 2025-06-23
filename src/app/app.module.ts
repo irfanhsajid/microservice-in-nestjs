@@ -21,6 +21,7 @@ import session from '../config/session';
 import { DealershipModule } from './modules/dealership/dealership.module';
 import { AppController } from './app.controller';
 import { GuardsModule } from './guards/guards.module';
+import oauth from 'src/config/oauth';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { GuardsModule } from './guards/guards.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [database, app, services, mail, filesystems, session],
+      load: [database, app, services, mail, filesystems, session, oauth],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: driver,

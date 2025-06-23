@@ -1,10 +1,10 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Post,
   Request,
   UnauthorizedException,
+  UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -36,7 +36,9 @@ export class AuthenticatedController {
       const email = req.user.email;
 
       if (!token || !userId) {
-        throw new BadRequestException('Token and user ID are required');
+        throw new UnprocessableEntityException({
+          message: 'Token and user ID are required',
+        });
       }
 
       await this.authService.revokeToken(token, userId);

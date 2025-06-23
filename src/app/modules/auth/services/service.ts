@@ -115,7 +115,7 @@ export class Service {
   }
 
   // create jwt token
-  protected async createJwtToken(
+  async createJwtToken(
     user: User,
   ): Promise<{ access_token: string; expired_at: Date }> {
     try {
@@ -137,5 +137,13 @@ export class Service {
       this.logger.error(error);
       return throwCatchError(error);
     }
+  }
+
+  async validateOrOAuthUser(data: {
+    email: string;
+    name: string;
+    avatar: string;
+  }): Promise<any> {
+    return await this.userService.createOrLoginOauthUser(data);
   }
 }

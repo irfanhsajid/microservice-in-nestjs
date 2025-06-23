@@ -1,3 +1,4 @@
+import { TwitterAuthStrategy } from './strategy/twitter.strategy';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -25,6 +26,10 @@ import { VerifyEmailController } from './controllers/auth.verifyemail.controller
 import { PasswordResetLinkController } from './controllers/auth.passwordresetlink.controller';
 import { AuthMailService } from './mail/auth.service';
 import { User } from '../user/entities/user.entity';
+import { OAuthController } from './controllers/oauth.controller';
+import { GoogleAuthStrategy } from './strategy/google-auth.strategy';
+import { GoogleAuthService } from './services/google-auth-service.service';
+import { TwitterAuthService } from './services/twitter-auth-service.service';
 
 @Module({
   imports: [
@@ -80,6 +85,7 @@ import { User } from '../user/entities/user.entity';
     RegisteredController,
     VerifyEmailController,
     PasswordResetLinkController,
+    OAuthController,
   ],
   providers: [
     AuthService,
@@ -87,8 +93,12 @@ import { User } from '../user/entities/user.entity';
     AuthMailService,
     DocsLocalAuthStrategyService,
     JwtAuthStrategyService,
+    GoogleAuthStrategy,
+    TwitterAuthStrategy,
     TypeOrmBlacklistTokenStorageProvider,
     RedisBlacklistTokenStorageProvider,
+    GoogleAuthService,
+    TwitterAuthService,
     {
       provide: 'BLACKLIST_TOKEN_STORAGE_PROVIDER',
       useFactory: (
