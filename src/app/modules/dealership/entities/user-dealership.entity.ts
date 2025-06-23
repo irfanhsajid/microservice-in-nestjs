@@ -12,6 +12,12 @@ import {
 import { User } from '../../user/entities/user.entity';
 import { Dealership } from './dealerships.entity';
 
+export enum UserDealershipStatus {
+  REQUESTED = 'REQUESTED',
+  INREVIEW = 'INREVIEW',
+  APPROVED = 'APPROVED',
+  DENIED = 'DENIED',
+}
 @Entity('user_role_dealerships')
 export class UserDealership {
   @PrimaryGeneratedColumn()
@@ -33,6 +39,13 @@ export class UserDealership {
 
   @Column({ type: 'int', nullable: true })
   role_id: number;
+
+  @Column({
+    type: 'enum',
+    enum: UserDealershipStatus,
+    default: UserDealershipStatus.REQUESTED,
+  })
+  status: UserDealershipStatus;
 
   @CreateDateColumn()
   created_at: Date;
