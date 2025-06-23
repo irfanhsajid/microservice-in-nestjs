@@ -16,11 +16,11 @@ export class DealershipAttachment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.attachments, {
-    nullable: false,
-  })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+  @Column({ nullable: false })
+  user_id: number;
+
+  @Column({ nullable: false })
+  dealership_id: number;
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
@@ -40,5 +40,12 @@ export class DealershipAttachment {
   @ManyToOne(() => Dealership, (dealership) => dealership.attachments, {
     nullable: false,
   })
+  @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
+
+  @ManyToOne(() => User, (user) => user.attachments, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 }
