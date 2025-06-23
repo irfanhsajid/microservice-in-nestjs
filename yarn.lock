@@ -1946,6 +1946,33 @@
   resolved "https://registry.npmjs.org/@protobufjs/utf8/-/utf8-1.1.0.tgz"
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
+"@redis/bloom@5.5.6":
+  version "5.5.6"
+  resolved "https://registry.yarnpkg.com/@redis/bloom/-/bloom-5.5.6.tgz#84c8cdf4fcf84f03ce2cee0082ad3e8b22b5a798"
+  integrity sha512-bNR3mxkwtfuCxNOzfV8B3R5zA1LiN57EH6zK4jVBIgzMzliNuReZXBFGnXvsi80/SYohajn78YdpYI+XNpqL+A==
+
+"@redis/client@5.5.6":
+  version "5.5.6"
+  resolved "https://registry.yarnpkg.com/@redis/client/-/client-5.5.6.tgz#a3ddb41c558dc98f5a8cacff56b3fa4efc6e3ef1"
+  integrity sha512-M3Svdwt6oSfyfQdqEr0L2HOJH2vK7GgCFx1NfAQvpWAT4+ljoT1L5S5cKT3dA9NJrxrOPDkdoTPWJnIrGCOcmw==
+  dependencies:
+    cluster-key-slot "1.1.2"
+
+"@redis/json@5.5.6":
+  version "5.5.6"
+  resolved "https://registry.yarnpkg.com/@redis/json/-/json-5.5.6.tgz#68b6c48f2c876b9a41fd88f12cc7dab1a6621fc1"
+  integrity sha512-AIsoe3SsGQagqAmSQHaqxEinm5oCWr7zxPWL90kKaEdLJ+zw8KBznf2i9oK0WUFP5pFssSQUXqnscQKe2amfDQ==
+
+"@redis/search@5.5.6":
+  version "5.5.6"
+  resolved "https://registry.yarnpkg.com/@redis/search/-/search-5.5.6.tgz#edf42e52531671ec8924865907791de9ab4c91a8"
+  integrity sha512-JSqasYqO0mVcHL7oxvbySRBBZYRYhFl3W7f0Da7BW8M/r0Z9wCiVrdjnN4/mKBpWZkoJT/iuisLUdPGhpKxBew==
+
+"@redis/time-series@5.5.6":
+  version "5.5.6"
+  resolved "https://registry.yarnpkg.com/@redis/time-series/-/time-series-5.5.6.tgz#f04af4719638a852ff09267b43a8b1c250a5bb4c"
+  integrity sha512-jkpcgq3NOI3TX7xEAJ3JgesJTxAx7k0m6lNxNsYdEM8KOl+xj7GaB/0CbLkoricZDmFSEAz7ClA1iK9XkGHf+Q==
+
 "@scarf/scarf@=1.4.0":
   version "1.4.0"
   resolved "https://registry.npmjs.org/@scarf/scarf/-/scarf-1.4.0.tgz"
@@ -4059,7 +4086,7 @@ clone@^1.0.2:
   resolved "https://registry.npmjs.org/clone/-/clone-1.0.4.tgz"
   integrity sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==
 
-cluster-key-slot@^1.1.0:
+cluster-key-slot@1.1.2, cluster-key-slot@^1.1.0:
   version "1.1.2"
   resolved "https://registry.npmjs.org/cluster-key-slot/-/cluster-key-slot-1.1.2.tgz"
   integrity sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==
@@ -8320,6 +8347,17 @@ redis-parser@^3.0.0:
   integrity sha512-DJnGAeenTdpMEH6uAJRK/uiyEIH9WVsUmoLwzudwGJUwZPp80PDBWPHXSAGNPwNvIXAbe7MSUB1zQFugFml66A==
   dependencies:
     redis-errors "^1.0.0"
+
+redis@^5.5.6:
+  version "5.5.6"
+  resolved "https://registry.yarnpkg.com/redis/-/redis-5.5.6.tgz#56251a639aeb8e6d3751335c9b0324b4edcf47e5"
+  integrity sha512-hbpqBfcuhWHOS9YLNcXcJ4akNr7HFX61Dq3JuFZ9S7uU7C7kvnzuH2PDIXOP62A3eevvACoG8UacuXP3N07xdg==
+  dependencies:
+    "@redis/bloom" "5.5.6"
+    "@redis/client" "5.5.6"
+    "@redis/json" "5.5.6"
+    "@redis/search" "5.5.6"
+    "@redis/time-series" "5.5.6"
 
 reflect-metadata@^0.2.2:
   version "0.2.2"
