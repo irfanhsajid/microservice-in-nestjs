@@ -1,13 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
   Equals,
   IsBoolean,
   IsEmail,
   IsEnum,
+  IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
   IsString,
   IsStrongPassword,
+  IsUrl,
 } from 'class-validator';
 
 export enum UserAccountType {
@@ -20,6 +22,11 @@ export class CreateUserDto {
   @ApiProperty()
   @IsString()
   name: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsUrl()
+  avatar: string;
 
   @ApiProperty()
   @IsEmail()
@@ -50,4 +57,13 @@ export class CreateUserDto {
   @ApiProperty({ enum: UserAccountType })
   @IsEnum(UserAccountType)
   account_type: UserAccountType;
+}
+
+export class PartialUserDto extends PartialType(CreateUserDto) {}
+
+export class OAuthDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  access_token: string;
 }
