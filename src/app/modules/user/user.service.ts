@@ -226,7 +226,7 @@ export class UserService {
       // Commit the transaction
       await queryRunner.commitTransaction();
       return {
-        token,
+        ...token,
         user: new UserResource(user),
       };
     } catch (error) {
