@@ -13,7 +13,7 @@ import { AuthService } from '../services/auth.service';
 import { CustomLogger } from '../../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { User } from '../../user/entities/user.entity';
-import { OAuthDto } from '../dto/create-user.dto';
+import { OAuthDto, TwitterOAuthDto } from '../dto/create-user.dto';
 import { GoogleAuthService } from '../services/google-auth-service.service';
 import { TwitterAuthService } from '../services/twitter-auth-service.service';
 
@@ -38,11 +38,11 @@ export class OAuthController {
   }
 
   @Post('twitter')
-  async twitterLoginWithToken(@Body() dto: OAuthDto) {
+  async twitterLoginWithToken(@Body() dto: TwitterOAuthDto) {
     try {
-      return await this.twitterAuthService.login(dto.access_token);
+      return await this.twitterAuthService.login(dto);
     } catch (error) {
-      this.logger.error(`Google OAuth error: ${error.message}`);
+      this.logger.error(`Twitter OAuth error: ${error.message}`);
       throwCatchError(error);
     }
   }

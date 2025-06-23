@@ -1,32 +1,61 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import axios from 'axios';
 import { Service } from './service';
+import * as OAuth from 'oauth-1.0a';
+import { TwitterOAuthDto } from '../dto/create-user.dto';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class TwitterAuthService extends Service {
-  async login(token: string) {
+  async login(dto: TwitterOAuthDto) {
+    const key = this.configService.get('oAuth.twitter.consumer_key');
+    const secret = this.configService.get('oAuth.twitter.consumer_secret');
     try {
-      const response = await axios.get('https://api.x.com/2/users/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const oauth = new OAuth({
+        consumer: {
+          key,
+          secret,
+        },
+        signature_method: 'HMAC-SHA1',
+        hash_function(baseString, key) {
+          return crypto
+            .createHmac('sha1', key)
+            .update(baseString)
+            .digest('base64');
         },
       });
-      const user = response.data.data;
+
+      const requestData = {
+        url: 'https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true',
+        method: 'GET',
+      };
+
+      const authHeader = oauth.toHeader(
+        oauth.authorize(requestData, {
+          key: dto.token,
+          secret: dto.tokenSecret,
+        }),
+      );
+
+      const response = await axios.get(requestData.url, {
+        headers: {
+          ...authHeader,
+        },
+      });
+
+      const user = response.data;
       if (!user) {
-        throw new UnauthorizedException({
-          message: 'Invalid X token',
-        });
+        throw new UnauthorizedException('Invalid Twitter token');
       }
-      console.info('X user ====================', response);
-      // validate or create oauth user
+
       return await this.validateOrOAuthUser({
         name: user?.name || 'Unknown',
         email: user?.email || '',
-        avatar: user?.picture || '',
+        avatar: user?.profile_image_url_https || '',
       });
     } catch (error) {
-      this.logger.error(error);
-      throw new UnauthorizedException('Failed to verify X token');
+      this.logger.error(error.response?.data || error.message);
+      throw new UnauthorizedException('Failed to verify Twitter token');
     }
   }
 }

@@ -67,3 +67,15 @@ export class OAuthDto {
   @IsNotEmpty()
   access_token: string;
 }
+
+export class TwitterOAuthDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  tokenSecret: string;
+}
