@@ -17,7 +17,7 @@ import { OAuthDto, TwitterOAuthDto } from '../dto/create-user.dto';
 import { GoogleAuthService } from '../services/google-auth-service.service';
 import { TwitterAuthService } from '../services/twitter-auth-service.service';
 
-@Controller('oauth')
+@Controller('v1/oauth')
 export class OAuthController {
   private readonly logger = new CustomLogger(OAuthController.name);
 
