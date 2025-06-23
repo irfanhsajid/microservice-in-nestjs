@@ -213,6 +213,13 @@ export class UserService {
         });
         user = await queryRunner.manager.save(User, user);
         this.logger.log(`New Oauth user saved to database ${user.email}`);
+      } else {
+        queryRunner.manager.merge(User, user, {
+          email,
+          name,
+          avatar,
+        });
+        user = await queryRunner.manager.save(User, user);
       }
       const token = await this.createJwtToken(user);
 
