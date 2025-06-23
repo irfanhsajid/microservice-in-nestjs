@@ -6,7 +6,6 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
-import { Dealership } from '../dealership/entities/dealerships.entity';
 import { UserDealership } from '../dealership/entities/user-dealership.entity';
 import { UserResource } from './resource/user.resource';
 import { JwtService } from '@nestjs/jwt';
@@ -22,9 +21,6 @@ export class UserService {
 
     @InjectRepository(UserDealership)
     private readonly userDealershipRepository: Repository<UserDealership>,
-
-    @InjectRepository(Dealership)
-    private readonly dealershipRepository: Repository<Dealership>,
 
     private jwtService: JwtService,
 
@@ -159,21 +155,14 @@ export class UserService {
     });
   }
 
-  async userDefaultDealership(user: User): Promise<Dealership | null> {
+  async userDefaultDealership(user: User): Promise<UserDealership | null> {
     try {
-      const userDealership = await this.userDealershipRepository.findOne({
+      return await this.userDealershipRepository.findOne({
         where: {
           user: {
             id: user?.id,
           },
           is_default: true,
-        },
-        cache: false,
-      });
-
-      return await this.dealershipRepository.findOne({
-        where: {
-          id: userDealership?.dealership?.id,
         },
         cache: false,
       });

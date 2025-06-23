@@ -17,17 +17,11 @@ export class DealershipPaymentInfo {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Dealership, (dealership) => dealership.payment_infos, {
-    nullable: false,
-  })
-  @JoinColumn({ name: 'dealership_id' })
-  dealership: Dealership;
+  @Column({ nullable: false })
+  dealership_id: number;
 
-  @ManyToOne(() => User, (user) => user.payment_infos, {
-    nullable: false,
-  })
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+  @Column({ nullable: false })
+  user_id: number;
 
   @Column({ type: 'varchar', length: 255 })
   account_name: string;
@@ -55,4 +49,16 @@ export class DealershipPaymentInfo {
 
   @DeleteDateColumn()
   deleted_at: Date;
+
+  @OneToOne(() => Dealership, (dealership) => dealership.payment_infos, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'dealership_id' })
+  dealership: Dealership;
+
+  @ManyToOne(() => User, (user) => user.payment_infos, {
+    nullable: false,
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 }
