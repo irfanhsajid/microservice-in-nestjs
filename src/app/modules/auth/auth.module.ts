@@ -25,6 +25,10 @@ import { VerifyEmailController } from './controllers/auth.verifyemail.controller
 import { PasswordResetLinkController } from './controllers/auth.passwordresetlink.controller';
 import { AuthMailService } from './mail/auth.service';
 import { User } from '../user/entities/user.entity';
+import { OAuthController } from './controllers/oauth.controller';
+import { GoogleAuthStrategy } from './strategy/google-auth.strategy';
+import { GoogleAuthService } from './services/google-auth-service.service';
+import { TwitterAuthService } from './services/twitter-auth-service';
 
 @Module({
   imports: [
@@ -80,6 +84,7 @@ import { User } from '../user/entities/user.entity';
     RegisteredController,
     VerifyEmailController,
     PasswordResetLinkController,
+    OAuthController,
   ],
   providers: [
     AuthService,
@@ -87,8 +92,11 @@ import { User } from '../user/entities/user.entity';
     AuthMailService,
     DocsLocalAuthStrategyService,
     JwtAuthStrategyService,
+    GoogleAuthStrategy,
     TypeOrmBlacklistTokenStorageProvider,
     RedisBlacklistTokenStorageProvider,
+    GoogleAuthService,
+    TwitterAuthService,
     {
       provide: 'BLACKLIST_TOKEN_STORAGE_PROVIDER',
       useFactory: (
