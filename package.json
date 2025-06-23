@@ -102,6 +102,7 @@
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
+    "@types/passport-twitter": "^1.0.40",
     "@types/supertest": "^6.0.2",
     "dotenv": "^16.5.0",
     "eslint": "^9.18.0",

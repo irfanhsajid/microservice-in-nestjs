@@ -28,19 +28,18 @@ export class GoogleAuthStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  async validate(
+  validate(
     accessToken: string,
     refreshToken: string,
     profile: any,
     done: VerifyCallback,
-  ): Promise<any> {
-    const { emails, displayName } = profile;
+  ): any {
     console.info(accessToken, refreshToken, profile);
-    const user = await this.authService.validateOrOAuthUser({
-      email: emails[0].value,
-      name: displayName,
-      avatar: '',
-    });
-    done(null, user);
+    // const user = await this.authService.validateOrOAuthUser({
+    //   email: emails[0].value,
+    //   name: displayName,
+    //   avatar: '',
+    // });
+    done(null, {});
   }
 }

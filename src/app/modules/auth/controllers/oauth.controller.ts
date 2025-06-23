@@ -14,9 +14,8 @@ import { CustomLogger } from '../../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { User } from '../../user/entities/user.entity';
 import { OAuthDto } from '../dto/create-user.dto';
-import { google } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
 import { GoogleAuthService } from '../services/google-auth-service.service';
+import { TwitterAuthService } from '../services/twitter-auth-service.service';
 
 @Controller('oauth')
 export class OAuthController {
@@ -25,12 +24,23 @@ export class OAuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly googleAuthService: GoogleAuthService,
+    private readonly twitterAuthService: TwitterAuthService,
   ) {}
 
   @Post('google')
   async googleLoginWithToken(@Body() dto: OAuthDto) {
     try {
       return await this.googleAuthService.login(dto.access_token);
+    } catch (error) {
+      this.logger.error(`Google OAuth error: ${error.message}`);
+      throwCatchError(error);
+    }
+  }
+
+  @Post('twitter')
+  async twitterLoginWithToken(@Body() dto: OAuthDto) {
+    try {
+      return await this.twitterAuthService.login(dto.access_token);
     } catch (error) {
       this.logger.error(`Google OAuth error: ${error.message}`);
       throwCatchError(error);
@@ -67,7 +77,7 @@ export class OAuthController {
     }
   }
 
-  @Get('twitter')
+  @Get('get-twitter-access-token')
   @UseGuards(AuthGuard('twitter'))
   twitterLogin() {
     // Initiates X (Twitter) OAuth flow
@@ -82,7 +92,7 @@ export class OAuthController {
 
       if (!user) {
         throw new BadRequestException({
-          message: 'Google signin error',
+          message: 'Twitter auth error',
         });
       }
 
@@ -94,25 +104,6 @@ export class OAuthController {
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
-    }
-  }
-
-  async getGoogleUser(accessToken: string) {
-    const oauth2Client = new OAuth2Client();
-
-    oauth2Client.setCredentials({ access_token: accessToken });
-
-    const oauth2 = google.oauth2({
-      auth: oauth2Client,
-      version: 'v2',
-    });
-
-    try {
-      const { data } = await oauth2.userinfo.get();
-      return data; // contains: id, email, name, picture, etc.
-    } catch (error) {
-      console.error('Google API error:', error.response?.data || error.message);
-      throw new Error('Failed to fetch user data from Google');
     }
   }
 }

@@ -17,7 +17,7 @@ export class TwitterAuthService extends Service {
           message: 'Invalid X token',
         });
       }
-      console.info('X user', user);
+      console.info('X user ====================', response);
       // validate or create oauth user
       return await this.validateOrOAuthUser({
         name: user?.name || 'Unknown',

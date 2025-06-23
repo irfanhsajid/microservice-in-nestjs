@@ -1,3 +1,4 @@
+import { TwitterAuthStrategy } from './strategy/twitter.strategy';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -28,7 +29,7 @@ import { User } from '../user/entities/user.entity';
 import { OAuthController } from './controllers/oauth.controller';
 import { GoogleAuthStrategy } from './strategy/google-auth.strategy';
 import { GoogleAuthService } from './services/google-auth-service.service';
-import { TwitterAuthService } from './services/twitter-auth-service';
+import { TwitterAuthService } from './services/twitter-auth-service.service';
 
 @Module({
   imports: [
@@ -93,6 +94,7 @@ import { TwitterAuthService } from './services/twitter-auth-service';
     DocsLocalAuthStrategyService,
     JwtAuthStrategyService,
     GoogleAuthStrategy,
+    TwitterAuthStrategy,
     TypeOrmBlacklistTokenStorageProvider,
     RedisBlacklistTokenStorageProvider,
     GoogleAuthService,
