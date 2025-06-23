@@ -169,7 +169,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
           DealershipAddress,
           {
             where: {
-              entity_id: dealership.id,
+              dealership_id: dealership.id,
               type: DealershipAddressType.PRIMARY,
             },
           },
@@ -256,7 +256,7 @@ export class DealershipInformationService implements OnboardingInterface<any> {
     const addresses: DealershipAddress[] = [];
     // find old addresses
     const oldAddresses = await queryRunner.manager.find(DealershipAddress, {
-      where: { entity_id: dealership.id, type: addressType },
+      where: { dealership_id: dealership.id, type: addressType },
     });
 
     if (oldAddresses?.length > 0) {
