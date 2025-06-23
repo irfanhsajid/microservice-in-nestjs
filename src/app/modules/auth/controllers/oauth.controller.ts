@@ -18,7 +18,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleAuthService } from '../services/google-auth-service.service';
 
-@Controller('auth/oauth')
+@Controller('oauth')
 export class OAuthController {
   private readonly logger = new CustomLogger(OAuthController.name);
 
