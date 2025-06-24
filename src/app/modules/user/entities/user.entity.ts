@@ -14,6 +14,7 @@ import { UserDealership } from '../../dealership/entities/user-dealership.entity
 import { DealershipPaymentInfo } from '../../dealership/entities/dealership-payment-info.entity';
 import { DealershipAttachment } from '../../dealership/entities/dealership-attachment.entity';
 import { VehicleVins } from '../../vehicles-listing/entities/vehicle-vins.entity';
+import { VehicleAttachment } from '../../vehicles-listing/entities/vehicle-attachments.entity';
 
 export enum UserAccountType {
   BUYER = 'BUYER',
@@ -88,7 +89,16 @@ export class User {
   @OneToMany(() => VehicleVins, (vehicleVins) => vehicleVins.user, {
     cascade: true,
   })
-  vehicle_vins: VehicleVins;
+  vehicle_vins: VehicleVins[];
+
+  @OneToMany(
+    () => VehicleAttachment,
+    (vechileAttachment) => vechileAttachment.user,
+    {
+      cascade: true,
+    },
+  )
+  vehicle_attachment: VehicleAttachment[];
 
   @BeforeInsert()
   @BeforeUpdate()

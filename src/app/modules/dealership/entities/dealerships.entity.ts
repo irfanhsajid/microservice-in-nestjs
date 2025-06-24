@@ -101,8 +101,10 @@ export class Dealership {
   })
   addresses: DealershipAddress[];
 
-  @OneToMany(() => VehicleVins, (vechicleVins) => vechicleVins.dealership)
-  vechicle_vins: VehicleVins;
+  @OneToMany(() => VehicleVins, (vechicleVins) => vechicleVins.dealership, {
+    cascade: true,
+  })
+  vechicle_vins: VehicleVins[];
 
   // Helper method to get the primary address
   get primaryAddress(): DealershipAddress | undefined {

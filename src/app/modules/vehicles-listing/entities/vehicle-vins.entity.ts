@@ -3,10 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Dealership } from '../../dealership/entities/dealerships.entity';
+import { Vehicle } from './vehicles.entity';
 
 export enum MileageType {
   KM = 'KM',
@@ -51,4 +53,9 @@ export class VehicleVins {
   @ManyToOne(() => Dealership, (dealership) => dealership.vechicle_vins)
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
+
+  @OneToOne(() => Vehicle, (vehicle) => vehicle.vehicle_vin, {
+    cascade: true,
+  })
+  vehicle: Vehicle;
 }
