@@ -52,8 +52,30 @@ export class RolesService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+  async findOne(id: number, dealerId: number | null) {
+    if (!dealerId) {
+      const role = await this.roleRepository.findOne({
+        where: { id: id },
+        relations: ['role_has_permissions', 'role_has_permissions.permission'],
+      });
+
+      if (!role) {
+        throw new NotFoundException(`Role with ID ${id} not found`);
+      }
+
+      return role;
+    } else {
+      const role = await this.roleRepository.findOne({
+        where: { id: id, dealership_id: dealerId },
+        relations: ['role_has_permissions', 'role_has_permissions.permission'],
+      });
+
+      if (!role) {
+        throw new NotFoundException(`Role with ID ${id} not found`);
+      }
+
+      return role;
+    }
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {

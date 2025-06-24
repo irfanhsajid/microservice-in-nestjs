@@ -42,9 +42,11 @@ export class RolesController {
     return this.rolesService.findAll(dealerId);
   }
 
+  @UseGuards(ApiGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rolesService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const dealerId = req.user_default_dealership?.id || null;
+    return this.rolesService.findOne(+id, dealerId);
   }
 
   @UseGuards(ApiGuard)
