@@ -4,10 +4,13 @@ import {
   ArrayMinSize,
   ArrayNotEmpty,
   IsArray,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
 } from 'class-validator';
+import { RoleStatus } from '../entities/role.entity';
 
 export class CreateRoleDto {
   @ApiProperty()
@@ -22,4 +25,9 @@ export class CreateRoleDto {
   @IsNumber({}, { each: true })
   @Type(() => Number)
   permission_ids: number[];
+
+  @ApiProperty({ enum: RoleStatus, default: RoleStatus.ACTIVE })
+  @IsEnum(RoleStatus)
+  @IsOptional()
+  status: RoleStatus;
 }
