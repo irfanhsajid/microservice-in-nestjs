@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { User } from '../../user/entities/user.entity';
+import { Dealership } from '../../dealership/entities/dealerships.entity';
 
 export enum MileageType {
   KM = 'KM',
@@ -35,4 +43,12 @@ export class VehicleVins {
 
   @Column({ type: 'json', nullable: false })
   vehicle_diagnostics: VehicleDiagnostic[];
+
+  @ManyToOne(() => User, (user) => user.vehicle_vins)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToOne(() => Dealership, (dealership) => dealership.vechicle_vins)
+  @JoinColumn({ name: 'dealership_id' })
+  dealership: Dealership;
 }
