@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { RoleHasPermissions } from './role_has_permissions';
+import { RoleHasPermissions } from './role_has_permissions.entity';
 
 export enum RoleStatus {
   ACTIVE = 'Active',
