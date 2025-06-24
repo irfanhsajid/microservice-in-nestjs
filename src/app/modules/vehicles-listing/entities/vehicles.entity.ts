@@ -14,7 +14,7 @@ import { VehicleDimension } from './vehicle-dimensions.entity';
 import { VehicleInformation } from './vehicle-informations.entity';
 import { VehicleAttachment } from './vehicle-attachments.entity';
 
-export enum Condition {
+export enum VehicleCondition {
   USED = 'USED',
   NEW = 'NEW',
 }
@@ -52,8 +52,8 @@ export class Vehicle {
   @Column({ type: 'varchar', nullable: true })
   drive_type: string;
 
-  @Column({ type: 'enum', enum: Condition, nullable: true })
-  condition: Condition;
+  @Column({ type: 'enum', enum: VehicleCondition, nullable: true })
+  condition: VehicleCondition;
 
   @Column({ type: 'varchar', nullable: true })
   engine_size: string;

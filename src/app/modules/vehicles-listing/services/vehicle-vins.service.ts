@@ -35,4 +35,17 @@ export class VehicleVinsService {
       return throwCatchError(error);
     }
   }
+
+  async show(req: Request): Promise<VehicleVins[]> {
+    try {
+      const user = req['user'] as User;
+      const defaultDealership = req['user_default_dealership'] as Dealership;
+      return await this.vehicleVinsRepository.find({
+        where: { user_id: user.id, dealership_id: defaultDealership.id },
+      });
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
 }
