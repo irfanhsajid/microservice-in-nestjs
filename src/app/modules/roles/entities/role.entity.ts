@@ -25,7 +25,7 @@ export class Role {
   @Column({ nullable: false, type: 'varchar', length: 100 })
   name: string;
 
-  @Column({ nullable: false, type: 'varchar', length: 100 })
+  @Column({ nullable: true, type: 'varchar', length: 100 })
   guard: string;
 
   @Column({
