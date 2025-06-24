@@ -22,6 +22,7 @@ import { DealershipModule } from './modules/dealership/dealership.module';
 import { AppController } from './app.controller';
 import { GuardsModule } from './guards/guards.module';
 import oauth from 'src/config/oauth';
+import { VehiclesListingModule } from './modules/vehicles-listing/vehicles-listing.module';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import oauth from 'src/config/oauth';
     LoggerModule,
     UploadsModule,
     GuardsModule,
+    VehiclesListingModule,
   ],
   controllers: [AppController],
   providers: [],
