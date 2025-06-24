@@ -90,51 +90,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  // // Validation pipes errors
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     whitelist: true,
-  //     forbidNonWhitelisted: true,
-  //     transform: true,
-  //     transformOptions: {
-  //       enableImplicitConversion: true,
-  //       exposeUnsetFields: false,
-  //     },
-  //     exceptionFactory: (errors) => {
-  //       const formatErrors = (
-  //         errs: any[],
-  //         parent = '',
-  //       ): Record<string, string[]> => {
-  //         return errs.reduce(
-  //           (acc, err) => {
-  //             const propertyPath = parent
-  //               ? `${parent}.${err.property}`
-  //               : err.property;
-
-  //             if (err.constraints) {
-  //               acc[propertyPath] = Object.values(err.constraints);
-  //             }
-
-  //             if (err.children && err.children.length > 0) {
-  //               Object.assign(acc, formatErrors(err.children, propertyPath));
-  //             }
-
-  //             return acc;
-  //           },
-  //           {} as Record<string, string[]>,
-  //         );
-  //       };
-
-  //       const formattedErrors = formatErrors(errors);
-
-  //       return new UnprocessableEntityException({
-  //         error: formattedErrors,
-  //         message: 'Unprocessed content',
-  //       });
-  //     },
-  //   }),
-  // );
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

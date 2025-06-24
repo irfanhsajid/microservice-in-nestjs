@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { DealershipAttachment } from '../../dealership/entities/dealership-attachment.entity';
 import { DealershipPaymentInfo } from '../../dealership/entities/dealership-payment-info.entity';
+import { VehicleVins } from '../../vehicles-listing/entities/vehicle-vins.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 export enum UserAccountType {
@@ -83,6 +84,11 @@ export class User {
     cascade: true,
   })
   attachments: DealershipAttachment[];
+
+  @OneToMany(() => VehicleVins, (vehicleVins) => vehicleVins.user, {
+    cascade: true,
+  })
+  vehicle_vins: VehicleVins;
 
   @BeforeInsert()
   @BeforeUpdate()

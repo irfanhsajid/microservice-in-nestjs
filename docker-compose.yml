@@ -10,3 +10,40 @@ services:
       - "${GRPC_PORT}:${GRPC_PORT}"
     volumes:
       - ./:/app
+    depends_on:
+      - carvu_api_pgsql
+      - carvu_api_redis
+    networks:
+      - carvu_api
+
+  carvu_api_redis:
+    image: redis:latest
+    container_name: carvu-api-redis
+    restart: unless-stopped
+    ports:
+      - "6378:6379"
+    volumes:
+      - carvu_api_redis:/data
+    networks:
+      - carvu_api
+
+  carvu_api_pgsql:
+    image: postgres:latest
+    container_name: carvu-api-pgsql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "5433:5432"
+    volumes:
+      - carvu_api_pgsql:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "${DB_DATABASE}"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    networks:
+      - carvu_api
+networks:
+  carvu_api:
+volumes:
+  carvu_api_pgsql:
+  carvu_api_redis:

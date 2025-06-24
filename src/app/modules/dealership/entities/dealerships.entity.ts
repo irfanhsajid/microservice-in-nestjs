@@ -15,6 +15,7 @@ import {
   DealershipAddressType,
 } from './dealership-address.entity';
 import { DealershipAttachment } from './dealership-attachment.entity';
+import { VehicleVins } from '../../vehicles-listing/entities/vehicle-vins.entity';
 
 // General Dealer (G), Wholesale Dealer, Outside Ontario Dealer
 export enum LicenseClass {
@@ -99,6 +100,9 @@ export class Dealership {
     cascade: true,
   })
   addresses: DealershipAddress[];
+
+  @OneToMany(() => VehicleVins, (vechicleVins) => vechicleVins.dealership)
+  vechicle_vins: VehicleVins;
 
   // Helper method to get the primary address
   get primaryAddress(): DealershipAddress | undefined {
