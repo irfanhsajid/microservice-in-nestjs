@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { RoleHasPermissions } from './role_has_permissions';
 
 export enum RoleStatus {
   ACTIVE = 'Active',
@@ -42,4 +44,7 @@ export class Role {
 
   @DeleteDateColumn()
   deleted_at: Date;
+
+  @OneToMany(() => RoleHasPermissions, (rhp) => rhp.role, { cascade: true })
+  role_has_permissions: RoleHasPermissions[];
 }
