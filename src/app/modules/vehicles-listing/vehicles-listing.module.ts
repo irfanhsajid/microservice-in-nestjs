@@ -6,6 +6,9 @@ import { VehicleFeature } from './entities/vehicle-features.entity';
 import { VehicleDimension } from './entities/vehicle-dimensions.entity';
 import { VehicleInformation } from './entities/vehicle-informations.entity';
 import { Vehicle } from './entities/vehicles.entity';
+import { VehicleListingController } from './controllers/vehicle-listing.controller';
+import { UserModule } from '../user/user.module';
+import { VehicleVinsService } from './services/vehicle-vins.service';
 
 @Module({
   imports: [
@@ -17,9 +20,10 @@ import { Vehicle } from './entities/vehicles.entity';
       VehicleDimension,
       VehicleInformation,
     ]),
+    UserModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [VehicleListingController],
+  providers: [VehicleVinsService],
   exports: [],
 })
 export class VehiclesListingModule {}
