@@ -18,10 +18,10 @@ import { PaymentModule } from './modules/payment/payment.module';
 import session from '../config/session';
 import { AppController } from './app.controller';
 import { GuardsModule } from './guards/guards.module';
-import { RoleModule } from './modules/role/role.module';
 import { DealershipModule } from './modules/dealership/dealership.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
+import { RolesModule } from './modules/roles/roles.module';
 import oauth from 'src/config/oauth';
 
 @Module({
@@ -92,7 +92,7 @@ import oauth from 'src/config/oauth';
     LoggerModule,
     UploadsModule,
     GuardsModule,
-    RoleModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [],

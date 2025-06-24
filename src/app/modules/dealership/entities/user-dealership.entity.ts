@@ -9,7 +9,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Role } from '../../role/entities/role.entity';
 import { User } from '../../user/entities/user.entity';
 import { Dealership } from './dealerships.entity';
 
@@ -53,11 +52,6 @@ export class UserDealership {
   })
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
-
-  // added role_id to make the relationship with the role table
-  @ManyToOne(() => Role, (role) => role.user_roles, { nullable: true })
-  @JoinColumn({ name: 'role_id' })
-  role: Role;
 
   @CreateDateColumn()
   created_at: Date;

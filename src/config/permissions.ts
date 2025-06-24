@@ -1,75 +1,59 @@
-interface Permission {
+export interface IPermission {
   name: string;
-  guard_name: string;
-  group_name: string;
+  title: string;
+  route: string;
 }
 
 interface PermissionConfig {
-  permissions: Permission[];
+  permissions: Record<string, IPermission[]>;
 }
 
-export const PERMISSIONS: Permission[] = [
-  {
-    name: 'Dashboard:View',
-    guard_name: 'web',
-    group_name: 'Dashboard',
-  },
-  {
-    name: 'Dashboard:Edit',
-    guard_name: 'web',
-    group_name: 'Dashboard',
-  },
-  {
-    name: 'Billing Controls:View',
-    guard_name: 'web',
-    group_name: 'Billing Controls',
-  },
-  {
-    name: 'Billing Controls:Edit',
-    guard_name: 'web',
-    group_name: 'Billing Controls',
-  },
-  {
-    name: 'Plan Management:View',
-    guard_name: 'web',
-    group_name: 'Plan Management',
-  },
-  {
-    name: 'Plan Management:Edit',
-    guard_name: 'web',
-    group_name: 'Plan Management',
-  },
-  {
-    name: 'Role Management:View',
-    guard_name: 'web',
-    group_name: 'Role Management',
-  },
-  {
-    name: 'Role Management:Edit',
-    guard_name: 'web',
-    group_name: 'Role Management',
-  },
-  {
-    name: 'User Management:View',
-    guard_name: 'web',
-    group_name: 'User Management',
-  },
-  {
-    name: 'User Management:Edit',
-    guard_name: 'web',
-    group_name: 'User Management',
-  },
-  {
-    name: 'Dealer Management:View',
-    guard_name: 'web',
-    group_name: 'Dealer Management',
-  },
-  {
-    name: 'Dealer Management:Edit',
-    guard_name: 'web',
-    group_name: 'Dealer Management',
-  },
-];
+export const PERMISSIONS: Record<string, IPermission[]> = {
+  user: [
+    {
+      name: 'create',
+      title: 'Create User',
+      route: 'users.create',
+    },
+    {
+      name: 'view',
+      title: 'View User',
+      route: 'users.view',
+    },
+    {
+      name: 'update',
+      title: 'Update User',
+      route: 'users.update',
+    },
+    {
+      name: 'delete',
+      title: 'Delete User',
+      route: 'users.delete',
+    },
+  ],
+  role: [
+    {
+      name: 'role',
+      title: 'Create Role',
+      route: 'roles.create',
+    },
+    {
+      name: 'read',
+      title: 'View Role',
+      route: 'roles.view',
+    },
+    {
+      name: 'update',
+      title: 'Update Role',
+      route: 'roles.update',
+    },
+    {
+      name: 'delete',
+      title: 'Delete Role',
+      route: 'roles.delete',
+    },
+  ],
+};
 
 export default () =>
   ({

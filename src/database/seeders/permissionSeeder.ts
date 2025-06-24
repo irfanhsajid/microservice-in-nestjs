@@ -1,32 +1,30 @@
-import { DataSource } from 'typeorm';
-import { Permission } from '../../app/modules/role/entities/permission.entity';
+import { Permission } from '../../app/modules/roles/entities/permission.entity';
 import permissionConfig from '../../config/permissions';
+import { DataSource } from 'typeorm';
 
 const permissionSeeder = async (conn: DataSource) => {
   const permissionRepo = conn.getRepository(Permission);
-
-  // Get permissions from config
   const { permissions } = permissionConfig();
-
-  // Map permissions to match entity structure
-  const permissionsData = permissions.map((permission) => ({
-    name: permission.name,
-    guard_name: permission.guard_name,
-    group_name: permission.group_name,
-  }));
-
-  // Check for existing permissions to avoid duplicates
-  for (const permission of permissionsData) {
-    const existingPermission = await permissionRepo.findOne({
-      where: { name: permission.name },
+  for (const [parent, childs] of Object.entries(permissions)) {
+    const parentPermission = await permissionRepo.save({
+      name: parent,
+      title: parent?.slice(0, 1).toUpperCase() + parent?.slice(1),
+      route: parent,
     });
 
-    if (!existingPermission) {
-      await permissionRepo.save(permission);
-    }
+    const childPermissions = childs.map((child) =>
+      permissionRepo.create({
+        name: child.name,
+        title: child.title,
+        route: child.route,
+        parent_permission: parentPermission,
+      }),
+    );
+
+    await permissionRepo.save(childPermissions);
   }
 
-  console.log('Permissions seeded');
+  console.log('Permission seeded');
 };
 
 export default permissionSeeder;
