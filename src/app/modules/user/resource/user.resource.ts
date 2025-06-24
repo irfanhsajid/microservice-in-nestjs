@@ -5,9 +5,8 @@ export class UserResource extends Resource<User> {
   toJSON(): unknown {
     return {
       id: this.id,
+      name: this.name,
       email: this.email,
-      first_name: this.first_name,
-      last_name: this.last_name,
       avatar: this.avatar,
       status: this.status,
       accept_privacy: this.view_accept_privacy,

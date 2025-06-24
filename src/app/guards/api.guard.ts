@@ -35,7 +35,7 @@ export class ApiGuard implements CanActivate {
         throw new UnauthorizedException();
       }
 
-      request['default_dealership'] =
+      request['user_default_dealership'] =
         await this.userService.userDefaultDealership(user);
 
       request['user'] = user;

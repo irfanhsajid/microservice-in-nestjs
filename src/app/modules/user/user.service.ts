@@ -6,8 +6,10 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
-import { Dealership } from '../dealership/entities/dealerships.entity';
 import { UserDealership } from '../dealership/entities/user-dealership.entity';
+import { UserResource } from './resource/user.resource';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
@@ -20,8 +22,9 @@ export class UserService {
     @InjectRepository(UserDealership)
     private readonly userDealershipRepository: Repository<UserDealership>,
 
-    @InjectRepository(Dealership)
-    private readonly dealershipRepository: Repository<Dealership>,
+    private jwtService: JwtService,
+
+    protected readonly configService: ConfigService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<User> {
@@ -152,9 +155,9 @@ export class UserService {
     });
   }
 
-  async userDefaultDealership(user: User): Promise<Dealership | null> {
+  async userDefaultDealership(user: User): Promise<UserDealership | null> {
     try {
-      const userDealership = await this.userDealershipRepository.findOne({
+      return await this.userDealershipRepository.findOne({
         where: {
           user: {
             id: user?.id,
@@ -163,16 +166,109 @@ export class UserService {
         },
         cache: false,
       });
-
-      return await this.dealershipRepository.findOne({
-        where: {
-          id: userDealership?.dealership?.id,
-        },
-        cache: false,
-      });
     } catch (e) {
       this.logger.error(e);
       return throwCatchError(e);
     }
+  }
+
+  async createOrLoginOauthUser({
+    email,
+    name,
+    avatar,
+  }: {
+    email: string;
+    name: string;
+    avatar: string;
+  }): Promise<any> {
+    const queryRunner =
+      this.userRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      let user = await queryRunner.manager.findOne(User, {
+        where: { email },
+      });
+
+      if (!user) {
+        // Create a new user if not exists
+        user = queryRunner.manager.create(User, {
+          email,
+          name,
+          avatar,
+          account_type: UserAccountType.BUYER,
+          accept_privacy: true,
+          password: this.configService.get('app.key'),
+        });
+        user = await queryRunner.manager.save(User, user);
+        this.logger.log(`New Oauth user saved to database ${user.email}`);
+      } else {
+        queryRunner.manager.merge(User, user, {
+          email,
+          name,
+          avatar,
+        });
+        user = await queryRunner.manager.save(User, user);
+      }
+      const token = await this.createJwtToken(user);
+
+      // Commit the transaction
+      await queryRunner.commitTransaction();
+      return {
+        ...token,
+        user: new UserResource(user),
+      };
+    } catch (error) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
+      this.logger.error(`Error creating Oatuh user`, error);
+      return throwCatchError(error);
+    } finally {
+      // Release the qury runner
+      await queryRunner.release();
+    }
+  }
+
+  async createJwtToken(
+    user: User,
+  ): Promise<{ access_token: string; expired_at: Date }> {
+    try {
+      const token = await this.jwtService.signAsync({
+        sub: user.id,
+        email: user.email,
+      });
+      const expiresIn =
+        this.configService.get<string>('session.token_lifetime') || '7d';
+      // Calculate expiration time
+      const expiresInSeconds = this.parseExpiresInToSeconds(expiresIn);
+      const expiredAt = new Date(Date.now() + expiresInSeconds * 1000);
+
+      return {
+        access_token: token,
+        expired_at: expiredAt,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  // Parse expiration time
+  protected parseExpiresInToSeconds(expiresIn: string): number {
+    const timeUnits: { [key: string]: number } = {
+      s: 1,
+      m: 60,
+      h: 3600,
+      d: 86400,
+    };
+
+    const match = expiresIn.match(/^(\d+)([smhd])$/);
+    if (!match) {
+      throw new Error(`Invalid expiresIn format: ${expiresIn}`);
+    }
+
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+    return value * timeUnits[unit];
   }
 }

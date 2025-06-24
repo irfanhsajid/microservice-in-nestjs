@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Dealership } from './dealerships.entity';
 
@@ -20,11 +21,8 @@ export class DealershipAddress {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 100 })
-  entity_type: string;
-
-  @Column({ type: 'integer', nullable: false })
-  entity_id: number;
+  @Column({ nullable: false })
+  dealership_id: number;
 
   @Column({
     type: 'enum',
@@ -63,5 +61,6 @@ export class DealershipAddress {
   @ManyToOne(() => Dealership, (dealership) => dealership.addresses, {
     nullable: false,
   })
+  @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
 }

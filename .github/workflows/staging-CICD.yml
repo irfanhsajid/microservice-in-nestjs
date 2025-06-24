@@ -1,0 +1,28 @@
+name: Deployment to Staging Server 
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: SSH into VPS and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_PRIVATE_KEY }}
+          script: |
+            cd /root/carvu_backend
+            git checkout staging
+            git pull origin staging            
+            cd src/grpc/proto && git clone git@github.com:shaheen2013/carvu_proto.git && cd ../../../
+            docker compose down
+            docker compose up --build -d && docker image prune -f

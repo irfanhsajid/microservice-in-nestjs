@@ -22,6 +22,7 @@ import { RoleModule } from './modules/role/role.module';
 import { DealershipModule } from './modules/dealership/dealership.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
+import oauth from 'src/config/oauth';
 
 @Module({
   imports: [
@@ -43,7 +44,7 @@ import { UserModule } from './modules/user/user.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [database, app, services, mail, filesystems, session],
+      load: [database, app, services, mail, filesystems, session, oauth],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: driver,
