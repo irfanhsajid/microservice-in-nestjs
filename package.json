@@ -23,8 +23,9 @@
     "db:drop": "npx ts-node ./node_modules/typeorm/cli.js schema:drop --dataSource ./src/database/driver.ts",
     "db:seed": "npx ts-node ./src/database/seeders/databaseSeeder.ts",
     "db:fresh:seed": "yarn run db:drop && yarn run db:sync && yarn run db:seed",
-    "migration:generate": "npx ts-node ./node_modules/typeorm/cli.js migration:generate ./src/database/migrations/asdgsdg --dataSource ./src/database/driver.ts",
+    "migration:create": "npx ts-node ./src/database/create-migration.ts",
     "migration:run": "npx ts-node ./node_modules/typeorm/cli.js migration:run  --dataSource ./src/database/driver.ts",
+    "migration:rollback": "npx ts-node ./node_modules/typeorm/cli.js migration:revert  --dataSource ./src/database/driver.ts",
     "generate:proto": "cd src/grpc/proto/carvu_proto && find . -type f -name '*.proto' -exec protoc --plugin=protoc-gen-ts_proto=$(which protoc-gen-ts_proto) --ts_proto_out=../../types {} --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb \\;"
   },
   "dependencies": {

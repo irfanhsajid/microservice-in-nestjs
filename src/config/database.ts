@@ -27,7 +27,9 @@ export default () =>
           database: process.env.DB_DATABASE,
           synchronize: process.env.APP_ENV === 'development',
           entities: [path.join(__dirname, '/../**/*.entity{.ts,.js}')],
-          migrations: [path.join(__dirname, '/../**/*.entity{.ts,.js}')],
+          migrations: [
+            path.join(__dirname, '../database/migrations/*.{ts,.js}'),
+          ],
         } satisfies TypeOrmModuleOptions,
 
         mysql: {
