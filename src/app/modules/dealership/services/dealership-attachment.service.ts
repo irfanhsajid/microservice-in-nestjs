@@ -57,11 +57,14 @@ export class DealershipAttachmentService {
       throw new NotFoundException('Dealership not found');
     }
     try {
+      const folder = `dealership/${dealership?.id}`;
+
       // Upload file stream to storage
       const filePath = await this.fileUploaderService.uploadFileStream(
         fileStream,
         originalFileName,
         fileSize,
+        folder,
       );
 
       tempFilePath = filePath;
