@@ -39,8 +39,17 @@ export class RolesService {
     return role;
   }
 
-  findAll() {
-    return `This action returns all roles`;
+  async findAll(dealerId: number | null) {
+    console.log(dealerId);
+    if (!dealerId) {
+      return await this.roleRepository.find({
+        relations: ['role_has_permissions', 'role_has_permissions.permission'],
+      });
+    }
+    return await this.roleRepository.find({
+      where: { dealership_id: dealerId },
+      relations: ['role_has_permissions', 'role_has_permissions.permission'],
+    });
   }
 
   findOne(id: number) {

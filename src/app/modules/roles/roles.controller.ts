@@ -26,7 +26,6 @@ export class RolesController {
   @Post()
   create(@Body() createRoleDto: CreateRoleDto, @Req() req: Request) {
     try {
-      console.log('ressssssss', req.user_default_dealership);
       return this.rolesService.create(
         createRoleDto,
         req.user_default_dealership?.id || null,
@@ -36,9 +35,11 @@ export class RolesController {
     }
   }
 
+  @UseGuards(ApiGuard)
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  findAll(@Req() req: Request) {
+    const dealerId = req.user_default_dealership?.id || null;
+    return this.rolesService.findAll(dealerId);
   }
 
   @Get(':id')
