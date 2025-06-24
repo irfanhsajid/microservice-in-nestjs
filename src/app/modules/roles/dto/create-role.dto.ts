@@ -30,4 +30,9 @@ export class CreateRoleDto {
   @IsEnum(RoleStatus)
   @IsOptional()
   status: RoleStatus;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  guard: string;
 }

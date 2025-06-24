@@ -20,8 +20,8 @@ export class RolesService {
     @InjectRepository(RoleHasPermissions)
     private readonly rhpRepository: Repository<RoleHasPermissions>,
   ) {}
-  async create(dto: CreateRoleDto, dealerId: number) {
-    const { name, status, permission_ids } = dto;
+  async create(dto: CreateRoleDto, dealerId: number | null) {
+    const { name, status, guard, permission_ids } = dto;
 
     // Check valid permission ids
     await this.isAllValidPermissionIds(permission_ids);
@@ -30,9 +30,9 @@ export class RolesService {
       name,
       status,
       dealership_id: dealerId,
+      guard,
       role_has_permissions: dto.permission_ids.map((id) => ({
         permission_id: id,
-        role_id: dealerId,
       })),
     });
 
@@ -48,7 +48,7 @@ export class RolesService {
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
-    const { name, status, permission_ids } = updateRoleDto;
+    const { name, status, guard, permission_ids } = updateRoleDto;
 
     if (permission_ids && permission_ids?.length > 0) {
       // Check valid permission ids
@@ -64,7 +64,7 @@ export class RolesService {
       throw new NotFoundException(`Role with ID ${id} not found`);
     }
 
-    Object.assign(role, { name, status });
+    Object.assign(role, { name, status, guard });
 
     if (permission_ids && permission_ids?.length > 0) {
       await this.rhpRepository.delete({ role_id: id });

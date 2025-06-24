@@ -26,9 +26,10 @@ export class RolesController {
   @Post()
   create(@Body() createRoleDto: CreateRoleDto, @Req() req: Request) {
     try {
+      console.log('ressssssss', req.user_default_dealership);
       return this.rolesService.create(
         createRoleDto,
-        req.user_default_dealership?.id || 0,
+        req.user_default_dealership?.id || null,
       );
     } catch (error) {
       throw new Error(error);
@@ -45,6 +46,7 @@ export class RolesController {
     return this.rolesService.findOne(+id);
   }
 
+  @UseGuards(ApiGuard)
   @Put(':id')
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.rolesService.update(+id, updateRoleDto);
