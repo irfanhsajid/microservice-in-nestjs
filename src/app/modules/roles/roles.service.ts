@@ -113,8 +113,16 @@ export class RolesService {
     return role;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async remove(id: number) {
+    const role = await this.roleRepository.findOne({ where: { id: id } });
+
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${id} not found`);
+    }
+
+    await this.roleRepository.remove(role);
+
+    return `Role with ID ${id} has been deleted.`;
   }
 
   async isAllValidPermissionIds(permissionIds: number[]) {

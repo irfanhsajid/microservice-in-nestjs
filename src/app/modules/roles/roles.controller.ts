@@ -55,6 +55,7 @@ export class RolesController {
     return this.rolesService.update(+id, updateRoleDto);
   }
 
+  @UseGuards(ApiGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.rolesService.remove(+id);
