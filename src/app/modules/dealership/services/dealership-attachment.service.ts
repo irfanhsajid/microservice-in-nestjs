@@ -15,6 +15,7 @@ import { Request } from 'express';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { CustomLogger } from '../../logger/logger.service';
 import { instanceToPlain } from 'class-transformer';
+import { UserDealership } from '../entities/user-dealership.entity';
 
 @Injectable()
 export class DealershipAttachmentService {
@@ -115,14 +116,10 @@ export class DealershipAttachmentService {
   }
 
   async getAttachments(req: Request): Promise<DealershipAttachment[]> {
-    const currentUser = req['user'] as User;
-
-    const deaultDealership = currentUser?.user_dealerships?.find(
-      (d) => d.is_default,
-    );
+    const userDealership = req['user_default_dealership'] as UserDealership;
 
     const dealership = await this.dealershipRepository.findOne({
-      where: { id: deaultDealership?.dealership?.id },
+      where: { id: userDealership?.dealership_id },
     });
     if (!dealership) {
       return [];
