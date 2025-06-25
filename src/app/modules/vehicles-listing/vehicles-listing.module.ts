@@ -6,7 +6,7 @@ import { VehicleFeature } from './entities/vehicle-features.entity';
 import { VehicleDimension } from './entities/vehicle-dimensions.entity';
 import { VehicleInformation } from './entities/vehicle-informations.entity';
 import { Vehicle } from './entities/vehicles.entity';
-import { VehicleListingController } from './controllers/vehicle-listing.controller';
+import { VehicleVinController } from './controllers/vehicle-vin.controller';
 import { UserModule } from '../user/user.module';
 import { VehicleVinsService } from './services/vehicle-vins.service';
 import { VehicleService } from './services/vehicle.service';
@@ -32,7 +32,7 @@ import { VehicleAttachmentService } from './services/vehicle-attachment.service'
     UploadsModule,
   ],
   controllers: [
-    VehicleListingController,
+    VehicleVinController,
     VehicleController,
     VehicleAttachmentController,
   ],

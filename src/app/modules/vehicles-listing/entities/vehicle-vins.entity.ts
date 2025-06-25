@@ -23,6 +23,11 @@ export interface VehicleDiagnostic {
   description: string;
 }
 
+export enum VehicleVinStatus {
+  DRAFT = 'DRAFT',
+  LISTED = 'LISTED',
+}
+
 @Entity('vehicle_vins')
 export class VehicleVins {
   @PrimaryGeneratedColumn()
@@ -36,6 +41,19 @@ export class VehicleVins {
 
   @Column({ type: 'varchar', nullable: false })
   vin_number: string;
+
+  @Column({
+    type: 'enum',
+    enum: VehicleVinStatus,
+    nullable: true,
+  })
+  status: VehicleVinStatus;
+
+  @Column({ type: 'boolean', default: false })
+  is_inspect: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  is_report: boolean;
 
   @Column({ type: 'varchar', nullable: false })
   mileage: string;
