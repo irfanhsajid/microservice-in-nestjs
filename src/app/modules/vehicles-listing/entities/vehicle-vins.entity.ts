@@ -24,8 +24,8 @@ export interface VehicleDiagnostic {
 }
 
 export enum VehicleVinStatus {
-  DRAFT = 'DRAFT',
-  LISTED = 'LISTED',
+  NEW = 'New',
+  LISTED = 'Listed',
 }
 
 @Entity('vehicle_vins')
@@ -45,9 +45,9 @@ export class VehicleVins {
   @Column({
     type: 'enum',
     enum: VehicleVinStatus,
-    nullable: true,
+    nullable: false,
   })
-  status: VehicleVinStatus;
+  status: string;
 
   @Column({ type: 'boolean', default: false })
   is_inspect: boolean;
