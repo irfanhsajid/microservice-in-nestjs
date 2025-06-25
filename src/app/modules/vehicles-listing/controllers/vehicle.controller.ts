@@ -1,5 +1,5 @@
 import { CustomLogger } from '../../logger/logger.service';
-import { VehicleService } from '../services/vechicle.service';
+import { VehicleService } from '../services/vehicle.service';
 import {
   Controller,
   Body,
