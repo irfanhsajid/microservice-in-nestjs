@@ -13,7 +13,6 @@ import { User } from '../../user/entities/user.entity';
 import { paginate } from '../../../common/pagination/paginate';
 import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { CreateVehicleDto } from '../dto/vehicle.dto';
-import { features } from 'node:process';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {
@@ -137,10 +136,10 @@ export class VehicleService implements ServiceInterface {
             vehicle_id: vehicle.id,
           });
         } else {
-          newFeature = queryRunner.manager.merge(
-            VehicleFeature,
-            features as VehicleFeature,
-          );
+          newFeature = queryRunner.manager.merge(VehicleFeature, newFeature, {
+            ...features,
+            vehicle_id: vehicle.id,
+          });
         }
 
         newFeature = await queryRunner.manager.save(newFeature);
