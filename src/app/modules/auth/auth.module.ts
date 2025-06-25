@@ -33,6 +33,7 @@ import { TwitterAuthService } from './services/twitter-auth-service.service';
 import { Repository } from 'typeorm';
 import { useContainer } from 'class-validator';
 import { IsUnique } from './dto/validator/is-unique.validator';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { IsUnique } from './dto/validator/is-unique.validator';
       }),
       inject: [ConfigService],
     }),
+    CaslModule,
   ],
   controllers: [
     AuthenticatedController,

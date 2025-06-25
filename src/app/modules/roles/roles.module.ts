@@ -6,11 +6,13 @@ import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { RoleHasPermissions } from './entities/role_has_permissions.entity';
 import { UserModule } from '../user/user.module';
+import { CaslModule } from '../auth/casl/casl.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Role, Permission, RoleHasPermissions]),
     UserModule,
+    CaslModule,
   ],
   controllers: [RolesController],
   providers: [RolesService],

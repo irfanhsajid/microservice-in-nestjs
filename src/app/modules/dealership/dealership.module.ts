@@ -16,6 +16,7 @@ import { UserModule } from '../user/user.module';
 import { DealershipAttachmentSubscriber } from './subscriber/dealership.attachment.subscriber';
 import { DataSource } from 'typeorm';
 import { FileUploaderService } from '../uploads/file-uploader.service';
+import { CaslModule } from '../auth/casl/casl.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FileUploaderService } from '../uploads/file-uploader.service';
     ]),
     UserModule,
     UploadsModule,
+    CaslModule,
   ],
   providers: [
     DealershipAttachmentSubscriber,
