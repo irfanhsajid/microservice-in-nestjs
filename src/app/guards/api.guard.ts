@@ -37,21 +37,20 @@ export class ApiGuard implements CanActivate {
         throw new UnauthorizedException();
       }
 
-      const userDealership =
-        await this.userService.userDefaultDealership(user);
+      const userDealership = await this.userService.userDefaultDealership(user);
+
+      if (!userDealership) {
+        throw new UnauthorizedException();
+      }
 
       request['user'] = user;
       request['user_default_dealership'] = userDealership;
-
 
       const permissions = await this.userService.getPermissionsByRole(
         userDealership?.role_id,
       );
 
-      request['ability'] = this.abilityFactory.createForUser(
-        user,
-        permissions,
-      );
+      request['ability'] = this.abilityFactory.createForUser(user, permissions);
     } catch (error) {
       console.info(error);
       throw new UnauthorizedException();

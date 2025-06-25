@@ -17,6 +17,7 @@ import { useContainer } from 'class-validator';
 import { VehicleAttachmentController } from './controllers/vehicle-attachment.controller';
 import { UploadsModule } from '../uploads/uploads.module';
 import { VehicleAttachmentService } from './services/vehicle-attachment.service';
+import { CaslModule } from '../auth/casl/casl.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { VehicleAttachmentService } from './services/vehicle-attachment.service'
     ]),
     UserModule,
     UploadsModule,
+    CaslModule,
   ],
   controllers: [
     VehicleVinController,
