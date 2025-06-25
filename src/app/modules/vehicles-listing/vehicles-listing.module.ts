@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { InjectRepository, TypeOrmModule } from '@nestjs/typeorm';
 import { VehicleVins } from './entities/vehicle-vins.entity';
 import { VehicleAttachment } from './entities/vehicle-attachments.entity';
 import { VehicleFeature } from './entities/vehicle-features.entity';
@@ -12,6 +12,8 @@ import { VehicleVinsService } from './services/vehicle-vins.service';
 import { VehicleService } from './services/vechicle.service';
 import { IsVehicleVinValid } from './dto/validator/is-vehicle-vin-valid.validator';
 import { VehicleController } from './controllers/vehicle.controller';
+import { Repository } from 'typeorm';
+import { useContainer } from 'class-validator';
 
 @Module({
   imports: [
@@ -26,7 +28,28 @@ import { VehicleController } from './controllers/vehicle.controller';
     UserModule,
   ],
   controllers: [VehicleListingController, VehicleController],
-  providers: [VehicleVinsService, VehicleService, IsVehicleVinValid],
-  exports: [IsVehicleVinValid],
+  providers: [VehicleVinsService, VehicleService],
+  exports: [],
 })
-export class VehiclesListingModule {}
+export class VehiclesListingModule {
+  constructor(
+    @InjectRepository(VehicleVins)
+    private readonly vehicleVinsRepository: Repository<VehicleVins>,
+  ) {}
+
+  onModuleInit() {
+    const validatorInstance = new IsVehicleVinValid(this.vehicleVinsRepository);
+
+    useContainer(
+      {
+        get: (type: any) => {
+          if (type === IsVehicleVinValid) {
+            return validatorInstance;
+          }
+          throw new Error(`No provider for ${type}`);
+        },
+      },
+      { fallbackOnErrors: true },
+    );
+  }
+}
