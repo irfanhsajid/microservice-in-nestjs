@@ -54,7 +54,7 @@ export class UserService {
   }
 
   async findByIdWithRoleAndPermissions(id: number) {
-    return await this.userRepository.findOne({
+    return await this.userDealershipRepository.findOne({
       where: { id },
       relations: [
         'role',
