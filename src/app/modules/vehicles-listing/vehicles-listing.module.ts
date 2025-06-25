@@ -14,6 +14,9 @@ import { IsVehicleVinValid } from './dto/validator/is-vehicle-vin-valid.validato
 import { VehicleController } from './controllers/vehicle.controller';
 import { Repository } from 'typeorm';
 import { useContainer } from 'class-validator';
+import { VehicleAttachmentController } from './controllers/vehicle-attachment.controller';
+import { UploadsModule } from '../uploads/uploads.module';
+import { VehicleAttachmentService } from './services/vehicle-attachment.service';
 
 @Module({
   imports: [
@@ -26,9 +29,14 @@ import { useContainer } from 'class-validator';
       VehicleInformation,
     ]),
     UserModule,
+    UploadsModule,
   ],
-  controllers: [VehicleListingController, VehicleController],
-  providers: [VehicleVinsService, VehicleService],
+  controllers: [
+    VehicleListingController,
+    VehicleController,
+    VehicleAttachmentController,
+  ],
+  providers: [VehicleVinsService, VehicleService, VehicleAttachmentService],
   exports: [],
 })
 export class VehiclesListingModule {

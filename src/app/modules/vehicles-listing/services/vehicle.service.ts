@@ -13,7 +13,6 @@ import { User } from '../../user/entities/user.entity';
 import { paginate } from '../../../common/pagination/paginate';
 import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { CreateVehicleDto } from '../dto/vehicle.dto';
-import { features } from 'node:process';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {

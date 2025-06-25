@@ -30,7 +30,7 @@ import { memoryStorage } from 'multer';
 import { Readable } from 'stream';
 import { DealershipAttachment } from '../entities/dealership-attachment.entity';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
-import { allowedMimeTypes } from '../dto/allowed-file-type';
+import { allowedMimeTypes } from 'src/app/common/types/allow-file-type';
 
 @ApiTags('Onboarding')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard)
