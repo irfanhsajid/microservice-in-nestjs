@@ -7,7 +7,6 @@ import { ServiceInterface } from '../../../common/interfaces/service.interface';
 import { VehicleFeature } from '../entities/vehicle-features.entity';
 import { VehicleInformation } from '../entities/vehicle-informations.entity';
 import { Vehicle } from '../entities/vehicles.entity';
-import { User } from '../../user/entities/user.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { User } from '../../user/entities/user.entity';
@@ -73,9 +72,6 @@ export class VehicleService implements ServiceInterface {
         hasPrevPage: hasPrevPage,
       },
     };
-  }
-  async store(req: Request, dto: any): Promise<Record<string, any>> {
-    throw new Error('Method not implemented.');
   }
   async store(req: Request, dto: any): Promise<Record<string, any>> {
     try {
