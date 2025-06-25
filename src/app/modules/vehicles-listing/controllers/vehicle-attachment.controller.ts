@@ -92,22 +92,25 @@ export class VehicleAttachmentController {
     return await this.vehicleAttachmentService.store(req, dtoCombine);
   }
 
-  @Get('vehicle/attachments')
+  @Get('vehicle/attachments/:id')
   @ApiOperation({ summary: 'Get all attachments for a vehicle' })
   @ApiResponse({
     status: 200,
     description: 'Attachments retrieved successfully',
   })
-  async getAttachments(@Request() req: any): Promise<any> {
+  async getAttachments(
+    @Request() req: any,
+    @Param('id') id: number,
+  ): Promise<any> {
     try {
-      return await this.vehicleAttachmentService.index(req, '');
+      return await this.vehicleAttachmentService.index(req, id);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
       throw error;
     }
   }
 
-  @Delete('vehicle/attachment/:id')
+  @Delete('vehicle/attachments/:id')
   @ApiOperation({ summary: 'Delete an attachment by ID' })
   @ApiResponse({ status: 200, description: 'Attachment deleted successfully' })
   async delete(@Request() req: any, @Param('id') id: number): Promise<any> {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,11 +18,33 @@ export class VehicleAttachmentService implements ServiceInterface {
     @InjectRepository(VehicleAttachment)
     private readonly vehicleAttachmentRepository: Repository<VehicleAttachment>,
 
+    @InjectRepository(Vehicle)
+    private readonly vehicleRepository: Repository<Vehicle>,
+
     private readonly fileUploadService: FileUploaderService,
   ) {}
 
   async index(req: Request, params: any): Promise<Record<string, any>> {
-    throw new Error('Method not implemented.');
+    try {
+      const user = req['user'] as User;
+      const vehicle = await this.vehicleRepository.findOne({
+        where: { vehicle_vin_id: params },
+      });
+
+      if (!vehicle) {
+        return [];
+      }
+
+      return await this.vehicleAttachmentRepository.find({
+        where: {
+          vehicle_id: vehicle?.id,
+          user_id: user.id,
+        },
+      });
+    } catch (error) {
+      this.logger.log(error);
+      return throwCatchError(error);
+    }
   }
 
   async store(req: Request, dto: any): Promise<Record<string, any>> {
@@ -40,6 +62,25 @@ export class VehicleAttachmentService implements ServiceInterface {
           vehicle_vin_id: dto?.id,
         },
       });
+
+      if (!vechicle) {
+        throw new BadRequestException('Not vechile found to upload image');
+      }
+
+      // check how many file user has uploaded
+      const existingAttachment = await queryRunner.manager.find(
+        VehicleAttachment,
+        {
+          where: {
+            vehicle_id: vechicle.id,
+            user_id: user.id,
+          },
+        },
+      );
+
+      if (existingAttachment && existingAttachment.length >= 5) {
+        throw new BadRequestException('You can upload up to 5 files max');
+      }
 
       const fileName = dto.file.originalname;
       const fileStream = Readable.from(dto.file.buffer);

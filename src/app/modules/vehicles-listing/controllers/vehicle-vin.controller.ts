@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Request,
   UseGuards,
@@ -19,8 +20,8 @@ import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-compl
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
 @ApiBearerAuth('jwt')
 @Controller('api/v1')
-export class VehicleListingController {
-  private readonly logger = new CustomLogger(VehicleListingController.name);
+export class VehicleVinController {
+  private readonly logger = new CustomLogger(VehicleVinController.name);
 
   constructor(private readonly vehicleVinsService: VehicleVinsService) {}
 
@@ -34,10 +35,10 @@ export class VehicleListingController {
     }
   }
 
-  @Get('/vehicle-vin')
-  async getVehicleVin(@Request() req: any) {
+  @Get('/vehicle-vin/:vinId')
+  async getVehicleVin(@Request() req: any, @Param('vinId') vinId: number) {
     try {
-      return await this.vehicleVinsService.show(req);
+      return await this.vehicleVinsService.show(req, vinId);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
