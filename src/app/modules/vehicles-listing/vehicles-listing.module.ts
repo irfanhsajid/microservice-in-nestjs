@@ -10,6 +10,7 @@ import { VehicleListingController } from './controllers/vehicle-listing.controll
 import { UserModule } from '../user/user.module';
 import { VehicleVinsService } from './services/vehicle-vins.service';
 import { VehicleService } from './services/vechicle.service';
+import { VehicleController } from './controllers/vehicle.controller';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { VehicleService } from './services/vechicle.service';
     ]),
     UserModule,
   ],
-  controllers: [VehicleListingController],
+  controllers: [VehicleListingController, VehicleController],
   providers: [VehicleVinsService, VehicleService],
   exports: [],
 })
