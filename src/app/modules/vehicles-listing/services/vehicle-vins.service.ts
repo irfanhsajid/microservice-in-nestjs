@@ -38,7 +38,7 @@ export class VehicleVinsService {
       } else {
         vehicleVin = this.vehicleVinsRepository.create({
           user_id: user?.id,
-          dealership_id: defaultDealership?.id,
+          dealership_id: defaultDealership?.dealership_id,
           ...dto,
           status: VehicleVinStatus.NEW,
         });
