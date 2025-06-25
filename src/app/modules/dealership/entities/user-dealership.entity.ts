@@ -28,7 +28,7 @@ export class UserDealership {
   user_id: number;
 
   @Column({ nullable: true })
-  dealership_id: number | null;
+  dealership_id: number;
 
   @Column({ type: 'bool', default: false })
   is_default: boolean;

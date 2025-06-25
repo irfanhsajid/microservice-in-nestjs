@@ -22,13 +22,8 @@ export class DealershipInformationService
 {
   async show(req: Request): Promise<any> {
     try {
-      const user = req['user'] as User;
-
       // Find user dealership by user id with dealership relation
-      const userDealership = await this.userDealershipRepository.findOne({
-        where: { user: { id: user?.id }, is_default: true },
-        relations: ['dealership'],
-      });
+      const userDealership = req['user_default_dealership'] as UserDealership;
 
       if (!userDealership) {
         return {} as Dealership;
@@ -37,7 +32,7 @@ export class DealershipInformationService
       // Fetch the dealership with its addresses
       const dealership = await this.dealershipRepository.findOne({
         where: {
-          id: userDealership.dealership.id,
+          id: userDealership.dealership_id,
         },
         relations: ['addresses'],
       });

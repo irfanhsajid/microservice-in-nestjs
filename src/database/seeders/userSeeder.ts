@@ -4,7 +4,10 @@ import {
 } from '../../app/modules/user/entities/user.entity';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserDealership, UserDealershipStatus } from '../../app/modules/dealership/entities/user-dealership.entity';
+import {
+  UserDealership,
+  UserDealershipStatus,
+} from '../../app/modules/dealership/entities/user-dealership.entity';
 
 const userSeeder = async (conn: DataSource) => {
   const userRepo = conn.getRepository(User);
@@ -37,8 +40,8 @@ const userSeeder = async (conn: DataSource) => {
   for (const user of users) {
     userDealershipsData.push({
       user_id: user.id,
-      dealership_id: null,
       is_default: true,
+      dealership_id: 0,
       role_id: 1,
       status: UserDealershipStatus.APPROVED,
     } as UserDealership);

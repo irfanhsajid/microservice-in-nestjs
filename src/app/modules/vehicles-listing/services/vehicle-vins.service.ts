@@ -40,7 +40,7 @@ export class VehicleVinsService {
           user_id: user?.id,
           dealership_id: defaultDealership?.dealership_id,
           ...dto,
-          status: VehicleVinStatus.NEW,
+          status: VehicleVinStatus.DRAFT,
         });
       }
 

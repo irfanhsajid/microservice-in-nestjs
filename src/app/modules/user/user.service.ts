@@ -65,9 +65,15 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto): Promise<User> {
+    const queryRunner =
+      this.userRepository.manager.connection.createQueryRunner();
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
       // Check if a user already exists by email
-      const userExistWithEmail = await this.getUserByEmail(dto.email);
+      const userExistWithEmail = await queryRunner.manager.exists(User, {
+        where: { email: dto.email },
+      });
 
       if (userExistWithEmail) {
         throw new UnprocessableEntityException({
@@ -75,10 +81,24 @@ export class UserService {
         });
       }
 
-      const user = this.userRepository.create(dto);
+      let user = queryRunner.manager.create(User, dto);
 
-      return await this.userRepository.save(user);
+      user = await queryRunner.manager.save(User, user);
+
+      //Assign user role
+      const userDealership = queryRunner.manager.create(UserDealership, {
+        user_id: user.id,
+        is_default: true,
+        role_id: 1,
+        status: UserDealershipStatus.REQUESTED,
+      });
+
+      await queryRunner.manager.save(UserDealership, userDealership);
+      await queryRunner.commitTransaction();
+      return user;
     } catch (error) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
     }
@@ -157,17 +177,6 @@ export class UserService {
 
       user.email_verified_at = new Date();
       const newUser = await queryRunner.manager.save(User, user);
-
-      //Assign user role
-      const userDealership = queryRunner.manager.create(UserDealership, {
-        user_id: user.id,
-        dealership_id: null,
-        is_default: true,
-        role_id: 1,
-        status: UserDealershipStatus.APPROVED,
-      });
-
-      await queryRunner.manager.save(UserDealership, userDealership);
 
       await queryRunner.commitTransaction();
 
