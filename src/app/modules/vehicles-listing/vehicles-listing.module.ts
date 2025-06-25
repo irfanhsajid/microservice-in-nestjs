@@ -9,6 +9,7 @@ import { Vehicle } from './entities/vehicles.entity';
 import { VehicleListingController } from './controllers/vehicle-listing.controller';
 import { UserModule } from '../user/user.module';
 import { VehicleVinsService } from './services/vehicle-vins.service';
+import { VehicleService } from './services/vechicle.service';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { VehicleVinsService } from './services/vehicle-vins.service';
     UserModule,
   ],
   controllers: [VehicleListingController],
-  providers: [VehicleVinsService],
+  providers: [VehicleVinsService, VehicleService],
   exports: [],
 })
 export class VehiclesListingModule {}
