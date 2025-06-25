@@ -17,7 +17,7 @@ export class AbilityMiddleware implements NestMiddleware {
     const user = req['user'] as User;
     const userDealership = req['user_default_dealership'] as UserDealership;
 
-    if (!userDealership || !user) {
+    if (!user) {
       return res.status(403).json({ message: 'User not found or invalid' });
     }
 

@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bullmq';
@@ -102,8 +102,4 @@ import { RolesModule } from './modules/roles/roles.module';
   controllers: [AppController],
   providers: [AbilityMiddleware, CaslAbilityFactory],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AbilityMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}
