@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bullmq';
@@ -23,9 +23,13 @@ import { AppController } from './app.controller';
 import { GuardsModule } from './guards/guards.module';
 import oauth from 'src/config/oauth';
 import { VehiclesListingModule } from './modules/vehicles-listing/vehicles-listing.module';
+import { AbilityMiddleware } from './modules/auth/casl/ability.middleware';
+import { CaslAbilityFactory } from './modules/auth/casl/casl-ability.factory';
+import { RolesModule } from './modules/roles/roles.module';
 
 @Module({
   imports: [
+    AuthModule,
     // AppThrottlerModule,
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -92,9 +96,14 @@ import { VehiclesListingModule } from './modules/vehicles-listing/vehicles-listi
     LoggerModule,
     UploadsModule,
     GuardsModule,
+    RolesModule,
     VehiclesListingModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [AbilityMiddleware, CaslAbilityFactory],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AbilityMiddleware).forRoutes('*');
+  }
+}

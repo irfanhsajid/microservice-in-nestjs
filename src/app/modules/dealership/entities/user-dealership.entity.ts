@@ -1,13 +1,13 @@
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  JoinColumn,
   ManyToOne,
   OneToOne,
-  JoinColumn,
-  CreateDateColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
-  DeleteDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Dealership } from './dealerships.entity';
@@ -42,15 +42,6 @@ export class UserDealership {
   })
   status: UserDealershipStatus;
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
-
-  @DeleteDateColumn()
-  deleted_at: Date;
-
   @ManyToOne(() => User, (user) => user.user_dealerships, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
@@ -61,4 +52,13 @@ export class UserDealership {
   })
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @DeleteDateColumn()
+  deleted_at: Date;
 }

@@ -7,10 +7,22 @@ import { PasswordResetService } from './password-reset.service';
 import { UserController } from './controllers/user.controller';
 import { Dealership } from '../dealership/entities/dealerships.entity';
 import { UserDealership } from '../dealership/entities/user-dealership.entity';
+import { RoleHasPermissions } from '../roles/entities/role_has_permissions.entity';
+import { Role } from '../roles/entities/role.entity';
+import { Permission } from '../roles/entities/permission.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, PasswordReset, Dealership, UserDealership]),
+    TypeOrmModule.forFeature([
+      User,
+      PasswordReset,
+      Dealership,
+      UserDealership,
+      RoleHasPermissions,
+      Role,
+      Permission
+
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService, PasswordResetService],

@@ -73,6 +73,7 @@ cd /app
 yarn
 yarn generate:proto
 yarn build
+yarn db:sync
 
 service supervisor start
 supervisorctl reread
