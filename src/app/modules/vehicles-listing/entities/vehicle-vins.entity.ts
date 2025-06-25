@@ -47,7 +47,7 @@ export class VehicleVins {
     enum: VehicleVinStatus,
     nullable: false,
   })
-  status: string;
+  status: VehicleVinStatus;
 
   @Column({ type: 'boolean', default: false })
   is_inspect: boolean;

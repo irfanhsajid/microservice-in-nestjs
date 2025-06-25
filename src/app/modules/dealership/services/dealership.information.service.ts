@@ -65,15 +65,10 @@ export class DealershipInformationService
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const user = req['user'] as User;
-      // Find user dealership by user id
-      const userDealership = await queryRunner.manager.findOne(UserDealership, {
-        where: { user: { id: user?.id }, is_default: true },
-        relations: ['dealership'],
-      });
+      const userDealership = req['user_default_dealership'] as UserDealership;
       let dealership: Dealership;
       // if user default dealership not found create one
-      if (!userDealership) {
+      if (!userDealership?.dealership_id) {
         // Create a new dealership
         dealership = queryRunner.manager.create(Dealership, {
           name: dto.name,
@@ -90,11 +85,11 @@ export class DealershipInformationService
         this.logger.log(`New dealership created with email ${dto.email}`);
 
         // create user default dealership
-        const newUserDealership = queryRunner.manager.create(UserDealership, {
-          user: user,
-          dealership: dealership,
-          is_default: true,
-        });
+        const newUserDealership = queryRunner.manager.merge(
+          UserDealership,
+          userDealership,
+          { dealership_id: dealership.id },
+        );
 
         await queryRunner.manager.save(UserDealership, newUserDealership);
       } else {
@@ -103,7 +98,7 @@ export class DealershipInformationService
           Dealership,
           {
             where: {
-              id: userDealership.dealership.id,
+              id: userDealership.dealership_id,
             },
           },
         );
