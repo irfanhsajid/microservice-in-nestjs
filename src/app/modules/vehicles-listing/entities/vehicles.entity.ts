@@ -27,10 +27,6 @@ export class Vehicle {
   @Column({ nullable: false })
   vehicle_vin_id: number;
 
-  @OneToOne(() => VehicleVins, (vehicle_vin) => vehicle_vin.vehicle)
-  @JoinColumn({ name: 'vehicle_vin_id' })
-  vehicle_vin: VehicleVins;
-
   @Column({ type: 'varchar', nullable: true })
   body: string;
 
@@ -76,6 +72,10 @@ export class Vehicle {
   @Column({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
+  @OneToOne(() => VehicleVins, (vehicle_vin) => vehicle_vin.vehicle)
+  @JoinColumn({ name: 'vehicle_vin_id' })
+  vehicle_vin: VehicleVins;
+
   @OneToOne(() => VehicleDimension, (dimension) => dimension.vehicle, {
     cascade: true,
   })
@@ -89,7 +89,7 @@ export class Vehicle {
   @OneToMany(() => VehicleInformation, (information) => information.vehicle, {
     cascade: true,
   })
-  informations: VehicleInformation[];
+  information: VehicleInformation[];
 
   @OneToMany(() => VehicleAttachment, (attachment) => attachment.vehicle, {
     cascade: true,

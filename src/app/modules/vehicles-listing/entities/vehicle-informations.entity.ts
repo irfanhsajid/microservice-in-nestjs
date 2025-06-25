@@ -15,7 +15,7 @@ export class VehicleInformation {
   @Column({ nullable: false })
   vehicle_id: number;
 
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.informations)
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.information)
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: Vehicle;
 

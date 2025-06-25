@@ -2,12 +2,12 @@ import { CustomLogger } from '../../logger/logger.service';
 import { VehicleService } from '../services/vechicle.service';
 import {
   Controller,
-  Param,
   Body,
   Get,
   Post,
   Request,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { throwCatchError } from '../../../common/utils/throw-error';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -15,6 +15,8 @@ import { ApiGuard } from '../../../guards/api.guard';
 import { EnsureEmailVerifiedGuard } from '../../../guards/ensure-email-verified.guard';
 import { EnsureProfileCompletedGuard } from '../../../guards/ensure-profile-completed.guard';
 import { CreateVehicleDto } from '../dto/vehicle.dto';
+import { VehicleIndexDto } from '../dto/vehicle-index.dto';
+import { responseReturn } from '../../../common/utils/response-return';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
@@ -32,9 +34,13 @@ export class VehicleController {
    * @returns Promise with vehicle data
    */
   @Get('/vehicles')
-  async index(@Request() req: any, @Param() params: any): Promise<any> {
+  async index(
+    @Request() req: any,
+    @Query() params: VehicleIndexDto,
+  ): Promise<any> {
     try {
-      return await this.vehicleService.index(req, params);
+      const vehicles = await this.vehicleService.index(req, params);
+      return responseReturn('Vehicles fetched successfully', vehicles);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
@@ -42,10 +48,7 @@ export class VehicleController {
   }
 
   @Post('/vehicles')
-  async addCarSpecification(
-    @Request() req: any,
-    @Body() dto: CreateVehicleDto,
-  ) {
+  async store(@Request() req: any, @Body() dto: CreateVehicleDto) {
     try {
       return await this.vehicleService.store(req, dto);
     } catch (error) {

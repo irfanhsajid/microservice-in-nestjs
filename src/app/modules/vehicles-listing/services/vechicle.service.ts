@@ -10,6 +10,8 @@ import { Vehicle } from '../entities/vehicles.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { User } from '../../user/entities/user.entity';
+import { paginate } from '../../../common/pagination/paginate';
+import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {
@@ -29,49 +31,34 @@ export class VehicleService implements ServiceInterface {
     private readonly vehicleRepository: Repository<Vehicle>,
   ) {}
 
-  async index(req: Request, params: any): Promise<Record<string, any>> {
+  async index(
+    req: Request,
+    params: VehicleIndexDto,
+  ): Promise<Record<string, any>> {
     const user = req['user'] as User;
     const user_default_dealership = req[
       'user_default_dealership'
     ] as UserDealership;
 
-    // Extract pagination parameters with defaults
-    const page = parseInt(params.page) || 1;
-    const limit = parseInt(params.limit) || 10;
+    const page = params.page || 1;
+    const limit = params.limit || 10;
     const skip = (page - 1) * limit;
 
-    // Query vehicles with pagination
     const [vehicles, total] = await this.vehicleRepository.findAndCount({
       where: {
-        id: params.id,
         vehicle_vin: {
           user_id: user.id,
           dealership_id: user_default_dealership?.dealership_id,
         },
       },
-      relations: [],
-      order: { created_at: 'DESC' },
+      select: ['id', 'vehicle_vin', 'vehicle_vin_id', 'created_at'],
+      relations: ['vehicle_attachments'],
+      order: { [params.sort_column]: params.sort_direction },
       skip: skip,
       take: limit,
     });
 
-    // Calculate pagination metadata
-    const totalPages = Math.ceil(total / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
-
-    // Return paginated response
-    return {
-      data: vehicles,
-      meta: {
-        currentPage: page,
-        itemsPerPage: limit,
-        totalItems: total,
-        totalPages: totalPages,
-        hasNextPage: hasNextPage,
-        hasPrevPage: hasPrevPage,
-      },
-    };
+    return paginate(vehicles, total, page, limit);
   }
   async store(req: Request, dto: any): Promise<Record<string, any>> {
     try {
