@@ -14,7 +14,6 @@ import { CustomLogger } from '../../logger/logger.service';
 import { VehicleVinsService } from '../services/vehicle-vins.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
-import { CreateVehicleDto } from '../dto/vehicle.dto';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
@@ -44,10 +43,4 @@ export class VehicleListingController {
       return throwCatchError(error);
     }
   }
-
-  @Post('/vehicles')
-  async addCarSpecification(
-    @Request() req: any,
-    @Body() dto: CreateVehicleDto,
-  ) {}
 }

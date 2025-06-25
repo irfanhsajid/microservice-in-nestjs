@@ -1,11 +1,20 @@
 import { CustomLogger } from '../../logger/logger.service';
 import { VehicleService } from '../services/vechicle.service';
-import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Body,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { throwCatchError } from '../../../common/utils/throw-error';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiGuard } from '../../../guards/api.guard';
 import { EnsureEmailVerifiedGuard } from '../../../guards/ensure-email-verified.guard';
 import { EnsureProfileCompletedGuard } from '../../../guards/ensure-profile-completed.guard';
+import { CreateVehicleDto } from '../dto/vehicle.dto';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
@@ -26,6 +35,19 @@ export class VehicleController {
   async index(@Request() req: any, @Param() params: any): Promise<any> {
     try {
       return await this.vehicleService.index(req, params);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @Post('/vehicles')
+  async addCarSpecification(
+    @Request() req: any,
+    @Body() dto: CreateVehicleDto,
+  ) {
+    try {
+      return await this.vehicleService.store(req, dto);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);

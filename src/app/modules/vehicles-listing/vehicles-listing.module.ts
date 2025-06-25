@@ -10,6 +10,7 @@ import { VehicleListingController } from './controllers/vehicle-listing.controll
 import { UserModule } from '../user/user.module';
 import { VehicleVinsService } from './services/vehicle-vins.service';
 import { VehicleService } from './services/vechicle.service';
+import { IsVehicleVinValid } from './dto/validator/is-vehicle-vin-valid.validator';
 import { VehicleController } from './controllers/vehicle.controller';
 
 @Module({
@@ -25,7 +26,7 @@ import { VehicleController } from './controllers/vehicle.controller';
     UserModule,
   ],
   controllers: [VehicleListingController, VehicleController],
-  providers: [VehicleVinsService, VehicleService],
-  exports: [],
+  providers: [VehicleVinsService, VehicleService, IsVehicleVinValid],
+  exports: [IsVehicleVinValid],
 })
 export class VehiclesListingModule {}

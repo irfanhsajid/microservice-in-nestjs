@@ -6,17 +6,20 @@ import {
   IsNumber,
   IsPhoneNumber,
   IsString,
+  Validate,
   ValidateNested,
 } from 'class-validator';
 import { VehicleCondition } from '../entities/vehicles.entity';
 import { CreateVehicleDimensionDto } from './vehicles-demension.dto';
 import { Type } from 'class-transformer';
 import { CreateVehicleFeatureDto } from './vehicle-feature.dto';
+import { IsVehicleVinValid } from './validator/is-vehicle-vin-valid.validator';
 
 export class CreateVehicleDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
+  @Validate(IsVehicleVinValid)
   vehicle_vin_id: number;
 
   @ApiProperty()

@@ -9,6 +9,8 @@ import { VehicleInformation } from '../entities/vehicle-informations.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { User } from '../../user/entities/user.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { User } from '../../user/entities/user.entity';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {
@@ -74,6 +76,20 @@ export class VehicleService implements ServiceInterface {
   }
   async store(req: Request, dto: any): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
+  }
+  async store(req: Request, dto: any): Promise<Record<string, any>> {
+    try {
+      const user = req['user'] as User;
+
+      const queryRunner =
+        this.vehicleRepository.manager.connection.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      throw new Error('Method not implements');
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
   }
   async show(req: Request, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
