@@ -10,7 +10,7 @@ import { UserModule } from '../user/user.module';
 import { AuthenticatedController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { InjectRepository, TypeOrmModule } from '@nestjs/typeorm';
 import { Session } from './entities/session.entity';
 import { PassportModule } from '@nestjs/passport';
 import { DocsController } from './controllers/docs-auth.controller';
@@ -30,6 +30,9 @@ import { OAuthController } from './controllers/oauth.controller';
 import { GoogleAuthStrategy } from './strategy/google-auth.strategy';
 import { GoogleAuthService } from './services/google-auth-service.service';
 import { TwitterAuthService } from './services/twitter-auth-service.service';
+import { Repository } from 'typeorm';
+import { useContainer } from 'class-validator';
+import { IsUnique } from './dto/validator/is-unique.validator';
 
 @Module({
   imports: [
@@ -124,4 +127,25 @@ import { TwitterAuthService } from './services/twitter-auth-service.service';
   ],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+
+  onModuleInit() {
+    const validator = new IsUnique(this.userRepository);
+
+    useContainer(
+      {
+        get: (type: any) => {
+          if (type === IsUnique) {
+            return validator;
+          }
+          throw new Error(`No provider for ${type}`);
+        },
+      },
+      { fallbackOnErrors: true },
+    );
+  }
+}
