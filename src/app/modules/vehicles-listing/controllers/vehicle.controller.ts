@@ -1,7 +1,8 @@
 import { CustomLogger } from '../../logger/logger.service';
 import { VehicleService } from '../services/vechicle.service';
-import { Get, Request } from '@nestjs/common';
+import { Body, Get, Post, Request } from '@nestjs/common';
 import { throwCatchError } from '../../../common/utils/throw-error';
+import { CreateVehicleDto } from '../dto/vehicle.dto';
 
 export class VehicleController {
   private readonly logger = new CustomLogger(VehicleController.name);
@@ -17,4 +18,10 @@ export class VehicleController {
       return throwCatchError(error);
     }
   }
+
+  @Post('/vehicles')
+  async addCarSpecification(
+    @Request() req: any,
+    @Body() dto: CreateVehicleDto,
+  ) {}
 }

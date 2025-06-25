@@ -27,7 +27,7 @@ export class VehicleService implements ServiceInterface {
   ) {}
 
   async index(req: Request): Promise<Record<string, any>> {
-    return await this.vehicleDimensionRepository.find(req.query);
+    throw new Error('Method not implemented.');
   }
   async store(req: Request, dto: any): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
