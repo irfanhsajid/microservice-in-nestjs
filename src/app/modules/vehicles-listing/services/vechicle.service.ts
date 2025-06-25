@@ -29,16 +29,20 @@ export class VehicleService implements ServiceInterface {
   async index(req: Request): Promise<Record<string, any>> {
     return await this.vehicleDimensionRepository.find(req.query);
   }
-  async store(req: Request, dto: any): Record<string, any> {
+  async store(req: Request, dto: any): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
-  async show(req: Request, id: number): Record<string, any> {
+  async show(req: Request, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
-  async update(req: Request, dto: any, id: number): Record<string, any> {
+  async update(
+    req: Request,
+    dto: any,
+    id: number,
+  ): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
-  async destroy(req: Request, id: number): Record<string, any> {
+  async destroy(req: Request, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
 }
