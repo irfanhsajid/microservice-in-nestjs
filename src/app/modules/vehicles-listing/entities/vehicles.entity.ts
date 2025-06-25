@@ -95,4 +95,9 @@ export class Vehicle {
     cascade: true,
   })
   vehicle_attachments: VehicleAttachment[];
+
+  @OneToOne(() => VehicleAttachment, (attachment) => attachment.vehicle, {
+    cascade: true,
+  })
+  vehicle_attachment: VehicleAttachment[];
 }
