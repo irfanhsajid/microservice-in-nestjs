@@ -23,7 +23,7 @@ export class IsVehicleVinValid implements ValidatorConstraintInterface {
         relations: ['vehicle'],
       });
 
-      return !!vehicleVin && !vehicleVin.vehicle;
+      return !!vehicleVin;
     } catch (error) {
       this.logger.error(error);
       return false;
@@ -31,6 +31,6 @@ export class IsVehicleVinValid implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `Vehicle VIN ID ${args.value} does not exist or has no associated vehicle.`;
+    return `Vehicle VIN ID ${args.value} does not exist`;
   }
 }
