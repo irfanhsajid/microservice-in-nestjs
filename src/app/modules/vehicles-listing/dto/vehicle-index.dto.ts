@@ -10,27 +10,27 @@ import { Sort } from '../../../common/pagination/sort';
 import { IndexSortColumn } from '../enums/vehicle-index.sortcolumn';
 
 export class VehicleIndexDto {
-  @ApiProperty()
+  @ApiProperty({ example: 1 })
   @IsNotEmpty()
   @IsNumber()
   page: number;
 
-  @ApiProperty()
+  @ApiProperty({ example: 10 })
   @IsNotEmpty()
   @IsNumber()
   limit: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   search: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsEnum(IndexSortColumn)
   sort_column: IndexSortColumn;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsEnum(Sort)
   sort_direction: Sort;
