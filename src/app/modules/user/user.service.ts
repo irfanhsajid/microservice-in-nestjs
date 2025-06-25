@@ -10,6 +10,9 @@ import { UserDealership } from '../dealership/entities/user-dealership.entity';
 import { UserResource } from './resource/user.resource';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { Role } from '../roles/entities/role.entity';
+import { Permission } from '../roles/entities/permission.entity';
+import { RoleHasPermissions } from '../roles/entities/role_has_permissions.entity';
 
 @Injectable()
 export class UserService {
@@ -18,6 +21,12 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
+     @InjectRepository(RoleHasPermissions)
+    private readonly roleHasPermissionsRepository: Repository<RoleHasPermissions>,
 
     @InjectRepository(UserDealership)
     private readonly userDealershipRepository: Repository<UserDealership>,
@@ -26,6 +35,34 @@ export class UserService {
 
     protected readonly configService: ConfigService,
   ) {}
+
+  async getPermissionsByRole(roleId: number): Promise<Permission[]> {
+    const rolePermissions = await this.roleHasPermissionsRepository.find({
+      where: { role_id: roleId },
+    });
+
+    if (!rolePermissions.length) {
+      return [];
+    }
+
+    const permissionIds = rolePermissions.map((rhp) => rhp.permission_id);
+
+    const permissions =
+      await this.permissionRepository.findByIds(permissionIds);
+
+    return permissions;
+  }
+
+  async findByIdWithRoleAndPermissions(id: number) {
+    return await this.userRepository.findOne({
+      where: { id },
+      relations: [
+        'role',
+        'role.role_has_permissions',
+        'role.role_has_permissions.permission',
+      ],
+    });
+  }
 
   async createUser(dto: CreateUserDto): Promise<User> {
     try {

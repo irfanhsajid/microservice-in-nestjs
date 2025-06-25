@@ -6,6 +6,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -14,6 +16,7 @@ import { DealershipAttachment } from '../../dealership/entities/dealership-attac
 import { DealershipPaymentInfo } from '../../dealership/entities/dealership-payment-info.entity';
 import { VehicleVins } from '../../vehicles-listing/entities/vehicle-vins.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
+import { Role } from '../../roles/entities/role.entity';
 
 export enum UserAccountType {
   BUYER = 'BUYER',
@@ -101,4 +104,8 @@ export class User {
   async comparePassword(plainTextPassword: string): Promise<boolean> {
     return await bcrypt.compare(plainTextPassword, this.password);
   }
+
+  @ManyToOne(() => Role, (role) => role.users, { eager: true })
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 }

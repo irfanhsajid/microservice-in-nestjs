@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { RoleHasPermissions } from './role_has_permissions.entity';
 import { Dealership } from '../../dealership/entities/dealerships.entity';
+import { User } from '../../user/entities/user.entity';
 
 export enum RoleStatus {
   ACTIVE = 'Active',
@@ -51,10 +52,19 @@ export class Role {
   @OneToMany(() => RoleHasPermissions, (rhp) => rhp.role, { cascade: true })
   role_has_permissions: RoleHasPermissions[];
 
+  @OneToMany(() => User, (user) => user.role)
+  users: User[];
+
   @ManyToOne(() => Dealership, (dealership) => dealership.user_dealerships, {
     cascade: true,
-    nullable: false,
+    nullable: true,
   })
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
+
+  @ManyToOne(() => Role, (role) => role.role_has_permissions, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 }

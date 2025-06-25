@@ -18,6 +18,7 @@ const userSeeder = async (conn: DataSource) => {
       status: true,
       email_verified_at: new Date(),
       account_type: UserAccountType.MODERATOR,
+      role_id: 1,
     },
   ];
 
