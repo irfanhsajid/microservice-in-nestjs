@@ -10,6 +10,7 @@ import { UserDealership } from '../dealership/entities/user-dealership.entity';
 import { RoleHasPermissions } from '../roles/entities/role_has_permissions.entity';
 import { Role } from '../roles/entities/role.entity';
 import { Permission } from '../roles/entities/permission.entity';
+import { CaslModule } from '../auth/casl/casl.module';
 
 @Module({
   imports: [
@@ -20,9 +21,9 @@ import { Permission } from '../roles/entities/permission.entity';
       UserDealership,
       RoleHasPermissions,
       Role,
-      Permission
-
+      Permission,
     ]),
+    CaslModule,
   ],
   controllers: [UserController],
   providers: [UserService, PasswordResetService],

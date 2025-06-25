@@ -30,6 +30,7 @@ import { OAuthController } from './controllers/oauth.controller';
 import { GoogleAuthStrategy } from './strategy/google-auth.strategy';
 import { GoogleAuthService } from './services/google-auth-service.service';
 import { TwitterAuthService } from './services/twitter-auth-service.service';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { TwitterAuthService } from './services/twitter-auth-service.service';
       }),
       inject: [ConfigService],
     }),
+    CaslModule,
   ],
   controllers: [
     AuthenticatedController,

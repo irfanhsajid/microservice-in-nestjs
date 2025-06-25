@@ -25,7 +25,7 @@ export class UserService {
     private readonly roleRepository: Repository<Role>,
     @InjectRepository(Permission)
     private readonly permissionRepository: Repository<Permission>,
-     @InjectRepository(RoleHasPermissions)
+    @InjectRepository(RoleHasPermissions)
     private readonly roleHasPermissionsRepository: Repository<RoleHasPermissions>,
 
     @InjectRepository(UserDealership)

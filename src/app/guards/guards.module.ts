@@ -7,9 +7,10 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from '../modules/user/user.module';
 import { DealershipModule } from '../modules/dealership/dealership.module';
 import { EnsureEmailVerifiedGuard } from './ensure-email-verified.guard';
+import { CaslModule } from '../modules/auth/casl/casl.module';
 
 @Module({
-  imports: [JwtModule, ConfigModule, DealershipModule, UserModule],
+  imports: [JwtModule, ConfigModule, DealershipModule, UserModule, CaslModule],
   providers: [ApiGuard, EnsureEmailVerifiedGuard],
   exports: [ApiGuard, EnsureEmailVerifiedGuard],
 })

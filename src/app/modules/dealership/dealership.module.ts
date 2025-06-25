@@ -13,6 +13,7 @@ import { DealershipAttachmentController } from './controllers/dealership.attachm
 import { DealershipAttachmentService } from './services/dealership-attachment.service';
 import { UploadsModule } from '../uploads/uploads.module';
 import { UserModule } from '../user/user.module';
+import { CaslModule } from '../auth/casl/casl.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UserModule } from '../user/user.module';
     ]),
     UserModule,
     UploadsModule,
+    CaslModule,
   ],
   providers: [
     DealershipPaymentInfoService,
