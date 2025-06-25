@@ -4,6 +4,9 @@ import { Repository } from 'typeorm';
 import { VehicleDimension } from '../entities/vehicle-dimensions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceInterface } from '../../../common/interfaces/service.interface';
+import { VehicleFeature } from '../entities/vehicle-features.entity';
+import { VehicleInformation } from '../entities/vehicle-informations.entity';
+import { Vehicle } from '../entities/vehicles.entity';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {
@@ -12,6 +15,15 @@ export class VehicleService implements ServiceInterface {
   constructor(
     @InjectRepository(VehicleDimension)
     private readonly vehicleDimensionRepository: Repository<VehicleDimension>,
+
+    @InjectRepository(VehicleFeature)
+    private readonly vehicleFeatureRepository: Repository<VehicleFeature>,
+
+    @InjectRepository(VehicleInformation)
+    private readonly vehicleInformationRepository: Repository<VehicleInformation>,
+
+    @InjectRepository(Vehicle)
+    private readonly vehicleRepository: Repository<Vehicle>,
   ) {}
 
   async index(req: Request): Promise<Record<string, any>> {

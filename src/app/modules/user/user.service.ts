@@ -200,6 +200,7 @@ export class UserService {
           accept_privacy: true,
           password: this.configService.get('app.key'),
           email_verified_at: new Date(),
+          profile_completed: new Date(),
         });
         user = await queryRunner.manager.save(User, user);
         this.logger.log(`New Oauth user saved to database ${user.email}`);
