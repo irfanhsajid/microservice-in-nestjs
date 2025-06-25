@@ -23,5 +23,12 @@ export class VehicleController {
   async addCarSpecification(
     @Request() req: any,
     @Body() dto: CreateVehicleDto,
-  ) {}
+  ) {
+    try {
+      return await this.vehicleService.store(req, dto);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
 }
