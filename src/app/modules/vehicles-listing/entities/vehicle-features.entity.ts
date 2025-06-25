@@ -9,47 +9,12 @@ import { Vehicle } from './vehicles.entity';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum FeatureType {
-  INTERIOR = 'Interior',
-  SAFETY = 'Safety',
-  EXTERIOR = 'Exterior',
-  COMFORT_CONVENIENCE = 'Comfort&Convenience',
+  INTERIOR = 'INTERIOR',
+  SAFETY = 'SAFETY',
+  EXTERIOR = 'EXTERIOR',
+  COMFORT_CONVENIENCE = 'COMFORT_CONVENIENCE',
 }
 
-// export interface InteriorSpecs {
-//   air_conditioner?: boolean;
-//   digital_odometer?: boolean;
-//   heater?: boolean;
-//   leather_seats?: boolean;
-//   panoramic_moonroof?: boolean;
-//   tachometer?: boolean;
-//   touchscreen_display?: boolean;
-// }
-//
-// export interface SafetySpecs {
-//   anti_lock_braking?: boolean;
-//   brake_assist?: boolean;
-//   child_safety_locks?: boolean;
-//   driver_air_bag?: boolean;
-//   power_door_locks?: boolean;
-//   stability_control?: boolean;
-//   traction_control?: boolean;
-// }
-//
-// export interface ExteriorSpecs {
-//   fog_lights_front?: boolean;
-//   rain_sensing_wiper?: boolean;
-//   rear_spoiler?: boolean;
-//   windows_electric?: boolean;
-// }
-//
-// export interface ComfortConvenienceSpecs {
-//   android_auto?: boolean;
-//   apple_carplay?: boolean;
-//   bluetooth?: boolean;
-//   homelink?: boolean;
-//   power_steering?: boolean;
-// }
-//
 export class InteriorSpecs {
   @ApiPropertyOptional() air_conditioner?: boolean;
   @ApiPropertyOptional() digital_odometer?: boolean;

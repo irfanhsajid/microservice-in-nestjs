@@ -25,74 +25,74 @@ export class CreateVehicleDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  body?: string;
+  body: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  mileage?: string;
+  mileage: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  fuel_type?: string;
+  fuel_type: string;
 
   @ApiProperty()
   @IsPhoneNumber()
   @IsNotEmpty()
-  business_phone?: string;
+  business_phone: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  model_year?: string;
+  model_year: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  transmission?: string;
+  transmission: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  drive_type?: string;
+  drive_type: string;
 
   @ApiProperty()
   @IsEnum(VehicleCondition)
-  condition?: VehicleCondition;
+  condition: VehicleCondition;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  engine_size?: string;
+  engine_size: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  door?: string;
+  door: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  cylinder?: string;
+  cylinder: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  color?: string;
+  color: string;
 
   @ApiProperty({ type: CreateVehicleDimensionDto })
   @IsNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CreateVehicleDimensionDto)
-  dimensions?: CreateVehicleDimensionDto;
+  dimensions: CreateVehicleDimensionDto;
 
   @ApiProperty({ type: CreateVehicleFeatureDto, isArray: true })
   @ValidateNested({ each: true })
   @Type(() => CreateVehicleFeatureDto)
   @IsArray()
   @IsNotEmpty()
-  vehicle_features?: CreateVehicleFeatureDto[];
+  vehicle_features: CreateVehicleFeatureDto[];
 }
 
 export class UpdateVehicleDto extends CreateVehicleDto {}
