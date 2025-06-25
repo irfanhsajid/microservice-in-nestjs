@@ -1,3 +1,7 @@
 export interface ServiceInterface {
-  index(): Record<string, any>;
+  index(req: Request): Record<string, any>;
+  store(req: Request, dto: any): Record<string, any>;
+  show(req: Request, id: number): Record<string, any>;
+  update(req: Request, dto: any, id: number): Record<string, any>;
+  destroy(req: Request, id: number): Record<string, any>;
 }

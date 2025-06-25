@@ -25,13 +25,8 @@ export class VehicleListingController {
 
   constructor(private readonly vehicleVinsService: VehicleVinsService) {}
 
-  // @Get('/get-vehicles')
-  // async getVehicleAttachment(): Promise<any> {
-  //   return [];
-  // }
-
   @Post('/vehicle-vin')
-  async addVehileVin(@Request() req: any, @Body() dto: CreateVehicleVinsDto) {
+  async addVehicleVin(@Request() req: any, @Body() dto: CreateVehicleVinsDto) {
     try {
       return await this.vehicleVinsService.create(req, dto);
     } catch (error) {
@@ -50,7 +45,7 @@ export class VehicleListingController {
     }
   }
 
-  @Post('/vehicle')
+  @Post('/vehicles')
   async addCarSpecification(
     @Request() req: any,
     @Body() dto: CreateVehicleDto,

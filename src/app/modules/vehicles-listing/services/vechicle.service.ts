@@ -3,13 +3,30 @@ import { CustomLogger } from '../../logger/logger.service';
 import { Repository } from 'typeorm';
 import { VehicleDimension } from '../entities/vehicle-dimensions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ServiceInterface } from '../../../common/interfaces/service.interface';
 
 @Injectable()
-export class VehicleService {
+export class VehicleService implements ServiceInterface {
   private readonly logger = new CustomLogger(VehicleService.name);
 
   constructor(
     @InjectRepository(VehicleDimension)
-    private readonly vehicleDemensionRepository: Repository<VehicleDimension>,
+    private readonly vehicleDimensionRepository: Repository<VehicleDimension>,
   ) {}
+
+  async index(req: Request): Promise<Record<string, any>> {
+    return await this.vehicleDimensionRepository.find(req.query);
+  }
+  async store(req: Request, dto: any): Record<string, any> {
+    throw new Error('Method not implemented.');
+  }
+  async show(req: Request, id: number): Record<string, any> {
+    throw new Error('Method not implemented.');
+  }
+  async update(req: Request, dto: any, id: number): Record<string, any> {
+    throw new Error('Method not implemented.');
+  }
+  async destroy(req: Request, id: number): Record<string, any> {
+    throw new Error('Method not implemented.');
+  }
 }
