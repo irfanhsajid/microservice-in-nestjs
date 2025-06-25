@@ -129,10 +129,10 @@ export class VehicleService implements ServiceInterface {
             vehicle_id: vehicle.id,
           });
         } else {
-          newFeature = queryRunner.manager.merge(
-            VehicleFeature,
-            features as VehicleFeature,
-          );
+          newFeature = queryRunner.manager.merge(VehicleFeature, newFeature, {
+            ...features,
+            vehicle_id: vehicle.id,
+          });
         }
 
         newFeature = await queryRunner.manager.save(newFeature);
