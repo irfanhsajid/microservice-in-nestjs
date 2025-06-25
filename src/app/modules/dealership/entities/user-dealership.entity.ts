@@ -52,7 +52,7 @@ export class UserDealership {
   @DeleteDateColumn()
   deleted_at: Date;
 
-  @OneToOne(() => Role, (role) => role.users, { nullable: false })
+  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
   @JoinColumn({ name: 'role_id' })
   role: Role;
 

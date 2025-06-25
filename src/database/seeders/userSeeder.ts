@@ -44,8 +44,9 @@ const userSeeder = async (conn: DataSource) => {
       role_id: 1,
       status: UserDealershipStatus.APPROVED,
     } as UserDealership);
+
+    await userDealershipRepo.save(userDealershipsData);
   }
-  await userDealershipRepo.save(userDealershipsData);
 
   console.log('User seeded');
 };
