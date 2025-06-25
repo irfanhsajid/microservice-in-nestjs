@@ -41,7 +41,6 @@ const userSeeder = async (conn: DataSource) => {
     userDealershipsData.push({
       user_id: user.id,
       is_default: true,
-      dealership_id: 0,
       role_id: 1,
       status: UserDealershipStatus.APPROVED,
     } as UserDealership);
