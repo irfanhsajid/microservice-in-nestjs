@@ -29,6 +29,7 @@ export class VehicleVinsService {
         where: {
           user_id: user.id,
           dealership_id: defaultDealership.dealership_id,
+          vin_number: dto.vin_number,
         },
       });
 
