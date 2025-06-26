@@ -28,7 +28,7 @@ export class VehicleVinsService {
       let vehicleVin = await this.vehicleVinsRepository.findOne({
         where: {
           user_id: user.id,
-          dealership_id: defaultDealership.dealership_id!,
+          dealership_id: defaultDealership.dealership_id,
           vin_number: dto.vin_number,
         },
       });
@@ -51,7 +51,7 @@ export class VehicleVinsService {
     }
   }
 
-  async show(req: Request, vinNumber: string): Promise<VehicleVins | null> {
+  async show(req: Request, id: number): Promise<VehicleVins | null> {
     try {
       const user = req['user'] as User;
       const defaultDealership = req[
@@ -61,7 +61,7 @@ export class VehicleVinsService {
         where: {
           user_id: user.id,
           dealership_id: defaultDealership.dealership_id,
-          vin_number: vinNumber,
+          id: id,
         },
       });
     } catch (error) {

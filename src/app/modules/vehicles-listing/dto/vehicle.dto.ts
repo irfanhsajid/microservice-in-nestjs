@@ -3,24 +3,22 @@ import {
   IsArray,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsPhoneNumber,
   IsString,
-  Validate,
   ValidateNested,
 } from 'class-validator';
 import { VehicleCondition } from '../entities/vehicles.entity';
 import { CreateVehicleDimensionDto } from './vehicles-demension.dto';
 import { Type } from 'class-transformer';
 import { CreateVehicleFeatureDto } from './vehicle-feature.dto';
-import { IsVehicleVinValid } from './validator/is-vehicle-vin-valid.validator';
+import { CreateVehicleVinsDto } from './vehicle-vins.dto';
 
 export class CreateVehicleDto {
-  @ApiProperty()
+  @ApiProperty({ type: CreateVehicleVinsDto })
   @IsNotEmpty()
-  @IsNumber()
-  @Validate(IsVehicleVinValid)
-  vehicle_vin_id: number;
+  @ValidateNested({ each: true })
+  @Type(() => CreateVehicleVinsDto)
+  vehicle_vin: CreateVehicleVinsDto;
 
   @ApiProperty()
   @IsString()

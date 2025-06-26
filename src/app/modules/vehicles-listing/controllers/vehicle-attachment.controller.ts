@@ -26,9 +26,15 @@ import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.g
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
+import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 
 @ApiTags('Vehicle-listing')
-@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
+@UseGuards(
+  ApiGuard,
+  EnsureEmailVerifiedGuard,
+  EnsureProfileCompletedGuard,
+  EnsureHasDealershipGuard,
+)
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
 export class VehicleAttachmentController {
@@ -38,7 +44,7 @@ export class VehicleAttachmentController {
     private readonly vehicleAttachmentService: VehicleAttachmentService,
   ) {}
 
-  @Post('vehicle/attachments/:vehicleVinId')
+  @Post('vehicle/attachments/:vinId')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(), // Minimal buffering to access metadata
@@ -74,7 +80,7 @@ export class VehicleAttachmentController {
     status: 201,
     description: 'Attachments uploaded successfully',
   })
-  async upload(@Request() req: any, @Param('vehicleVinId') id: number) {
+  async upload(@Request() req: any, @Param('vinId') id: number) {
     const file = req.file;
 
     // Validate file count (3 to 5 files required)
@@ -92,7 +98,7 @@ export class VehicleAttachmentController {
     return await this.vehicleAttachmentService.store(req, dtoCombine);
   }
 
-  @Get('vehicle/attachments/:id')
+  @Get('vehicle/attachments/:vinId')
   @ApiOperation({ summary: 'Get all attachments for a vehicle' })
   @ApiResponse({
     status: 200,
@@ -100,10 +106,10 @@ export class VehicleAttachmentController {
   })
   async getAttachments(
     @Request() req: any,
-    @Param('id') id: number,
+    @Param('vinId') id: number,
   ): Promise<any> {
     try {
-      return await this.vehicleAttachmentService.index(req, id);
+      return await this.vehicleAttachmentService.show(req, id);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
       throw error;

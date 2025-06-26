@@ -8,6 +8,7 @@ import {
   IsBoolean,
   ValidationOptions,
   registerDecorator,
+  Validate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MileageType } from '../entities/vehicle-vins.entity';
