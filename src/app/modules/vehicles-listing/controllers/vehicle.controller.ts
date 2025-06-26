@@ -54,7 +54,7 @@ export class VehicleController {
     }
   }
 
-  @Get('/vehicles:vinId')
+  @Get('/vehicles/:vinId')
   async show(@Request() req: any, @Param('vinId') id: number): Promise<any> {
     try {
       return await this.vehicleService.show(req, id);

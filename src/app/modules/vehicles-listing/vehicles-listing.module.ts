@@ -16,6 +16,8 @@ import { VehicleAttachmentController } from './controllers/vehicle-attachment.co
 import { UploadsModule } from '../uploads/uploads.module';
 import { VehicleAttachmentService } from './services/vehicle-attachment.service';
 import { CaslModule } from '../auth/casl/casl.module';
+import { VehicleInformationService } from './services/vehicle-information.service';
+import { VehicleInformationController } from './controllers/vehicle-information.controller';
 
 @Module({
   imports: [
@@ -35,12 +37,14 @@ import { CaslModule } from '../auth/casl/casl.module';
     VehicleVinController,
     VehicleController,
     VehicleAttachmentController,
+    VehicleInformationController,
   ],
   providers: [
     VehicleVinsService,
     VehicleService,
     VehicleAttachmentService,
     IsVehicleVinValid,
+    VehicleInformationService,
   ],
   exports: [],
 })
