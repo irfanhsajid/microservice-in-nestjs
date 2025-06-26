@@ -60,7 +60,8 @@ export class DealershipAttachmentService {
       const attachment = this.attachmentRepository.create({
         user: currentUser,
         dealership_id: userDealership?.dealership_id,
-        name: dto.name as unknown as string,
+        // name: dto.name as unknown as string,
+        name: `${folder}/${filePath}`,
         path: filePath,
       });
 
@@ -92,7 +93,7 @@ export class DealershipAttachmentService {
 
     try {
       // Delete a file from storage
-      await this.fileUploaderService.deleteFile(attachment.path);
+      await this.fileUploaderService.deleteFile(attachment.name);
 
       // delete attachment record
       await this.attachmentRepository.delete(attachmentId);
