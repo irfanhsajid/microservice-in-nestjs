@@ -217,8 +217,32 @@ export class VehicleService implements ServiceInterface {
       return throwCatchError(error);
     }
   }
-  show(req: Request, id: number): Promise<Record<string, any>> {
-    throw new Error('Method not implemented.');
+  async show(req: Request, id: number): Promise<Record<string, any>> {
+    try {
+      const user = req['user'] as User;
+      const user_default_dealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
+
+      const vehicle = await this.vehicleRepository.findOne({
+        where: {
+          vehicle_vin: {
+            user_id: user.id,
+            dealership_id: user_default_dealership.dealership_id,
+          },
+          vehicle_vin_id: id,
+        },
+        relations: ['vehicle_attachment', 'information', 'vehicle_features'],
+      });
+
+      if (!vehicle) {
+        return {};
+      }
+      return vehicle;
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
   }
   update(req: Request, dto: any, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');

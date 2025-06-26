@@ -8,6 +8,7 @@ import {
   Request,
   UseGuards,
   Query,
+  Param,
 } from '@nestjs/common';
 import { throwCatchError } from '../../../common/utils/throw-error';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -47,6 +48,16 @@ export class VehicleController {
     try {
       const vehicles = await this.vehicleService.index(req, params);
       return responseReturn('Vehicles fetched successfully', vehicles);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @Get('/vehicles:vinId')
+  async show(@Request() req: any, @Param('vinId') id: number): Promise<any> {
+    try {
+      return await this.vehicleService.show(req, id);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);

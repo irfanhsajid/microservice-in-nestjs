@@ -24,27 +24,8 @@ export class VehicleAttachmentService implements ServiceInterface {
     private readonly fileUploadService: FileUploaderService,
   ) {}
 
-  async index(req: Request, params: any): Promise<Record<string, any>> {
-    try {
-      const user = req['user'] as User;
-      const vehicle = await this.vehicleRepository.findOne({
-        where: { vehicle_vin_id: params },
-      });
-
-      if (!vehicle) {
-        return [];
-      }
-
-      return await this.vehicleAttachmentRepository.find({
-        where: {
-          vehicle_id: vehicle?.id,
-          user_id: user.id,
-        },
-      });
-    } catch (error) {
-      this.logger.log(error);
-      return throwCatchError(error);
-    }
+  index(req: Request, params: any): Promise<Record<string, any>> {
+    throw new Error('Method not implemented.');
   }
 
   async store(req: Request, dto: any): Promise<Record<string, any>> {
@@ -118,9 +99,22 @@ export class VehicleAttachmentService implements ServiceInterface {
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
       const user = req['user'] as User;
-      return user;
+      const vehicle = await this.vehicleRepository.findOne({
+        where: { vehicle_vin_id: id },
+      });
+
+      if (!vehicle) {
+        return [];
+      }
+
+      return await this.vehicleAttachmentRepository.find({
+        where: {
+          vehicle_id: vehicle?.id,
+          user_id: user.id,
+        },
+      });
     } catch (error) {
-      this.logger.error(error);
+      this.logger.log(error);
       return throwCatchError(error);
     }
   }
