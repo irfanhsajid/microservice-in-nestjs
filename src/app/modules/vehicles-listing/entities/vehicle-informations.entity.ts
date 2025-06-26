@@ -26,5 +26,5 @@ export class VehicleInformation {
   description: string;
 
   @Column({ type: 'json', nullable: true })
-  characteristics: object;
+  characteristics: Array<any>;
 }

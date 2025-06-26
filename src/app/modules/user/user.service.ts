@@ -6,7 +6,10 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
-import { UserDealership, UserDealershipStatus } from '../dealership/entities/user-dealership.entity';
+import {
+  UserDealership,
+  UserDealershipStatus,
+} from '../dealership/entities/user-dealership.entity';
 import { UserResource } from './resource/user.resource';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -101,12 +104,11 @@ export class UserService {
       if (!user) {
         return null;
       }
-      if (user.account_type === UserAccountType.MODERATOR) {
-        return user;
-      }
+
       if (!(await user.comparePassword(dto.password))) {
         return null;
       }
+
       if (!user.status) {
         return null;
       }
