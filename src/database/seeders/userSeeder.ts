@@ -15,7 +15,7 @@ const userSeeder = async (conn: DataSource) => {
 
   const data = [
     {
-      password: await hashPassword('12345'),
+      password: await hashPassword('Password@123'),
       email: 'carvu@gmail.com',
       name: 'carvu',
       accept_privacy: true,
@@ -25,7 +25,7 @@ const userSeeder = async (conn: DataSource) => {
     },
 
     {
-      password: await hashPassword('12345'),
+      password: await hashPassword('Password@123'),
       email: 'dealer@gmail.com',
       name: 'Dealer',
       accept_privacy: true,

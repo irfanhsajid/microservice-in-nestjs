@@ -136,13 +136,13 @@ export class AuthModule {
   ) {}
 
   onModuleInit() {
-    const validator = new IsUnique(this.userRepository);
+    const isUnique = new IsUnique(this.userRepository);
 
     useContainer(
       {
         get: (type: any) => {
           if (type === IsUnique) {
-            return validator;
+            return isUnique;
           }
           throw new Error(`No provider for ${type}`);
         },
