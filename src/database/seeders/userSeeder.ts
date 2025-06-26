@@ -6,43 +6,54 @@ import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserDealership } from '../../app/modules/dealership/entities/user-dealership.entity';
 import { Role } from '../../app/modules/roles/entities/role.entity';
+import {
+  UserDealership,
+  UserDealershipStatus,
+} from '../../app/modules/dealership/entities/user-dealership.entity';
 
 const userSeeder = async (conn: DataSource) => {
   const userRepo = conn.getRepository(User);
   const userDealershipRepo = conn.getRepository(UserDealership);
   const roleRepo = conn.getRepository(Role);
+  const userDealershipRepo = conn.getRepository(UserDealership);
 
   // Step 1: Create user
   const data = [
     {
-      password: await hashPassword('12345'),
+      password: await hashPassword('Password@123'),
       email: 'carvu@gmail.com',
-      id: 0,
       name: 'carvu',
       accept_privacy: true,
       status: true,
       email_verified_at: new Date(),
       account_type: UserAccountType.MODERATOR,
     },
+
+    {
+      password: await hashPassword('Password@123'),
+      email: 'dealer@gmail.com',
+      name: 'Dealer',
+      accept_privacy: true,
+      status: true,
+      email_verified_at: new Date(),
+      account_type: UserAccountType.DEALER,
+    },
   ];
 
-  await userRepo.save(data);
+  const users = await userRepo.save(data);
+  const userDealershipsData: UserDealership[] = [];
+  for (const user of users) {
+    userDealershipsData.push({
+      user_id: user.id,
+      is_default: true,
+      role_id: 1,
+      status: UserDealershipStatus.APPROVED,
+    } as UserDealership);
 
-  const user = await userRepo.findOne({
-    where: { email: 'carvu@gmail.com' },
-  });
+    await userDealershipRepo.save(userDealershipsData);
+  }
 
-  // Step 2: Create user dealership
-
-  // Get admin role id
-  const role = await roleRepo.findOne({
-    where: { name: 'admin' },
-  });
-  await userDealershipRepo.save({
-    role_id: role?.id,
-    user_id: user?.id,
-  });
-  console.log('User and User dealership seeded');
+  console.log('User seeded');
 };
 
 const hashPassword = async (pass: string) => {

@@ -27,7 +27,7 @@ export class UserDealership {
   @Column({ nullable: false })
   user_id: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: null })
   dealership_id: number;
 
   @Column({ type: 'bool', default: false })
@@ -52,7 +52,7 @@ export class UserDealership {
   @DeleteDateColumn()
   deleted_at: Date;
 
-  @OneToOne(() => Role, (role) => role.users, { nullable: false })
+  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
   @JoinColumn({ name: 'role_id' })
   role: Role;
 

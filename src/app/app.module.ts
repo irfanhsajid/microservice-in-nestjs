@@ -26,6 +26,7 @@ import { VehiclesListingModule } from './modules/vehicles-listing/vehicles-listi
 import { AbilityMiddleware } from './modules/auth/casl/ability.middleware';
 import { CaslAbilityFactory } from './modules/auth/casl/casl-ability.factory';
 import { RolesModule } from './modules/roles/roles.module';
+import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
 
 @Module({
   imports: [
@@ -100,6 +101,6 @@ import { RolesModule } from './modules/roles/roles.module';
     VehiclesListingModule,
   ],
   controllers: [AppController],
-  providers: [AbilityMiddleware, CaslAbilityFactory],
+  providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],
 })
 export class AppModule {}

@@ -28,7 +28,7 @@ export class VehicleVinsService {
       let vehicleVin = await this.vehicleVinsRepository.findOne({
         where: {
           user_id: user.id,
-          dealership_id: defaultDealership.dealership_id,
+          dealership_id: defaultDealership.dealership_id!,
           vin_number: dto.vin_number,
         },
       });
@@ -38,9 +38,9 @@ export class VehicleVinsService {
       } else {
         vehicleVin = this.vehicleVinsRepository.create({
           user_id: user?.id,
-          dealership_id: defaultDealership?.id,
+          dealership_id: defaultDealership?.dealership_id,
           ...dto,
-          status: VehicleVinStatus.NEW,
+          status: VehicleVinStatus.DRAFT,
         });
       }
 
@@ -51,7 +51,7 @@ export class VehicleVinsService {
     }
   }
 
-  async show(req: Request, vinId: number): Promise<VehicleVins | null> {
+  async show(req: Request, vinNumber: string): Promise<VehicleVins | null> {
     try {
       const user = req['user'] as User;
       const defaultDealership = req[
@@ -60,8 +60,8 @@ export class VehicleVinsService {
       return await this.vehicleVinsRepository.findOne({
         where: {
           user_id: user.id,
-          dealership_id: defaultDealership.id,
-          id: vinId,
+          dealership_id: defaultDealership.dealership_id,
+          vin_number: vinNumber,
         },
       });
     } catch (error) {

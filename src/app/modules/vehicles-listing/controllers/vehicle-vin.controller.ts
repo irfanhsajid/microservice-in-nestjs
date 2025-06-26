@@ -35,10 +35,13 @@ export class VehicleVinController {
     }
   }
 
-  @Get('/vehicle-vin/:vinId')
-  async getVehicleVin(@Request() req: any, @Param('vinId') vinId: number) {
+  @Get('/vehicle-vin/:vinNumber')
+  async getVehicleVin(
+    @Request() req: any,
+    @Param('vinNumber') vinNumber: string,
+  ) {
     try {
-      return await this.vehicleVinsService.show(req, vinId);
+      return await this.vehicleVinsService.show(req, vinNumber);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);

@@ -6,7 +6,7 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
-import { UserDealership } from '../dealership/entities/user-dealership.entity';
+import { UserDealership, UserDealershipStatus } from '../dealership/entities/user-dealership.entity';
 import { UserResource } from './resource/user.resource';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -65,9 +65,15 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto): Promise<User> {
+    const queryRunner =
+      this.userRepository.manager.connection.createQueryRunner();
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
       // Check if a user already exists by email
-      const userExistWithEmail = await this.getUserByEmail(dto.email);
+      const userExistWithEmail = await queryRunner.manager.exists(User, {
+        where: { email: dto.email },
+      });
 
       if (userExistWithEmail) {
         throw new UnprocessableEntityException({
@@ -75,10 +81,24 @@ export class UserService {
         });
       }
 
-      const user = this.userRepository.create(dto);
+      let user = queryRunner.manager.create(User, dto);
 
-      return await this.userRepository.save(user);
+      user = await queryRunner.manager.save(User, user);
+
+      //Assign user role
+      const userDealership = queryRunner.manager.create(UserDealership, {
+        user_id: user.id,
+        is_default: true,
+        role_id: 1,
+        status: UserDealershipStatus.REQUESTED,
+      });
+
+      await queryRunner.manager.save(UserDealership, userDealership);
+      await queryRunner.commitTransaction();
+      return user;
     } catch (error) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
     }
@@ -142,17 +162,29 @@ export class UserService {
   }
 
   async updateEmailVerifiedAt(email: string): Promise<User | null> {
+    const queryRunner =
+      this.userRepository.manager.connection.createQueryRunner();
     try {
-      const user = await this.userRepository.findOne({ where: { email } });
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      const user = await queryRunner.manager.findOne(User, {
+        where: { email },
+      });
       if (!user) {
         return null;
       }
 
       user.email_verified_at = new Date();
-      const newUser = await this.userRepository.save(user);
+      const newUser = await queryRunner.manager.save(User, user);
+
+      await queryRunner.commitTransaction();
+
       console.log(newUser);
-      return user;
+      return newUser;
     } catch (error) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
       this.logger.error(
         `Failed to update email_verified_at for ${email}: ${error}`,
       );
