@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserAccountType } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -231,14 +227,8 @@ export class UserService {
     });
   }
 
-  async getUserWithPermissions(user: User) {
-    const userDealership = await this.userDefaultDealership(user);
-    if (!userDealership) {
-      throw new UnauthorizedException();
-    }
-    const permissions = await this.getPermissionsByRole(
-      userDealership?.role_id,
-    );
+  async getUserWithPermissionsByRole(user: User, roleId: number) {
+    const permissions = await this.getPermissionsByRole(roleId);
 
     return {
       ...user,

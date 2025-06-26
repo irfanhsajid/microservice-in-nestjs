@@ -7,6 +7,7 @@ import { UserResource } from '../resource/user.resource';
 import { UserService } from '../user.service';
 import { User } from '../entities/user.entity';
 import { responseReturn } from 'src/app/common/utils/response-return';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 @ApiTags('User')
 @ApiBearerAuth('jwt')
@@ -23,8 +24,14 @@ export class UserController {
   async me(@Request() request: Request) {
     try {
       const user = request['user'] as User;
+      const userDealership = request[
+        'user_default_dealership'
+      ] as UserDealership;
       const userPermissions =
-        await this.userService.getUserWithPermissions(user);
+        await this.userService.getUserWithPermissionsByRole(
+          user,
+          userDealership?.role_id,
+        );
 
       return responseReturn('User fetched successfully', userPermissions);
     } catch (e) {
