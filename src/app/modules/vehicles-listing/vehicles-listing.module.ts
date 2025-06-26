@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { InjectRepository, TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { VehicleVins } from './entities/vehicle-vins.entity';
 import { VehicleAttachment } from './entities/vehicle-attachments.entity';
 import { VehicleFeature } from './entities/vehicle-features.entity';
@@ -12,8 +12,6 @@ import { VehicleVinsService } from './services/vehicle-vins.service';
 import { VehicleService } from './services/vehicle.service';
 import { IsVehicleVinValid } from './dto/validator/is-vehicle-vin-valid.validator';
 import { VehicleController } from './controllers/vehicle.controller';
-import { Repository } from 'typeorm';
-import { useContainer } from 'class-validator';
 import { VehicleAttachmentController } from './controllers/vehicle-attachment.controller';
 import { UploadsModule } from '../uploads/uploads.module';
 import { VehicleAttachmentService } from './services/vehicle-attachment.service';
