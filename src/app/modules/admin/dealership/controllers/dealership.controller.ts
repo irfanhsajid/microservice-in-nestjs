@@ -34,6 +34,7 @@ export class AdminDealershipController {
           +dealership_id,
           dto,
         );
+
       return responseReturn(
         'Dealership status updated successfully',
         dealership,
