@@ -25,6 +25,7 @@ async function bootstrap() {
       'https://staging.carvu.ca',
       'http://10.0.0.56:3000',
       'http://localhost:3000',
+      'http://localhost:3001',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   });

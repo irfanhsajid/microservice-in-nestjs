@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { InjectDataSource, TypeOrmModule } from '@nestjs/typeorm';
 import { VehicleVins } from './entities/vehicle-vins.entity';
 import { VehicleAttachment } from './entities/vehicle-attachments.entity';
 import { VehicleFeature } from './entities/vehicle-features.entity';
@@ -18,6 +18,9 @@ import { VehicleAttachmentService } from './services/vehicle-attachment.service'
 import { CaslModule } from '../auth/casl/casl.module';
 import { VehicleInformationService } from './services/vehicle-information.service';
 import { VehicleInformationController } from './controllers/vehicle-information.controller';
+import { DataSource } from 'typeorm';
+import { FileUploaderService } from '../uploads/file-uploader.service';
+import { VehicleAttachmentSubscriber } from './subscriber/vehicle.attachment.subscriber';
 
 @Module({
   imports: [
@@ -48,4 +51,16 @@ import { VehicleInformationController } from './controllers/vehicle-information.
   ],
   exports: [],
 })
-export class VehiclesListingModule {}
+export class VehiclesListingModule {
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    private readonly fileUploaderService: FileUploaderService,
+  ) {}
+
+  onModuleInit() {
+    const subscriber = new VehicleAttachmentSubscriber(
+      this.fileUploaderService,
+    );
+    this.dataSource.subscribers.push(subscriber);
+  }
+}
