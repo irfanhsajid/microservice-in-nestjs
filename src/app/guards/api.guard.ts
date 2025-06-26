@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from '../modules/user/user.service';
-import { CaslAbilityFactory } from '../modules/auth/casl/casl-ability.factory';
+import { AppAbility, CaslAbilityFactory } from '../modules/auth/casl/casl-ability.factory';
 
 @Injectable()
 export class ApiGuard implements CanActivate {
@@ -39,18 +39,18 @@ export class ApiGuard implements CanActivate {
 
       const userDealership = await this.userService.userDefaultDealership(user);
 
-      if (!userDealership) {
-        throw new UnauthorizedException();
+      if (userDealership) {
+        request['user_default_dealership'] = userDealership;
+        const permissions = await this.userService.getPermissionsByRole(
+          userDealership?.role_id,
+        );
+        request['ability'] = this.abilityFactory.createForUser(
+          user,
+          permissions,
+        );
       }
 
       request['user'] = user;
-      request['user_default_dealership'] = userDealership;
-
-      const permissions = await this.userService.getPermissionsByRole(
-        userDealership?.role_id,
-      );
-
-      request['ability'] = this.abilityFactory.createForUser(user, permissions);
     } catch (error) {
       console.info(error);
       throw new UnauthorizedException();

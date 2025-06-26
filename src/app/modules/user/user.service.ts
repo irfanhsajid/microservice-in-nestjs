@@ -85,15 +85,6 @@ export class UserService {
 
       user = await queryRunner.manager.save(User, user);
 
-      //Assign user role
-      const userDealership = queryRunner.manager.create(UserDealership, {
-        user_id: user.id,
-        is_default: true,
-        role_id: 1,
-        status: UserDealershipStatus.REQUESTED,
-      });
-
-      await queryRunner.manager.save(UserDealership, userDealership);
       await queryRunner.commitTransaction();
       return user;
     } catch (error) {
@@ -178,9 +169,17 @@ export class UserService {
       user.email_verified_at = new Date();
       const newUser = await queryRunner.manager.save(User, user);
 
-      await queryRunner.commitTransaction();
+      //Assign user role
+      const userDealership = queryRunner.manager.create(UserDealership, {
+        user_id: user.id,
+        is_default: true,
+        role_id: 1,
+        status: UserDealershipStatus.REQUESTED,
+      });
 
-      console.log(newUser);
+      await queryRunner.manager.save(UserDealership, userDealership);
+
+      await queryRunner.commitTransaction();
       return newUser;
     } catch (error) {
       // Rollback transaction on error
