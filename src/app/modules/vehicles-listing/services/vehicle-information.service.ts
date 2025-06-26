@@ -11,6 +11,7 @@ import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { CreateVehicleInformationDto } from '../dto/vehicle-information.dto';
 import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
 import { Vehicle } from '../entities/vehicles.entity';
+import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 
 @Injectable()
 export class VehicleInformationService implements ServiceInterface {
@@ -80,8 +81,20 @@ export class VehicleInformationService implements ServiceInterface {
         status: VehicleVinStatus.LISTED,
       });
 
+      // Create default inspection for the vehicle
+      const newInspection = queryRunner.manager.create(
+        VehicleInspectionReport,
+        {
+          vehicle_id: vehicle.id,
+        },
+      );
+
+      await queryRunner.manager.save(VehicleInspectionReport, newInspection);
+
+      // run query runner
       await queryRunner.manager.save(VehicleVins, vehicleVin);
 
+      // transaction query runner
       await queryRunner.commitTransaction();
       return newCarInformation;
     } catch (error) {

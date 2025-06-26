@@ -24,6 +24,8 @@ import { VehicleAttachmentSubscriber } from './subscriber/vehicle.attachment.sub
 import { VehicleInspectionSubscriber } from './subscriber/vehicle-inspection.subscriber';
 import { VehicleInspectionReport } from './entities/vehicle-inspection-report.entity';
 import { VehicleInspection } from './entities/vehicle-inspection.entity';
+import { VehicleInspectionService } from './services/vehicle-inspection.service';
+import { VehicleInspectionController } from './controllers/vehicle-inspection.controller';
 
 @Module({
   imports: [
@@ -46,6 +48,7 @@ import { VehicleInspection } from './entities/vehicle-inspection.entity';
     VehicleController,
     VehicleAttachmentController,
     VehicleInformationController,
+    VehicleInspectionController,
   ],
   providers: [
     VehicleAttachmentSubscriber,
@@ -55,6 +58,7 @@ import { VehicleInspection } from './entities/vehicle-inspection.entity';
     VehicleAttachmentService,
     IsVehicleVinValid,
     VehicleInformationService,
+    VehicleInspectionService,
   ],
   exports: [],
 })

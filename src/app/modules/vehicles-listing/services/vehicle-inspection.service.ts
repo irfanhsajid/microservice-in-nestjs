@@ -11,8 +11,8 @@ import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 
 @Injectable()
-export class VehicleAttachmentService implements ServiceInterface {
-  private readonly logger = new CustomLogger(VehicleAttachmentService.name);
+export class VehicleInspectionService implements ServiceInterface {
+  private readonly logger = new CustomLogger(VehicleInspectionService.name);
 
   constructor(
     @InjectRepository(VehicleAttachment)
@@ -89,7 +89,6 @@ export class VehicleAttachmentService implements ServiceInterface {
       await queryRunner.commitTransaction();
       return {
         ...u,
-        path: this.fileUploadService.path(folder + '/' + u.path),
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();

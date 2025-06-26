@@ -69,7 +69,10 @@ export class DealershipAttachmentService {
       const data = instanceToPlain(attachment);
       delete data?.dealership;
       delete data?.user;
-      return data;
+      return {
+        ...data,
+        path: this.fileUploaderService.path(tempFilePath + '/' + filePath),
+      };
     } catch (error) {
       // delete file if attachment not created
       if (tempFilePath) {

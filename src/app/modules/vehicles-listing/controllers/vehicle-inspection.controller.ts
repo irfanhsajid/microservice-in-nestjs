@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -26,6 +27,7 @@ import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
 import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
+import { VehicleInspectionService } from '../services/vehicle-inspection.service';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(
@@ -36,14 +38,14 @@ import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.g
 )
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
-export class VehicleAttachmentController {
-  private readonly logger = new CustomLogger(VehicleAttachmentController.name);
+export class VehicleInspectionController {
+  private readonly logger = new CustomLogger(VehicleInspectionController.name);
 
   constructor(
-    private readonly vehicleAttachmentService: VehicleAttachmentService,
+    private readonly vehicleInspectionService: VehicleInspectionService,
   ) {}
 
-  @Post('vehicle/attachments/:vinId')
+  @Post('vehicle/inspection/:vinId')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(), // Minimal buffering to access metadata
@@ -94,10 +96,10 @@ export class VehicleAttachmentController {
       file: file,
     };
 
-    return await this.vehicleAttachmentService.store(req, dtoCombine);
+    return await this.vehicleInspectionService.store(req, dtoCombine);
   }
 
-  @Get('vehicle/attachments/:vinId')
+  @Get('vehicle/inspection/:vinId')
   @ApiOperation({ summary: 'Get all attachments for a vehicle' })
   @ApiResponse({
     status: 200,
@@ -108,19 +110,19 @@ export class VehicleAttachmentController {
     @Param('vinId') id: number,
   ): Promise<any> {
     try {
-      return await this.vehicleAttachmentService.show(req, id);
+      return await this.vehicleInspectionService.show(req, id);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
       throw error;
     }
   }
 
-  @Delete('vehicle/attachments/:id')
+  @Delete('vehicle/inspection/:id')
   @ApiOperation({ summary: 'Delete an attachment by ID' })
   @ApiResponse({ status: 200, description: 'Attachment deleted successfully' })
   async delete(@Request() req: any, @Param('id') id: number): Promise<any> {
     try {
-      return await this.vehicleAttachmentService.destroy(req, id);
+      return await this.vehicleInspectionService.destroy(req, id);
     } catch (error) {
       this.logger.error(`Failed to delete attachment: ${error.message}`);
       throw error;
