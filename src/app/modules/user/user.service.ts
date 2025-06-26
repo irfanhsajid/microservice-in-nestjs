@@ -1,4 +1,8 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserAccountType } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -6,7 +10,10 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
-import { UserDealership, UserDealershipStatus } from '../dealership/entities/user-dealership.entity';
+import {
+  UserDealership,
+  UserDealershipStatus,
+} from '../dealership/entities/user-dealership.entity';
 import { UserResource } from './resource/user.resource';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -222,6 +229,21 @@ export class UserService {
       where: { email: email },
       cache: cache,
     });
+  }
+
+  async getUserWithPermissions(user: User) {
+    const userDealership = await this.userDefaultDealership(user);
+    if (!userDealership) {
+      throw new UnauthorizedException();
+    }
+    const permissions = await this.getPermissionsByRole(
+      userDealership?.role_id,
+    );
+
+    return {
+      ...user,
+      permissions: permissions,
+    };
   }
 
   async userDefaultDealership(user: User): Promise<UserDealership | null> {

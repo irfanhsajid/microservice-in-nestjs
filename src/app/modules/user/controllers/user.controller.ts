@@ -5,8 +5,8 @@ import { ApiGuard } from '../../../guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { UserResource } from '../resource/user.resource';
 import { UserService } from '../user.service';
-import { AbilityGuard } from '../../auth/casl/ability.guard';
-import { CheckAbility } from '../../auth/casl/check-ability.decorator';
+import { User } from '../entities/user.entity';
+import { responseReturn } from 'src/app/common/utils/response-return';
 
 @ApiTags('User')
 @ApiBearerAuth('jwt')
@@ -18,13 +18,15 @@ export class UserController {
 
   @Get('/user/me')
   @ApiOperation({ summary: 'Get authenticated user' })
-  @UseGuards(AbilityGuard)
-  @CheckAbility('create', 'user')
-  async me(@Request() request: Request): Promise<UserResource | null> {
+  // @UseGuards(AbilityGuard)
+  // @CheckAbility('create', 'user')
+  async me(@Request() request: Request) {
     try {
-      const user = await this.userService.getUserByEmail(request['user'].email);
-      if (!user) return null;
-      return new UserResource(user);
+      const user = request['user'] as User;
+      const userPermissions =
+        await this.userService.getUserWithPermissions(user);
+
+      return responseReturn('User fetched successfully', userPermissions);
     } catch (e) {
       this.logger.error(e);
       return throwCatchError(e);

@@ -4,7 +4,6 @@ import {
 } from '../../app/modules/user/entities/user.entity';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Role } from '../../app/modules/roles/entities/role.entity';
 import {
   UserDealership,
   UserDealershipStatus,
