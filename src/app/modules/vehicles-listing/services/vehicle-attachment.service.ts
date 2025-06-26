@@ -135,7 +135,7 @@ export class VehicleAttachmentService implements ServiceInterface {
         },
       });
       if (!attachment) {
-        throw new BadRequestException('Vehicle attachment delete failed');
+        throw new BadRequestException('Vehicle attachment deletetion failed');
       }
 
       // try delete the attachment from s3
@@ -144,7 +144,10 @@ export class VehicleAttachmentService implements ServiceInterface {
       );
 
       // delete attachment from database Record
-      await queryRunner.manager.delete(VehicleAttachment, attachment);
+      await queryRunner.manager.delete(VehicleAttachment, id);
+
+      // commit transaction
+      await queryRunner.commitTransaction();
 
       return {
         message: `Attachment removed successfully`,

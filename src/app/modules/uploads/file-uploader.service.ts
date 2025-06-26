@@ -1,9 +1,13 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { Readable } from 'stream';
+import { CustomLogger } from '../logger/logger.service';
 
 @Injectable()
 export class FileUploaderService {
+  private readonly logger = new CustomLogger(FileUploaderService.name);
+
   constructor(
     @Inject('STORAGE_PROVIDER') private storageProvider: StorageProvider,
   ) {}
@@ -49,7 +53,8 @@ export class FileUploaderService {
     try {
       await this.storageProvider.deleteFile(filePath);
     } catch (error) {
-      throw new BadRequestException(`File deletion failed: ${error.message}`);
+      this.logger.log(error);
+      throwCatchError(error);
     }
   }
 
