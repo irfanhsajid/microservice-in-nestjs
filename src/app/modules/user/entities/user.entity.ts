@@ -93,7 +93,7 @@ export class User {
 
   @OneToMany(
     () => VehicleAttachment,
-    (vechileAttachment) => vechileAttachment.user,
+    (vehicleAttachment) => vehicleAttachment.user,
     {
       cascade: true,
     },

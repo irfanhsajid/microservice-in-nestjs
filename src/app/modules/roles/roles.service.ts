@@ -20,6 +20,7 @@ export class RolesService {
     @InjectRepository(RoleHasPermissions)
     private readonly rhpRepository: Repository<RoleHasPermissions>,
   ) {}
+  
   async create(dto: CreateRoleDto, dealerId: number | null) {
     const { name, status, guard, permission_ids } = dto;
 
