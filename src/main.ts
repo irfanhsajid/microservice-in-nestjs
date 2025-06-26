@@ -15,7 +15,7 @@ import { UserResponseFormatterInterceptor } from './app/common/interceptors/user
 import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
 import { docsAuthMiddleware } from './utils/docs-auth.middleware';
 import { Session } from './app/modules/auth/entities/session.entity';
-import { ValidationError } from 'class-validator';
+import { useContainer, ValidationError } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -153,6 +153,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('hbs');
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   await app.listen(configService.get<number>('app.port') || 3000);
 

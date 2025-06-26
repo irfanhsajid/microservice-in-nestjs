@@ -129,25 +129,4 @@ import { CaslModule } from './casl/casl.module';
   ],
   exports: [AuthService],
 })
-export class AuthModule {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
-
-  onModuleInit() {
-    const isUnique = new IsUnique(this.userRepository);
-
-    useContainer(
-      {
-        get: (type: any) => {
-          if (type === IsUnique) {
-            return isUnique;
-          }
-          throw new Error(`No provider for ${type}`);
-        },
-      },
-      { fallbackOnErrors: true },
-    );
-  }
-}
+export class AuthModule {}
