@@ -33,7 +33,6 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
   }
 
   defaultMessage?(_args?: ValidationArguments): string {
-    console.log(_args);
     return `The ${_args?.property.toLowerCase()} has already been taken.`;
   }
 }
