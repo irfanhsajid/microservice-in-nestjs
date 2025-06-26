@@ -28,6 +28,8 @@ import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-compl
 import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
 import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 import { VehicleInspectionService } from '../services/vehicle-inspection.service';
+import { CreateVehicleInspectionDto } from '../dto/vehicle-inspection.dto';
+import { VehicleInspectionType } from '../entities/vehicle-inspection.entity';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(
@@ -73,6 +75,28 @@ export class VehicleInspectionController {
           type: 'string',
           format: 'binary',
         },
+        type: {
+          type: 'string',
+          enum: Object.values(VehicleInspectionType),
+          description: 'The type of vehicle inspection view',
+          example: 'FRONT_VIEW',
+        },
+        title: {
+          type: 'string',
+          description: 'The title of the vehicle inspection',
+          example: 'Front View Inspection',
+        },
+        number_of_issues: {
+          type: 'number',
+          description: 'The number of issues found during the inspection',
+          example: 3,
+        },
+        description: {
+          type: 'string',
+          description: 'Detailed description of the inspection findings',
+          example:
+            'Minor scratches on the front bumper, headlight alignment issue detected.',
+        },
       },
     },
   })
@@ -81,7 +105,11 @@ export class VehicleInspectionController {
     status: 201,
     description: 'Attachments uploaded successfully',
   })
-  async upload(@Request() req: any, @Param('vinId') id: number) {
+  async upload(
+    @Request() req: any,
+    @Param('vinId') id: number,
+    @Body() dto: CreateVehicleInspectionDto,
+  ) {
     const file = req.file;
 
     // Validate file count (3 to 5 files required)
@@ -94,6 +122,7 @@ export class VehicleInspectionController {
     const dtoCombine = {
       id,
       file: file,
+      dto: dto,
     };
 
     return await this.vehicleInspectionService.store(req, dtoCombine);

@@ -9,17 +9,15 @@ import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
+import { VehicleInspection } from '../entities/vehicle-inspection.entity';
 
 @Injectable()
 export class VehicleInspectionService implements ServiceInterface {
   private readonly logger = new CustomLogger(VehicleInspectionService.name);
 
   constructor(
-    @InjectRepository(VehicleAttachment)
-    private readonly vehicleAttachmentRepository: Repository<VehicleAttachment>,
-
-    @InjectRepository(Vehicle)
-    private readonly vehicleRepository: Repository<Vehicle>,
+    @InjectRepository(VehicleInspection)
+    private readonly vehicleInspectionRepository: Repository<VehicleInspection>,
 
     private readonly fileUploadService: FileUploaderService,
   ) {}
@@ -30,7 +28,7 @@ export class VehicleInspectionService implements ServiceInterface {
 
   async store(req: Request, dto: any): Promise<Record<string, any>> {
     const queryRunner =
-      this.vehicleAttachmentRepository.manager.connection.createQueryRunner();
+      this.vehicleInspectionRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
@@ -45,24 +43,10 @@ export class VehicleInspectionService implements ServiceInterface {
       });
 
       if (!vechicle) {
-        throw new BadRequestException('Not vechile found to upload image');
+        throw new BadRequestException('Not vechile found to upload inspection');
       }
 
-      // check how many file user has uploaded
-      const existingAttachment = await queryRunner.manager.find(
-        VehicleAttachment,
-        {
-          where: {
-            vehicle_id: vechicle.id,
-            user_id: user.id,
-          },
-        },
-      );
-
-      if (existingAttachment && existingAttachment.length >= 5) {
-        throw new BadRequestException('You can upload up to 5 files max');
-      }
-
+      // Upload file
       const fileName = dto.file.originalname;
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
@@ -78,13 +62,15 @@ export class VehicleInspectionService implements ServiceInterface {
 
       uploadedFiles = `${folder}/${newFile}`;
 
-      let u = queryRunner.manager.create(VehicleAttachment, {
+      let u = queryRunner.manager.create(VehicleInspection, {
         name: newFile,
         user_id: user?.id,
         path: newFile,
         vehicle_id: vechicle?.id,
+        vehicle_inspection_report_id: dto?.id,
+        ...dto.dto,
       });
-      u = await queryRunner.manager.save(VehicleAttachment, u);
+      u = await queryRunner.manager.save(VehicleInspection, u);
 
       await queryRunner.commitTransaction();
       return {
@@ -104,18 +90,17 @@ export class VehicleInspectionService implements ServiceInterface {
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
       const user = req['user'] as User;
-      const vehicle = await this.vehicleRepository.findOne({
-        where: { vehicle_vin_id: id },
+      const vehicle = await this.vehicleInspectionRepository.findOne({
+        where: { id: id },
       });
 
       if (!vehicle) {
         return [];
       }
 
-      return await this.vehicleAttachmentRepository.find({
+      return await this.vehicleInspectionRepository.find({
         where: {
           vehicle_id: vehicle?.id,
-          user_id: user.id,
         },
       });
     } catch (error) {
@@ -128,7 +113,7 @@ export class VehicleInspectionService implements ServiceInterface {
   }
   async destroy(req: Request, id: number): Promise<Record<string, any>> {
     const queryRunner =
-      this.vehicleAttachmentRepository.manager.connection.createQueryRunner();
+      this.vehicleInspectionRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
