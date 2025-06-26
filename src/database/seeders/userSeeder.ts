@@ -4,7 +4,6 @@ import {
 } from '../../app/modules/user/entities/user.entity';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserDealership } from '../../app/modules/dealership/entities/user-dealership.entity';
 import { Role } from '../../app/modules/roles/entities/role.entity';
 import {
   UserDealership,
@@ -13,8 +12,6 @@ import {
 
 const userSeeder = async (conn: DataSource) => {
   const userRepo = conn.getRepository(User);
-  const userDealershipRepo = conn.getRepository(UserDealership);
-  const roleRepo = conn.getRepository(Role);
   const userDealershipRepo = conn.getRepository(UserDealership);
 
   // Step 1: Create user
