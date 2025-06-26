@@ -82,6 +82,7 @@ export class VehicleInformationService implements ServiceInterface {
 
       await queryRunner.manager.save(VehicleVins, vehicleVin);
 
+      await queryRunner.commitTransaction();
       return newCarInformation;
     } catch (error) {
       await queryRunner.rollbackTransaction();
