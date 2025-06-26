@@ -9,7 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Vehicle } from './vehicles.entity';
-import { VehicleInspectionReport } from './vehicle-inspection-report';
+import { VehicleInspectionReport } from './vehicle-inspection-report.entity';
 
 export enum VehicleInspectionType {
   FRONT_VIEW = 'FRONT_VIEW',

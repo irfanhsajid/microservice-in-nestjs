@@ -13,7 +13,7 @@ import { VehicleFeature } from './vehicle-features.entity';
 import { VehicleDimension } from './vehicle-dimensions.entity';
 import { VehicleInformation } from './vehicle-informations.entity';
 import { VehicleAttachment } from './vehicle-attachments.entity';
-import { VehicleInspectionReport } from './vehicle-inspection-report';
+import { VehicleInspectionReport } from './vehicle-inspection-report.entity';
 import { VehicleInspection } from './vehicle-inspection.entity';
 
 export enum VehicleCondition {

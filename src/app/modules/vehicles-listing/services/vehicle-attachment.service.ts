@@ -67,11 +67,16 @@ export class VehicleAttachmentService implements ServiceInterface {
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
 
+      const folder = `vehicle/${vechicle.id}`;
+
       const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
         fileName,
         fileSize,
+        folder,
       );
+
+      uploadedFiles = `${folder}/${newFile}`;
 
       let u = queryRunner.manager.create(VehicleAttachment, {
         name: newFile,
@@ -139,9 +144,7 @@ export class VehicleAttachmentService implements ServiceInterface {
       }
 
       // try delete the attachment from s3
-      await this.fileUploadService.deleteFile(
-        this.fileUploadService.path(attachment.path),
-      );
+      await this.fileUploadService.deleteFile(attachment.path);
 
       // delete attachment from database Record
       await queryRunner.manager.delete(VehicleAttachment, id);

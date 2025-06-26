@@ -92,19 +92,19 @@ export class S3StorageProvider implements StorageProvider {
       console.info(
         `Deleting file from S3 with key: ${filePath}, bucket: ${this.bucket}`,
       );
-
+      const key = this.getKeyFromPath(filePath);
       // Verify object exists (optional, for better error handling)
       try {
         await this.s3Client.send(
           new HeadObjectCommand({
             Bucket: this.bucket,
-            Key: filePath,
+            Key: key,
           }),
         );
         console.info('File exists, proceeding with deletion');
       } catch (error) {
         if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
-          throw new BadRequestException(`File does not exist: ${filePath}`);
+          throw new BadRequestException(`File does not exist: ${key}`);
         }
         throw new BadRequestException(
           `Error checking file existence: ${error.message}`,
@@ -115,10 +115,10 @@ export class S3StorageProvider implements StorageProvider {
       await this.s3Client.send(
         new DeleteObjectCommand({
           Bucket: this.bucket,
-          Key: filePath, // Use the extracted key, not filePath
+          Key: key,
         }),
       );
-      console.info(`File deleted successfully: ${filePath}`);
+      console.info(`File deleted successfully: ${key}`);
     } catch (error) {
       console.error('S3 deletion error:', error);
       if (error.name === 'NoSuchKey' || error.name === 'NotFound') {
@@ -128,6 +128,13 @@ export class S3StorageProvider implements StorageProvider {
       }
       throw new BadRequestException(`File deletion failed: ${error.message}`);
     }
+  }
+
+  getKeyFromPath(url: string) {
+    const u = new URL(url);
+    const path = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
+
+    return path;
   }
 
   setClient(client: S3Client) {

@@ -21,6 +21,9 @@ import { VehicleInformationController } from './controllers/vehicle-information.
 import { DataSource } from 'typeorm';
 import { FileUploaderService } from '../uploads/file-uploader.service';
 import { VehicleAttachmentSubscriber } from './subscriber/vehicle.attachment.subscriber';
+import { VehicleInspectionSubscriber } from './subscriber/vehicle-inspection.subscriber';
+import { VehicleInspectionReport } from './entities/vehicle-inspection-report.entity';
+import { VehicleInspection } from './entities/vehicle-inspection.entity';
 
 @Module({
   imports: [
@@ -31,6 +34,8 @@ import { VehicleAttachmentSubscriber } from './subscriber/vehicle.attachment.sub
       VehicleFeature,
       VehicleDimension,
       VehicleInformation,
+      VehicleInspectionReport,
+      VehicleInspection,
     ]),
     UserModule,
     UploadsModule,
@@ -43,6 +48,8 @@ import { VehicleAttachmentSubscriber } from './subscriber/vehicle.attachment.sub
     VehicleInformationController,
   ],
   providers: [
+    VehicleAttachmentSubscriber,
+    VehicleInspectionSubscriber,
     VehicleVinsService,
     VehicleService,
     VehicleAttachmentService,
@@ -61,6 +68,10 @@ export class VehiclesListingModule {
     const subscriber = new VehicleAttachmentSubscriber(
       this.fileUploaderService,
     );
+    const vehicleInspection = new VehicleInspectionSubscriber(
+      this.fileUploaderService,
+    );
     this.dataSource.subscribers.push(subscriber);
+    this.dataSource.subscribers.push(vehicleInspection);
   }
 }
