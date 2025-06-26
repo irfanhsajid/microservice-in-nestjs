@@ -21,17 +21,17 @@ export class AdminDealershipController {
 
   @UseGuards(AbilityGuard)
   @CheckAbility('update', 'dealership')
-  @Patch('/:dealer_id/status')
+  @Patch('/:dealership_id/status')
   async updateStatus(
     @Req() req: Request,
-    @Param('dealer_id') dealer_id: string,
+    @Param('dealership_id') dealership_id: string,
     @Body() dto: UpdateDealershipStatusDto,
   ) {
     try {
       const dealership =
         await this.adminDealershipService.updateDealershipStatus(
           req,
-          +dealer_id,
+          +dealership_id,
           dto,
         );
       return responseReturn(

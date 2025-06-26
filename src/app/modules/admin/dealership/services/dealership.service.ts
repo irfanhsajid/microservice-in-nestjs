@@ -34,17 +34,19 @@ export class AdminDealershipService implements ServiceInterface {
 
   async updateDealershipStatus(
     req: Request,
-    dealerId: number,
+    dealershipId: number,
     dto: UpdateDealershipStatusDto,
   ) {
     const userDealership = await this.userDealershipRepository.findOne({
       where: {
-        dealership_id: dealerId,
+        dealership_id: dealershipId,
       },
     });
 
     if (!userDealership) {
-      throw new NotFoundException(`Dealership with ID ${dealerId} not found`);
+      throw new NotFoundException(
+        `Dealership with ID ${dealershipId} not found`,
+      );
     }
 
     userDealership.status = dto.status;
