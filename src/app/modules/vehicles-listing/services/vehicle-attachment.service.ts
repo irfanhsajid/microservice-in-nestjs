@@ -124,14 +124,40 @@ export class VehicleAttachmentService implements ServiceInterface {
       return throwCatchError(error);
     }
   }
-  async update(
-    req: Request,
-    dto: any,
-    id: number,
-  ): Promise<Record<string, any>> {
+  update(req: Request, dto: any, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
   async destroy(req: Request, id: number): Promise<Record<string, any>> {
-    throw new Error('Method not implemented.');
+    const queryRunner =
+      this.vehicleAttachmentRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const user = req['user'] as User;
+      const attachment = await queryRunner.manager.findOne(VehicleAttachment, {
+        where: {
+          id: id,
+          user_id: user.id,
+        },
+      });
+      if (!attachment) {
+        throw new BadRequestException('Vehicle attachment delete failed');
+      }
+
+      // try delete the attachment from s3
+      await this.fileUploadService.deleteFile(
+        this.fileUploadService.path(attachment.path),
+      );
+
+      // delete attachment from database Record
+      await queryRunner.manager.delete(VehicleAttachment, attachment);
+
+      return {
+        message: `Attachment removed successfully`,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
   }
 }

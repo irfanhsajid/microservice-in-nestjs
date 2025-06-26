@@ -17,9 +17,15 @@ import { EnsureProfileCompletedGuard } from '../../../guards/ensure-profile-comp
 import { CreateVehicleDto } from '../dto/vehicle.dto';
 import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { responseReturn } from '../../../common/utils/response-return';
+import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 
 @ApiTags('Vehicle-listing')
-@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
+@UseGuards(
+  ApiGuard,
+  EnsureEmailVerifiedGuard,
+  EnsureProfileCompletedGuard,
+  EnsureHasDealershipGuard,
+)
 @ApiBearerAuth('jwt')
 @Controller('api/v1')
 export class VehicleController {

@@ -26,9 +26,15 @@ import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.g
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
+import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 
 @ApiTags('Vehicle-listing')
-@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
+@UseGuards(
+  ApiGuard,
+  EnsureEmailVerifiedGuard,
+  EnsureProfileCompletedGuard,
+  EnsureHasDealershipGuard,
+)
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
 export class VehicleAttachmentController {
@@ -92,7 +98,7 @@ export class VehicleAttachmentController {
     return await this.vehicleAttachmentService.store(req, dtoCombine);
   }
 
-  @Get('vehicle/attachments/:id')
+  @Get('vehicle/attachments/:vehicleId')
   @ApiOperation({ summary: 'Get all attachments for a vehicle' })
   @ApiResponse({
     status: 200,
@@ -100,7 +106,7 @@ export class VehicleAttachmentController {
   })
   async getAttachments(
     @Request() req: any,
-    @Param('id') id: number,
+    @Param('vehicleId') id: number,
   ): Promise<any> {
     try {
       return await this.vehicleAttachmentService.index(req, id);

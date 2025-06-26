@@ -15,9 +15,15 @@ import { CustomLogger } from '../../logger/logger.service';
 import { VehicleVinsService } from '../services/vehicle-vins.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
+import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 
 @ApiTags('Vehicle-listing')
-@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
+@UseGuards(
+  ApiGuard,
+  EnsureEmailVerifiedGuard,
+  EnsureProfileCompletedGuard,
+  EnsureHasDealershipGuard,
+)
 @ApiBearerAuth('jwt')
 @Controller('api/v1')
 export class VehicleVinController {
