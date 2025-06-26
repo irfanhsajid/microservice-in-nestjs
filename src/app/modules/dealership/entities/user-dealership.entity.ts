@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Dealership } from './dealerships.entity';
+import { Role } from '../../roles/entities/role.entity';
 
 export enum UserDealershipStatus {
   REQUESTED = 'REQUESTED',
@@ -26,13 +27,13 @@ export class UserDealership {
   @Column({ nullable: false })
   user_id: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true, default: null })
   dealership_id: number;
 
   @Column({ type: 'bool', default: false })
   is_default: boolean;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', nullable: false })
   role_id: number;
 
   @Column({
@@ -41,6 +42,19 @@ export class UserDealership {
     default: UserDealershipStatus.REQUESTED,
   })
   status: UserDealershipStatus;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @DeleteDateColumn()
+  deleted_at: Date;
+
+  @ManyToOne(() => Role, (role) => role.users, { nullable: false })
+  @JoinColumn({ name: 'role_id' })
+  role: Role;
 
   @ManyToOne(() => User, (user) => user.user_dealerships, { nullable: false })
   @JoinColumn({ name: 'user_id' })
@@ -52,13 +66,4 @@ export class UserDealership {
   })
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
-
-  @DeleteDateColumn()
-  deleted_at: Date;
 }

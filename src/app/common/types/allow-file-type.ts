@@ -20,7 +20,9 @@ export const allowedMimeTypes = [
 
   // Images
   'image/jpeg',
+  'image/jpg',
   'image/png',
+  'image/ttf',
 
   // Rich Text
   'application/rtf',
@@ -28,4 +30,11 @@ export const allowedMimeTypes = [
   // Zip archives
   'application/zip',
   'application/x-zip-compressed',
+];
+
+export const allowedImageMimeTypes = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/ttf',
 ];

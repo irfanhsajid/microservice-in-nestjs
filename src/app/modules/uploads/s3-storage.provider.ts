@@ -26,6 +26,10 @@ export class S3StorageProvider implements StorageProvider {
     }
   }
 
+  path(path: string): string {
+    return `https://${this.bucket}.s3.amazonaws.com/${path}`;
+  }
+
   async uploadFileStream(
     fileStream: Readable,
     fileName: string,
@@ -47,9 +51,8 @@ export class S3StorageProvider implements StorageProvider {
       });
 
       await this.s3Client.send(command);
-      const fileUrl = `https://${this.bucket}.s3.amazonaws.com/${key}`;
-      console.info(`File uploaded successfully: ${fileUrl}`);
-      return fileUrl;
+      console.info(`File uploaded successfully: ${key}`);
+      return sanitizedFileName;
     } catch (error) {
       console.error(`S3 stream upload error: ${error.message}`);
       throw new InternalServerErrorException(

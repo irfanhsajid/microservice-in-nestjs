@@ -20,6 +20,7 @@ export class RolesService {
     @InjectRepository(RoleHasPermissions)
     private readonly rhpRepository: Repository<RoleHasPermissions>,
   ) {}
+
   async create(dto: CreateRoleDto, dealerId: number | null) {
     const { name, status, guard, permission_ids } = dto;
 
@@ -40,7 +41,6 @@ export class RolesService {
   }
 
   async findAll(dealerId: number | null) {
-    console.log(dealerId);
     if (!dealerId) {
       return await this.roleRepository.find({
         relations: ['role_has_permissions', 'role_has_permissions.permission'],

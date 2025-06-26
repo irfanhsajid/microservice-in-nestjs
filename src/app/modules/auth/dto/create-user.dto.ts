@@ -11,6 +11,7 @@ import {
   IsStrongPassword,
   IsUrl,
 } from 'class-validator';
+import { IsUnique } from '../../../common/validation/is-unique';
 
 export enum UserAccountType {
   BUYER = 'BUYER',
@@ -30,6 +31,7 @@ export class CreateUserDto {
 
   @ApiProperty()
   @IsEmail()
+  @IsUnique({ table: 'users', column: 'email' })
   email: string;
 
   @ApiProperty()

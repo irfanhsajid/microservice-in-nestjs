@@ -1,4 +1,4 @@
-import { Inject, Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
 import { Readable } from 'stream';
 
@@ -17,8 +17,7 @@ export class FileUploaderService {
     }
 
     try {
-      const filePath = await this.storageProvider.uploadFile(file, folder);
-      return filePath;
+      return await this.storageProvider.uploadFile(file, folder);
     } catch (error) {
       throw new BadRequestException(`File upload failed: ${error.message}`);
     }
@@ -35,13 +34,12 @@ export class FileUploaderService {
     }
 
     try {
-      const filePath = await this.storageProvider.uploadFileStream(
+      return await this.storageProvider.uploadFileStream(
         fileStream,
         fileName,
         folder,
         fileSize,
       );
-      return filePath;
     } catch (error) {
       throw new BadRequestException(`File upload failed: ${error.message}`);
     }
@@ -53,5 +51,9 @@ export class FileUploaderService {
     } catch (error) {
       throw new BadRequestException(`File deletion failed: ${error.message}`);
     }
+  }
+
+  path(path: string): string {
+    return this.storageProvider.path(path);
   }
 }

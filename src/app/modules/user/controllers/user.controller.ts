@@ -5,6 +5,9 @@ import { ApiGuard } from '../../../guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { UserResource } from '../resource/user.resource';
 import { UserService } from '../user.service';
+import { User } from '../entities/user.entity';
+import { responseReturn } from 'src/app/common/utils/response-return';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 @ApiTags('User')
 @ApiBearerAuth('jwt')
@@ -13,6 +16,29 @@ import { UserService } from '../user.service';
 export class UserController {
   constructor(protected readonly userService: UserService) {}
   private readonly logger = new CustomLogger(UserController.name);
+
+  @Get('/user/me')
+  @ApiOperation({ summary: 'Get authenticated user' })
+  // @UseGuards(AbilityGuard)
+  // @CheckAbility('create', 'user')
+  async me(@Request() request: Request) {
+    try {
+      const user = request['user'] as User;
+      const userDealership = request[
+        'user_default_dealership'
+      ] as UserDealership;
+      const userPermissions =
+        await this.userService.getUserWithPermissionsByRole(
+          user,
+          userDealership?.role_id,
+        );
+
+      return responseReturn('User fetched successfully', userPermissions);
+    } catch (e) {
+      this.logger.error(e);
+      return throwCatchError(e);
+    }
+  }
 
   @Get('/user')
   @ApiOperation({ summary: 'Revoke authenticate user' })

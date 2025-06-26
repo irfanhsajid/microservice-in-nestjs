@@ -102,8 +102,10 @@ export class Dealership {
   })
   addresses: DealershipAddress[];
 
-  @OneToMany(() => VehicleVins, (vechicleVins) => vechicleVins.dealership)
-  vechicle_vins: VehicleVins;
+  @OneToMany(() => VehicleVins, (vechicleVins) => vechicleVins.dealership, {
+    cascade: true,
+  })
+  vechicle_vins: VehicleVins[];
 
   @OneToMany(() => Role, (role) => role.dealership)
   roles: Role[];
