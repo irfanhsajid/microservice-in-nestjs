@@ -1,4 +1,13 @@
-import { Body, Controller, Param, Patch, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { ApiGuard } from 'src/app/guards/api.guard';
@@ -8,6 +17,7 @@ import { AdminDealershipService } from '../services/dealership.service';
 import { responseReturn } from 'src/app/common/utils/response-return';
 import { AbilityGuard } from 'src/app/modules/auth/casl/ability.guard';
 import { CheckAbility } from 'src/app/modules/auth/casl/check-ability.decorator';
+import { AdminDealershipIndexDto } from '../dto/dealership-index.dto';
 
 @ApiTags('Admin Dealership Management')
 @ApiBearerAuth('jwt')
@@ -18,6 +28,25 @@ export class AdminDealershipController {
     private readonly adminDealershipService: AdminDealershipService,
   ) {}
   private readonly logger = new CustomLogger(AdminDealershipController.name);
+
+  @UseGuards(AbilityGuard)
+  @CheckAbility('update', 'dealership')
+  @Get('/')
+  async index(
+    @Req() req: Request,
+    @Query() queryParams: AdminDealershipIndexDto,
+  ) {
+    try {
+      const dealerships = await this.adminDealershipService.index(
+        req,
+        queryParams,
+      );
+      return responseReturn('Dealerships fetched successfully', dealerships);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
 
   @UseGuards(AbilityGuard)
   @CheckAbility('update', 'dealership')
