@@ -38,8 +38,18 @@ export class AdminDealershipService implements ServiceInterface {
     return paginate(dealerships, total, page, limit);
   }
 
-  show(req: Request, id: number): Record<string, any> {
-    throw new Error('Method not implemented.');
+  async show(req: Request, id: number): Promise<Record<string, any>> {
+    const dealership = await this.dealershipRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!dealership) {
+      throw new NotFoundException(`Dealership with ID ${id} not found`);
+    }
+
+    return dealership;
   }
 
   store(req: Request, dto: any): Record<string, any> {

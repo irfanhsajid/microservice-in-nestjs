@@ -50,6 +50,19 @@ export class AdminDealershipController {
 
   @UseGuards(AbilityGuard)
   @CheckAbility('update', 'dealership')
+  @Get('/:id')
+  async show(@Req() req: Request, @Param('id') id: string) {
+    try {
+      const dealership = await this.adminDealershipService.show(req, +id);
+      return responseReturn('Dealership fetched successfully', dealership);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @UseGuards(AbilityGuard)
+  @CheckAbility('update', 'dealership')
   @Patch('/:dealership_id/status')
   async updateStatus(
     @Req() req: Request,
