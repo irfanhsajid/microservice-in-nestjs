@@ -10,7 +10,7 @@ import { EnsureEmailVerifiedGuard } from './ensure-email-verified.guard';
 import { EnsureProfileCompletedGuard } from './ensure-profile-completed.guard';
 import { CaslModule } from '../modules/auth/casl/casl.module';
 import { EnsureHasDealershipGuard } from './ensure-has-dealership.guard';
-import { CheckOriginGuard } from './check-origin.guard';
+import { AuthOriginGuard } from './check-origin.guard';
 
 @Module({
   imports: [JwtModule, ConfigModule, DealershipModule, UserModule, CaslModule],
@@ -19,14 +19,14 @@ import { CheckOriginGuard } from './check-origin.guard';
     EnsureEmailVerifiedGuard,
     EnsureProfileCompletedGuard,
     EnsureHasDealershipGuard,
-    CheckOriginGuard,
+    AuthOriginGuard,
   ],
   exports: [
     ApiGuard,
     EnsureEmailVerifiedGuard,
     EnsureProfileCompletedGuard,
     EnsureHasDealershipGuard,
-    CheckOriginGuard,
+    AuthOriginGuard,
   ],
 })
 export class GuardsModule {}

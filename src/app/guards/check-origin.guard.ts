@@ -5,13 +5,12 @@ import {
   HttpException,
   HttpStatus,
   applyDecorators,
-  SetMetadata,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { EntityManager } from 'typeorm';
+import { User, UserAccountType } from '../modules/user/entities/user.entity';
 
 // Custom CORS exception
 export class CorsOriginException extends HttpException {
@@ -21,39 +20,55 @@ export class CorsOriginException extends HttpException {
 }
 
 @Injectable()
-export class CheckOriginGuard implements CanActivate {
+export class AuthOriginGuard implements CanActivate {
   constructor(
     private readonly entityManager: EntityManager,
     private readonly configService: ConfigService,
   ) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
 
     const origin =
       request.get('origin') ||
       request.get('referer')?.split('/').slice(0, 3).join('/');
+    const appUrl = this.configService.get<string>('app.app_url');
+    const adminOrigin = [
+      this.configService.get<string>('app.admin_url'),
+      appUrl,
+    ];
+    const webOrigin = [this.configService.get<string>('app.web_url'), appUrl];
 
-    // const allowedOrigins =
-    //   this.reflector.get<string[]>('allowedOrigins', context.getHandler()) ||
-    //   this.reflector.get<string[]>('allowedOrigins', context.getClass()) ||
-    //   [];
+    const body = request.body;
+    const path = request.path;
 
-    // console.log('Request headers:', request.headers);
-    // console.log('Current origin:', origin);
-    // console.log('Allowed origins:', allowedOrigins);
-
-    // if (!origin || !allowedOrigins.includes(origin)) {
-    //   throw new CorsOriginException();
-    // }
-
+    if (path.includes('/login') && body?.email) {
+      const user = (await this.entityManager
+        .getRepository('users')
+        .createQueryBuilder('users')
+        .where({ email: body.email })
+        .getOne()) as User;
+      if (user && user.account_type === UserAccountType.MODERATOR) {
+        if (!origin || !adminOrigin?.includes(origin)) {
+          throw new CorsOriginException();
+        }
+      } else {
+        if (!origin || !webOrigin?.includes(origin)) {
+          throw new CorsOriginException();
+        }
+      }
+    } else if (path.includes('/register')) {
+      if (!origin || !webOrigin?.includes(origin)) {
+        throw new CorsOriginException();
+      }
+    }
     return true;
   }
 }
 
-export function CheckOrigin(origins: string[]) {
+export function AuthOrigin() {
   return applyDecorators(
     // SetMetadata('allowedOrigins', origins),
-    UseGuards(CheckOriginGuard),
+    UseGuards(AuthOriginGuard),
   );
 }

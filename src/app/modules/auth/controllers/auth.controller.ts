@@ -12,7 +12,7 @@ import { CustomLogger } from '../../logger/logger.service';
 import { AuthService } from '../services/auth.service';
 import { SigninDto } from '../../user/dto/signin.dto';
 import { ApiGuard } from '../../../guards/api.guard';
-import { CheckOrigin } from 'src/app/guards/check-origin.guard';
+import { AuthOrigin } from 'src/app/guards/check-origin.guard';
 
 @ApiTags('Auth')
 @Controller('api/v1')
@@ -23,11 +23,7 @@ export class AuthenticatedController {
   @ApiOperation({ summary: 'Login user' })
   @ApiBody({ type: SigninDto })
   @Post('/login')
-  @CheckOrigin([
-    'https://staging.api.carvu.ca',
-    'https://staging.admin.carvu.ca',
-    'http://localhost:3000',
-  ])
+  @AuthOrigin()
   async login(@Body() dto: SigninDto) {
     return await this.authService.login(dto);
   }
