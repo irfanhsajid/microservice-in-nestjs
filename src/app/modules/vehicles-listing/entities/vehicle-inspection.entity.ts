@@ -13,6 +13,7 @@ import { VehicleInspectionReport } from './vehicle-inspection-report.entity';
 
 export enum VehicleInspectionType {
   FRONT_VIEW = 'FRONT_VIEW',
+  FRONT_RIGHT_ANGLE = 'FRONT_RIGHT_ANGLE',
   RIGHT_SIDE = 'RIGHT_SIDE',
   REAR_RIGHT_ANGLE = 'REAR_RIGHT_ANGLE',
   REAR_VIEW = 'REAR_VIEW',
