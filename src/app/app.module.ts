@@ -22,9 +22,15 @@ import { DealershipModule } from './modules/dealership/dealership.module';
 import { AppController } from './app.controller';
 import { GuardsModule } from './guards/guards.module';
 import oauth from 'src/config/oauth';
+import { VehiclesListingModule } from './modules/vehicles-listing/vehicles-listing.module';
+import { AbilityMiddleware } from './modules/auth/casl/ability.middleware';
+import { CaslAbilityFactory } from './modules/auth/casl/casl-ability.factory';
+import { RolesModule } from './modules/roles/roles.module';
+import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
 
 @Module({
   imports: [
+    AuthModule,
     // AppThrottlerModule,
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -91,8 +97,10 @@ import oauth from 'src/config/oauth';
     LoggerModule,
     UploadsModule,
     GuardsModule,
+    RolesModule,
+    VehiclesListingModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],
 })
 export class AppModule {}

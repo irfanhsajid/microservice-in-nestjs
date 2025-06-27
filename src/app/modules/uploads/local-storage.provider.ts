@@ -21,6 +21,10 @@ export class LocalStorageProvider implements StorageProvider {
     );
   }
 
+  path(path: string): string {
+    return `${this.configService.get<string>('app.url', '')}/storage/${path}`;
+  }
+
   async uploadFileStream(
     fileStream: Readable,
     fileName: string,

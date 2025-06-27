@@ -6,10 +6,16 @@ import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { SigninDto } from './dto/signin.dto';
 import { CustomLogger } from '../logger/logger.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
-import { UserDealership } from '../dealership/entities/user-dealership.entity';
+import {
+  UserDealership,
+  UserDealershipStatus,
+} from '../dealership/entities/user-dealership.entity';
 import { UserResource } from './resource/user.resource';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { Role } from '../roles/entities/role.entity';
+import { Permission } from '../roles/entities/permission.entity';
+import { RoleHasPermissions } from '../roles/entities/role_has_permissions.entity';
 
 @Injectable()
 export class UserService {
@@ -18,6 +24,12 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Permission)
+    private readonly permissionRepository: Repository<Permission>,
+    @InjectRepository(RoleHasPermissions)
+    private readonly roleHasPermissionsRepository: Repository<RoleHasPermissions>,
 
     @InjectRepository(UserDealership)
     private readonly userDealershipRepository: Repository<UserDealership>,
@@ -27,10 +39,44 @@ export class UserService {
     protected readonly configService: ConfigService,
   ) {}
 
+  async getPermissionsByRole(roleId: number): Promise<Permission[]> {
+    const rolePermissions = await this.roleHasPermissionsRepository.find({
+      where: { role_id: roleId },
+    });
+
+    if (!rolePermissions.length) {
+      return [];
+    }
+
+    const permissionIds = rolePermissions.map((rhp) => rhp.permission_id);
+
+    const permissions =
+      await this.permissionRepository.findByIds(permissionIds);
+
+    return permissions;
+  }
+
+  async findByIdWithRoleAndPermissions(id: number) {
+    return await this.userDealershipRepository.findOne({
+      where: { id },
+      relations: [
+        'role',
+        'role.role_has_permissions',
+        'role.role_has_permissions.permission',
+      ],
+    });
+  }
+
   async createUser(dto: CreateUserDto): Promise<User> {
+    const queryRunner =
+      this.userRepository.manager.connection.createQueryRunner();
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
       // Check if a user already exists by email
-      const userExistWithEmail = await this.getUserByEmail(dto.email);
+      const userExistWithEmail = await queryRunner.manager.exists(User, {
+        where: { email: dto.email },
+      });
 
       if (userExistWithEmail) {
         throw new UnprocessableEntityException({
@@ -38,10 +84,15 @@ export class UserService {
         });
       }
 
-      const user = this.userRepository.create(dto);
+      let user = queryRunner.manager.create(User, dto);
 
-      return await this.userRepository.save(user);
+      user = await queryRunner.manager.save(User, user);
+
+      await queryRunner.commitTransaction();
+      return user;
     } catch (error) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
     }
@@ -53,12 +104,11 @@ export class UserService {
       if (!user) {
         return null;
       }
-      if (user.account_type === UserAccountType.MODERATOR) {
-        return user;
-      }
+
       if (!(await user.comparePassword(dto.password))) {
         return null;
       }
+
       if (!user.status) {
         return null;
       }
@@ -105,17 +155,37 @@ export class UserService {
   }
 
   async updateEmailVerifiedAt(email: string): Promise<User | null> {
+    const queryRunner =
+      this.userRepository.manager.connection.createQueryRunner();
     try {
-      const user = await this.userRepository.findOne({ where: { email } });
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      const user = await queryRunner.manager.findOne(User, {
+        where: { email },
+      });
       if (!user) {
         return null;
       }
 
       user.email_verified_at = new Date();
-      const newUser = await this.userRepository.save(user);
-      console.log(newUser);
-      return user;
+      const newUser = await queryRunner.manager.save(User, user);
+
+      //Assign user role
+      const userDealership = queryRunner.manager.create(UserDealership, {
+        user_id: user.id,
+        is_default: true,
+        role_id: 1,
+        status: UserDealershipStatus.REQUESTED,
+      });
+
+      await queryRunner.manager.save(UserDealership, userDealership);
+
+      await queryRunner.commitTransaction();
+      return newUser;
     } catch (error) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
       this.logger.error(
         `Failed to update email_verified_at for ${email}: ${error}`,
       );
@@ -199,6 +269,8 @@ export class UserService {
           account_type: UserAccountType.BUYER,
           accept_privacy: true,
           password: this.configService.get('app.key'),
+          email_verified_at: new Date(),
+          profile_completed: new Date(),
         });
         user = await queryRunner.manager.save(User, user);
         this.logger.log(`New Oauth user saved to database ${user.email}`);

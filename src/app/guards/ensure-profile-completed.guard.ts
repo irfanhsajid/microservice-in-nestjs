@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../modules/user/user.service';
 import { CustomLogger } from '../modules/logger/logger.service';
+import { User } from '../modules/user/entities/user.entity';
 
 @Injectable()
 export class EnsureProfileCompletedGuard implements CanActivate {
@@ -17,7 +18,7 @@ export class EnsureProfileCompletedGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const user = request['user'];
+    const user = request['user'] as User;
 
     if (!user || !user.email) {
       throw new UnauthorizedException('User information missing or invalid');
@@ -29,6 +30,10 @@ export class EnsureProfileCompletedGuard implements CanActivate {
       );
 
       if (!isEmailVerified) {
+        throw new ForbiddenException('Profile is not completed yet!');
+      }
+
+      if (!user.profile_completed) {
         throw new ForbiddenException('Profile is not completed yet!');
       }
 

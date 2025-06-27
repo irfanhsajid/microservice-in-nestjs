@@ -15,7 +15,7 @@ import { UserResponseFormatterInterceptor } from './app/common/interceptors/user
 import { CARVU_PACKAGE_NAME } from './grpc/types/auth/auth.pb';
 import { docsAuthMiddleware } from './utils/docs-auth.middleware';
 import { Session } from './app/modules/auth/entities/session.entity';
-import { ValidationError } from 'class-validator';
+import { useContainer, ValidationError } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -25,6 +25,7 @@ async function bootstrap() {
       'https://staging.carvu.ca',
       'http://10.0.0.56:3000',
       'http://localhost:3000',
+      'http://localhost:3001',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   });
@@ -90,51 +91,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  // // Validation pipes errors
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     whitelist: true,
-  //     forbidNonWhitelisted: true,
-  //     transform: true,
-  //     transformOptions: {
-  //       enableImplicitConversion: true,
-  //       exposeUnsetFields: false,
-  //     },
-  //     exceptionFactory: (errors) => {
-  //       const formatErrors = (
-  //         errs: any[],
-  //         parent = '',
-  //       ): Record<string, string[]> => {
-  //         return errs.reduce(
-  //           (acc, err) => {
-  //             const propertyPath = parent
-  //               ? `${parent}.${err.property}`
-  //               : err.property;
-
-  //             if (err.constraints) {
-  //               acc[propertyPath] = Object.values(err.constraints);
-  //             }
-
-  //             if (err.children && err.children.length > 0) {
-  //               Object.assign(acc, formatErrors(err.children, propertyPath));
-  //             }
-
-  //             return acc;
-  //           },
-  //           {} as Record<string, string[]>,
-  //         );
-  //       };
-
-  //       const formattedErrors = formatErrors(errors);
-
-  //       return new UnprocessableEntityException({
-  //         error: formattedErrors,
-  //         message: 'Unprocessed content',
-  //       });
-  //     },
-  //   }),
-  // );
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -198,6 +154,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.setViewEngine('hbs');
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   await app.listen(configService.get<number>('app.port') || 3000);
 

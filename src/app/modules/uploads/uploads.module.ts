@@ -61,6 +61,6 @@ import { UploadsController } from './uploads.controller';
     },
   ],
   controllers: [UploadsController],
-  exports: [FileUploaderService],
+  exports: [FileUploaderService, 'STORAGE_PROVIDER'],
 })
 export class UploadsModule {}

@@ -30,7 +30,7 @@ import { memoryStorage } from 'multer';
 import { Readable } from 'stream';
 import { DealershipAttachment } from '../entities/dealership-attachment.entity';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
-import { allowedMimeTypes } from '../dto/allowed-file-type';
+import { allowedMimeTypes } from 'src/app/common/types/allow-file-type';
 
 @ApiTags('Onboarding')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard)
@@ -42,7 +42,7 @@ export class DealershipAttachmentController {
   );
 
   constructor(
-    private readonly dealershipAttachementService: DealershipAttachmentService,
+    private readonly dealershipAttachmentService: DealershipAttachmentService,
   ) {}
 
   @Post('dealership/attachments')
@@ -101,7 +101,7 @@ export class DealershipAttachmentController {
 
     const fileSize = file.size;
 
-    return this.dealershipAttachementService.uploadAttachment(
+    return this.dealershipAttachmentService.uploadAttachment(
       req,
       originalFileName,
       fileStream,
@@ -119,7 +119,7 @@ export class DealershipAttachmentController {
   })
   async getAttachments(@Request() req: any): Promise<DealershipAttachment[]> {
     try {
-      return await this.dealershipAttachementService.getAttachments(req);
+      return await this.dealershipAttachmentService.getAttachments(req);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
       throw error;
@@ -133,7 +133,7 @@ export class DealershipAttachmentController {
     @Param('attachmentId') attachmentId: number,
   ): Promise<any> {
     try {
-      return await this.dealershipAttachementService.deleteAttachment(
+      return await this.dealershipAttachmentService.deleteAttachment(
         attachmentId,
       );
     } catch (error) {
