@@ -26,6 +26,10 @@ import { VehicleInspectionReport } from './entities/vehicle-inspection-report.en
 import { VehicleInspection } from './entities/vehicle-inspection.entity';
 import { VehicleInspectionService } from './services/vehicle-inspection.service';
 import { VehicleInspectionController } from './controllers/vehicle-inspection.controller';
+import { VehicleFaxReport } from './entities/vehicle-fax-report.entity';
+import { VehicleFaxReportController } from './controllers/vehicle-fax-report.controller';
+import { VehicleFaxReportSubscriber } from './subscriber/vehicle-fax.subscriber';
+import { VehicleFaxReportService } from './services/vehicle-fax-report.service';
 
 @Module({
   imports: [
@@ -38,6 +42,7 @@ import { VehicleInspectionController } from './controllers/vehicle-inspection.co
       VehicleInformation,
       VehicleInspectionReport,
       VehicleInspection,
+      VehicleFaxReport,
     ]),
     UserModule,
     UploadsModule,
@@ -49,6 +54,7 @@ import { VehicleInspectionController } from './controllers/vehicle-inspection.co
     VehicleAttachmentController,
     VehicleInformationController,
     VehicleInspectionController,
+    VehicleFaxReportController,
   ],
   providers: [
     VehicleAttachmentSubscriber,
@@ -59,6 +65,7 @@ import { VehicleInspectionController } from './controllers/vehicle-inspection.co
     IsVehicleVinValid,
     VehicleInformationService,
     VehicleInspectionService,
+    VehicleFaxReportService,
   ],
   exports: [],
 })
@@ -75,7 +82,9 @@ export class VehiclesListingModule {
     const vehicleInspection = new VehicleInspectionSubscriber(
       this.fileUploaderService,
     );
+    const vehicleFax = new VehicleFaxReportSubscriber(this.fileUploaderService);
     this.dataSource.subscribers.push(subscriber);
     this.dataSource.subscribers.push(vehicleInspection);
+    this.dataSource.subscribers.push(vehicleFax);
   }
 }

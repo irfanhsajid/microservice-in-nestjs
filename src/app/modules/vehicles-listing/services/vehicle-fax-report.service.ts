@@ -11,14 +11,16 @@ import { User } from '../../user/entities/user.entity';
 import { VehicleInspection } from '../entities/vehicle-inspection.entity';
 import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
+import { VehicleFaxReport } from '../entities/vehicle-fax-report.entity';
+import { Vehicle } from '../entities/vehicles.entity';
 
 @Injectable()
-export class VehicleInspectionService implements ServiceInterface {
-  private readonly logger = new CustomLogger(VehicleInspectionService.name);
+export class VehicleFaxReportService implements ServiceInterface {
+  private readonly logger = new CustomLogger(VehicleFaxReportService.name);
 
   constructor(
-    @InjectRepository(VehicleInspection)
-    private readonly vehicleInspectionRepository: Repository<VehicleInspection>,
+    @InjectRepository(VehicleFaxReport)
+    private readonly vehicleFaxReportRepository: Repository<VehicleFaxReport>,
 
     private readonly fileUploadService: FileUploaderService,
   ) {}
@@ -29,46 +31,44 @@ export class VehicleInspectionService implements ServiceInterface {
 
   async store(
     req: Request,
-    dto: { id: number; file: any; dto: CreateVehicleInspectionDto },
+    dto: { id: number; file: any },
   ): Promise<Record<string, any>> {
     const queryRunner =
-      this.vehicleInspectionRepository.manager.connection.createQueryRunner();
+      this.vehicleFaxReportRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     let uploadedFiles: any;
 
     try {
-      const user = req['user'] as User;
       const vechicle_id = dto.id;
 
       // find vehicle report
-      let vehicleReport = await queryRunner.manager.findOne(
-        VehicleInspectionReport,
+      const vehicle = await queryRunner.manager.findOne(Vehicle, {
+        where: {
+          id: dto.id,
+        },
+      });
+
+      if (!vehicle) {
+        throw new BadRequestException('Invalid vehicle id');
+      }
+      // Find vehicle fax attachment report exist
+      let vehicleFaxReport = await queryRunner.manager.findOne(
+        VehicleFaxReport,
         {
           where: {
-            vehicle_id: vechicle_id,
+            vehicle_id: vehicle.id,
           },
         },
       );
 
-      if (!vehicleReport) {
-        vehicleReport = queryRunner.manager.create(VehicleInspectionReport, {
-          vehicle_id: vechicle_id,
-        });
+      const folder = `vehicle/fax/${vechicle_id}`;
 
-        vehicleReport = await queryRunner.manager.save(
-          VehicleInspectionReport,
-          vehicleReport,
-        );
-      }
-
-      // Upload file
+      // Upload attachment file
       const fileName = dto.file.originalname;
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
-
-      const folder = `vehicle/inspection/${vechicle_id}`;
 
       const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
@@ -79,40 +79,44 @@ export class VehicleInspectionService implements ServiceInterface {
 
       uploadedFiles = `${folder}/${newFile}`;
 
-      // find inspection
-      let inspection = await queryRunner.manager.findOne(VehicleInspection, {
-        where: {
-          vehicle_id: vechicle_id,
-          vehicle_inspection_report_id: vehicleReport.id,
-          type: dto.dto.type,
-        },
-      });
-
-      if (!inspection) {
-        inspection = queryRunner.manager.create(VehicleInspection, {
-          path: newFile,
-          vehicle_id: vechicle_id,
-          ...dto.dto,
-          vehicle_inspection_report_id: vehicleReport?.id,
+      if (!vehicleFaxReport) {
+        // create vehicle report and upload vehicle and delete old one
+        vehicleFaxReport = queryRunner.manager.create(VehicleFaxReport, {
+          vehicle_id: vehicle.id,
+          attachment: newFile,
+          expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
         });
       } else {
-        inspection = queryRunner.manager.merge(VehicleInspection, inspection, {
-          ...dto.dto,
-          path: newFile,
-        });
+        // Delete old vehicle fax report and update new one and merge
+        // -------------
+        // Delete old Fax report
+        await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+
+        // Merge vehicle Fax report with new fax file attachment
+        vehicleFaxReport = queryRunner.manager.merge(
+          VehicleFaxReport,
+          vehicleFaxReport,
+          {
+            attachment: newFile,
+            expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
+          },
+        );
       }
 
-      inspection = await queryRunner.manager.save(
-        VehicleInspection,
-        inspection,
+      // Save the new vehicle fax
+      vehicleFaxReport = await queryRunner.manager.save(
+        VehicleFaxReport,
+        vehicleFaxReport,
       );
+
+      // Add extraction task to que
 
       // commit transaction
       await queryRunner.commitTransaction();
 
       return {
-        ...inspection,
-        path: this.fileUploadService.path(uploadedFiles),
+        ...vehicleFaxReport,
+        attachment: this.fileUploadService.path(uploadedFiles),
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -129,7 +133,7 @@ export class VehicleInspectionService implements ServiceInterface {
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
-      return await this.vehicleInspectionRepository.find({
+      return await this.vehicleFaxReportRepository.find({
         where: {
           vehicle_id: id,
         },
@@ -139,14 +143,12 @@ export class VehicleInspectionService implements ServiceInterface {
       return throwCatchError(error);
     }
   }
-
   update(req: Request, dto: any, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
-
   async destroy(req: Request, id: number): Promise<Record<string, any>> {
     const queryRunner =
-      this.vehicleInspectionRepository.manager.connection.createQueryRunner();
+      this.vehicleFaxReportRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
@@ -154,26 +156,29 @@ export class VehicleInspectionService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
-      const inspection = await queryRunner.manager.findOne(VehicleInspection, {
-        where: {
-          id: id,
-          vehicle: {
-            vehicle_vin: {
-              dealership_id: defaultDealership.dealership_id,
+      const vehicleFaxReport = await queryRunner.manager.findOne(
+        VehicleFaxReport,
+        {
+          where: {
+            id: id,
+            vehicle: {
+              vehicle_vin: {
+                dealership_id: defaultDealership.dealership_id,
+              },
             },
           },
         },
-      });
+      );
 
-      if (!inspection) {
+      if (!vehicleFaxReport) {
         throw new BadRequestException('Not Vehicle inspection found to delete');
       }
 
       // try delete the attachment from s3
-      await this.fileUploadService.deleteFile(inspection.path);
+      await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
 
       // delete attachment from database Record
-      await queryRunner.manager.delete(VehicleInspection, id);
+      await queryRunner.manager.delete(VehicleFaxReport, id);
 
       // commit transaction
       await queryRunner.commitTransaction();
