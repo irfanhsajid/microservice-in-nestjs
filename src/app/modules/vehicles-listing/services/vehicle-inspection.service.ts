@@ -1,3 +1,4 @@
+import { CreateVehicleInspectionDto } from './../dto/vehicle-inspection.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
@@ -28,7 +29,10 @@ export class VehicleInspectionService implements ServiceInterface {
     throw new Error('Method not implemented.');
   }
 
-  async store(req: Request, dto: any): Promise<Record<string, any>> {
+  async store(
+    req: Request,
+    dto: { id: number; file: any; dto: CreateVehicleInspectionDto },
+  ): Promise<Record<string, any>> {
     const queryRunner =
       this.vehicleInspectionRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
@@ -77,19 +81,39 @@ export class VehicleInspectionService implements ServiceInterface {
 
       uploadedFiles = `${folder}/${newFile}`;
 
-      let u = queryRunner.manager.create(VehicleInspection, {
-        name: newFile,
-        user_id: user?.id,
-        path: newFile,
-        vehicle_id: vechicle_id,
-        ...dto.dto,
-        vehicle_inspection_report_id: vehicleReport?.id,
+      // find inspection
+      let inspection = await queryRunner.manager.findOne(VehicleInspection, {
+        where: {
+          vehicle_id: vechicle_id,
+          vehicle_inspection_report_id: vehicleReport.id,
+          type: dto.dto.type,
+        },
       });
-      u = await queryRunner.manager.save(VehicleInspection, u);
 
+      if (!inspection) {
+        inspection = queryRunner.manager.create(VehicleInspection, {
+          path: newFile,
+          vehicle_id: vechicle_id,
+          ...dto.dto,
+          vehicle_inspection_report_id: vehicleReport?.id,
+        });
+      } else {
+        inspection = queryRunner.manager.merge(VehicleInspection, inspection, {
+          ...dto.dto,
+          path: newFile,
+        });
+      }
+
+      inspection = await queryRunner.manager.save(
+        VehicleInspection,
+        inspection,
+      );
+
+      // commit transaction
       await queryRunner.commitTransaction();
+
       return {
-        ...u,
+        ...inspection,
         path: this.fileUploadService.path(uploadedFiles),
       };
     } catch (error) {
