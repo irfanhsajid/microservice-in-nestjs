@@ -30,6 +30,7 @@ import { VehicleFaxReport } from './entities/vehicle-fax-report.entity';
 import { VehicleFaxReportController } from './controllers/vehicle-fax-report.controller';
 import { VehicleFaxReportSubscriber } from './subscriber/vehicle-fax.subscriber';
 import { VehicleFaxReportService } from './services/vehicle-fax-report.service';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -47,6 +48,9 @@ import { VehicleFaxReportService } from './services/vehicle-fax-report.service';
     UserModule,
     UploadsModule,
     CaslModule,
+    BullModule.registerQueue({
+      name: 'vehicle-consumer',
+    }),
   ],
   controllers: [
     VehicleVinController,

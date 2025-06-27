@@ -13,12 +13,17 @@ import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.e
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { VehicleFaxReport } from '../entities/vehicle-fax-report.entity';
 import { Vehicle } from '../entities/vehicles.entity';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class VehicleFaxReportService implements ServiceInterface {
   private readonly logger = new CustomLogger(VehicleFaxReportService.name);
 
   constructor(
+    @InjectQueue('vehicle-consumer')
+    protected vehicleQueue: Queue,
+
     @InjectRepository(VehicleFaxReport)
     private readonly vehicleFaxReportRepository: Repository<VehicleFaxReport>,
 
@@ -109,7 +114,8 @@ export class VehicleFaxReportService implements ServiceInterface {
         vehicleFaxReport,
       );
 
-      // Add extraction task to que
+      // Add extraction task to queue
+      await this.vehicleQueue.add('send-verification-email', vehicleFaxReport);
 
       // commit transaction
       await queryRunner.commitTransaction();
