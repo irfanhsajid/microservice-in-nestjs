@@ -1,7 +1,5 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
@@ -23,12 +21,9 @@ import { CustomLogger } from '../../logger/logger.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
-import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
+import { allowedCarFaxMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
-import { VehicleInspectionService } from '../services/vehicle-inspection.service';
-import { CreateVehicleInspectionDto } from '../dto/vehicle-inspection.dto';
-import { VehicleInspectionType } from '../entities/vehicle-inspection.entity';
 import { VehicleFaxReportService } from '../services/vehicle-fax-report.service';
 
 @ApiTags('Vehicle-listing')
@@ -53,10 +48,10 @@ export class VehicleFaxReportController {
       storage: memoryStorage(), // Minimal buffering to access metadata
       // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
       fileFilter: (req, file, cb) => {
-        if (!allowedImageMimeTypes.includes(file.mimetype)) {
+        if (!allowedCarFaxMimeTypes.includes(file.mimetype)) {
           return cb(
             new UnprocessableEntityException({
-              file: `Invalid file type. Allowed types: ${allowedImageMimeTypes.join(', ')}`,
+              file: `Invalid file type. Allowed types: ${allowedCarFaxMimeTypes.join(', ')}`,
             }),
             false,
           );

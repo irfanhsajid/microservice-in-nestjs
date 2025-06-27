@@ -14,6 +14,7 @@ export class VehicleConsumer extends WorkerHost {
   process(job: Job<any, any, string>): any {
     switch (job.name) {
       case 'vehicle-fax-report': {
+        console.log('Running job for vehicle queue');
         const date = new Date();
         this.logger.log(
           `Queue process for vehicle fax report run on ${date.getTime()}`,

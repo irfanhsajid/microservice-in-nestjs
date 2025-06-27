@@ -31,6 +31,7 @@ import { VehicleFaxReportController } from './controllers/vehicle-fax-report.con
 import { VehicleFaxReportSubscriber } from './subscriber/vehicle-fax.subscriber';
 import { VehicleFaxReportService } from './services/vehicle-fax-report.service';
 import { BullModule } from '@nestjs/bullmq';
+import { VehicleConsumer } from './job/vehicle.queue';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { BullModule } from '@nestjs/bullmq';
     VehicleFaxReportController,
   ],
   providers: [
+    VehicleConsumer,
     VehicleAttachmentSubscriber,
     VehicleInspectionSubscriber,
     VehicleVinsService,
