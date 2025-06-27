@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -24,8 +25,11 @@ import { memoryStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
-import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
 import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
+import { VehicleInspectionService } from '../services/vehicle-inspection.service';
+import { CreateVehicleInspectionDto } from '../dto/vehicle-inspection.dto';
+import { VehicleInspectionType } from '../entities/vehicle-inspection.entity';
+import { VehicleFaxReportService } from '../services/vehicle-fax-report.service';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(
@@ -36,14 +40,14 @@ import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.g
 )
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
-export class VehicleAttachmentController {
-  private readonly logger = new CustomLogger(VehicleAttachmentController.name);
+export class VehicleFaxReportController {
+  private readonly logger = new CustomLogger(VehicleFaxReportController.name);
 
   constructor(
-    private readonly vehicleAttachmentService: VehicleAttachmentService,
+    private readonly vehicleFaxReportService: VehicleFaxReportService,
   ) {}
 
-  @Post('vehicle/attachments/:vinId')
+  @Post('vehicle/fax/:vehicleId')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(), // Minimal buffering to access metadata
@@ -79,13 +83,12 @@ export class VehicleAttachmentController {
     status: 201,
     description: 'Attachments uploaded successfully',
   })
-  async upload(@Request() req: any, @Param('vinId') id: number) {
+  async upload(@Request() req: any, @Param('vehicleId') id: number) {
     const file = req.file;
 
-    // Validate file count (3 to 5 files required)
     if (!file) {
       throw new UnprocessableEntityException({
-        file: 'The file field is required',
+        files: 'You must upload between 3 and 5 files.',
       });
     }
 
@@ -94,10 +97,10 @@ export class VehicleAttachmentController {
       file: file,
     };
 
-    return await this.vehicleAttachmentService.store(req, dtoCombine);
+    return await this.vehicleFaxReportService.store(req, dtoCombine);
   }
 
-  @Get('vehicle/attachments/:vinId')
+  @Get('vehicle/fax/:vehicleId')
   @ApiOperation({ summary: 'Get all attachments for a vehicle' })
   @ApiResponse({
     status: 200,
@@ -105,24 +108,12 @@ export class VehicleAttachmentController {
   })
   async getAttachments(
     @Request() req: any,
-    @Param('vinId') id: number,
+    @Param('vehicleId') id: number,
   ): Promise<any> {
     try {
-      return await this.vehicleAttachmentService.show(req, id);
+      return await this.vehicleFaxReportService.show(req, id);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
-      throw error;
-    }
-  }
-
-  @Delete('vehicle/attachments/:id')
-  @ApiOperation({ summary: 'Delete an attachment by ID' })
-  @ApiResponse({ status: 200, description: 'Attachment deleted successfully' })
-  async delete(@Request() req: any, @Param('id') id: number): Promise<any> {
-    try {
-      return await this.vehicleAttachmentService.destroy(req, id);
-    } catch (error) {
-      this.logger.error(`Failed to delete attachment: ${error.message}`);
       throw error;
     }
   }

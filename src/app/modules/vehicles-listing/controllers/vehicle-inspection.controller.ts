@@ -112,7 +112,6 @@ export class VehicleInspectionController {
   ) {
     const file = req.file;
 
-    // Validate file count (3 to 5 files required)
     if (!file) {
       throw new UnprocessableEntityException({
         files: 'You must upload between 3 and 5 files.',
@@ -136,7 +135,7 @@ export class VehicleInspectionController {
   })
   async getAttachments(
     @Request() req: any,
-    @Param('vinId') id: number,
+    @Param('vehicleId') id: number,
   ): Promise<any> {
     try {
       return await this.vehicleInspectionService.show(req, id);

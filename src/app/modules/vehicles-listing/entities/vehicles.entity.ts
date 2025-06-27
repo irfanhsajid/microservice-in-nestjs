@@ -15,6 +15,7 @@ import { VehicleInformation } from './vehicle-informations.entity';
 import { VehicleAttachment } from './vehicle-attachments.entity';
 import { VehicleInspectionReport } from './vehicle-inspection-report.entity';
 import { VehicleInspection } from './vehicle-inspection.entity';
+import { VehicleFaxReport } from './vehicle-fax-report.entity';
 
 export enum VehicleCondition {
   USED = 'USED',
@@ -118,4 +119,11 @@ export class Vehicle {
     { cascade: true },
   )
   vehicle_inspections: VehicleInspection[];
+
+  @OneToOne(
+    () => VehicleFaxReport,
+    (vehicleFaxReport) => vehicleFaxReport.vehicle,
+    { cascade: true },
+  )
+  vehicle_fax_report: VehicleFaxReport;
 }

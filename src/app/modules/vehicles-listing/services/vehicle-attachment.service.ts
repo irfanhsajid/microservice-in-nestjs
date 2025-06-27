@@ -67,7 +67,7 @@ export class VehicleAttachmentService implements ServiceInterface {
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
 
-      const folder = `vehicle/${vechicle.id}`;
+      const folder = `vehicle/images/${vechicle.id}`;
 
       const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
