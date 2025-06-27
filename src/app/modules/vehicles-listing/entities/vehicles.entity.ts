@@ -89,7 +89,7 @@ export class Vehicle {
   })
   vehicle_features: VehicleFeature[];
 
-  @OneToMany(() => VehicleInformation, (information) => information.vehicle, {
+  @OneToOne(() => VehicleInformation, (information) => information.vehicle, {
     cascade: true,
   })
   information: VehicleInformation[];
