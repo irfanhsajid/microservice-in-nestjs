@@ -14,7 +14,17 @@ export class VehicleConsumer extends WorkerHost {
   process(job: Job<any, any, string>): any {
     switch (job.name) {
       case 'vehicle-fax-report': {
+        // @TODO fetch uploaded vehicle fax file and extract its information
         console.log('Running job for vehicle queue');
+        const date = new Date();
+        this.logger.log(
+          `Queue process for vehicle fax report run on ${date.getTime()}`,
+        );
+        this.logger.log(`data ${job.data}`);
+        return;
+      }
+      case 'vehicle-fax-report-apply': {
+        console.log('vehicle fax reporte job running');
         const date = new Date();
         this.logger.log(
           `Queue process for vehicle fax report run on ${date.getTime()}`,

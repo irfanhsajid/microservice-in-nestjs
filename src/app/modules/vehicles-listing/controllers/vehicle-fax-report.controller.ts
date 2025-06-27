@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Request,
   UnprocessableEntityException,
   UseGuards,
@@ -101,12 +102,30 @@ export class VehicleFaxReportController {
     status: 200,
     description: 'Attachments retrieved successfully',
   })
-  async getAttachments(
+  async getVehicleFax(
     @Request() req: any,
     @Param('vehicleId') id: number,
   ): Promise<any> {
     try {
       return await this.vehicleFaxReportService.show(req, id);
+    } catch (error) {
+      this.logger.error(`Failed to retrieve attachments: ${error.message}`);
+      throw error;
+    }
+  }
+
+  @Put('vehicle/fax/:vehicleId')
+  @ApiOperation({ summary: 'Get all attachments for a vehicle' })
+  @ApiResponse({
+    status: 200,
+    description: 'Vehicle fax successfully',
+  })
+  async applyForVehicleFaxReport(
+    @Request() req: any,
+    @Param('vehicleId') id: number,
+  ): Promise<any> {
+    try {
+      return await this.vehicleFaxReportService.applyForCarFaxReport(req, id);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
       throw error;
