@@ -115,7 +115,7 @@ export class VehicleFaxReportService implements ServiceInterface {
       );
 
       // Add extraction task to queue
-      await this.vehicleQueue.add('send-verification-email', vehicleFaxReport);
+      await this.vehicleQueue.add('vehicle-fax-report', vehicleFaxReport);
 
       // commit transaction
       await queryRunner.commitTransaction();

@@ -65,10 +65,29 @@ export class VehicleInformationService implements ServiceInterface {
         );
       }
 
-      let newCarInformation = queryRunner.manager.create(VehicleInformation, {
-        ...data.dto,
-        vehicle_id: vehicle.id,
-      });
+      let newCarInformation = await queryRunner.manager.findOne(
+        VehicleInformation,
+        {
+          where: {
+            vehicle_id: vehicle.id,
+          },
+        },
+      );
+
+      if (!newCarInformation) {
+        newCarInformation = queryRunner.manager.create(VehicleInformation, {
+          ...data.dto,
+          vehicle_id: vehicle.id,
+        });
+      } else {
+        newCarInformation = queryRunner.manager.merge(
+          VehicleInformation,
+          newCarInformation,
+          {
+            ...data.dto,
+          },
+        );
+      }
 
       // save the new car information
       newCarInformation = await queryRunner.manager.save(
