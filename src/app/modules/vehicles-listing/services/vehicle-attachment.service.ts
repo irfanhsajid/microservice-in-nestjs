@@ -143,7 +143,7 @@ export class VehicleAttachmentService implements ServiceInterface {
         },
       });
       if (!attachment) {
-        throw new BadRequestException('Vehicle attachment deletetion failed');
+        throw new BadRequestException('Vehicle attachment deletion failed');
       }
 
       // try delete the attachment from s3

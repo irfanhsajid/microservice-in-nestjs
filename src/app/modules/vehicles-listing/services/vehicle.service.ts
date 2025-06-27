@@ -232,7 +232,7 @@ export class VehicleService implements ServiceInterface {
           },
           vehicle_vin_id: id,
         },
-        relations: ['vehicle_attachment', 'information', 'vehicle_features'],
+        relations: ['vehicle_attachments', 'information', 'vehicle_features'],
       });
 
       if (!vehicle) {
