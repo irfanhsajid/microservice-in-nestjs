@@ -34,6 +34,7 @@ import { Repository } from 'typeorm';
 import { useContainer } from 'class-validator';
 import { IsUnique } from './dto/validator/is-unique.validator';
 import { CaslModule } from './casl/casl.module';
+import { GuardsModule } from 'src/app/guards/guards.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { CaslModule } from './casl/casl.module';
       inject: [ConfigService],
     }),
     CaslModule,
+    GuardsModule,
   ],
   controllers: [
     AuthenticatedController,

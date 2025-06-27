@@ -8,6 +8,7 @@ interface App {
     timezone: string;
     key: string;
     web_url: string;
+    admin_url: string;
   };
 }
 export default () =>
@@ -21,5 +22,6 @@ export default () =>
       timezone: process.env.APP_TIMEZONE,
       key: process.env.APP_KEY,
       web_url: process.env.WEB_URL,
+      admin_url: process.env.ADMIN_URL,
     },
   }) as App;
