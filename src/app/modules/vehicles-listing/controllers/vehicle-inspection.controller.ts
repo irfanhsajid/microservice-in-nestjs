@@ -25,11 +25,13 @@ import { memoryStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
-import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
 import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 import { VehicleInspectionService } from '../services/vehicle-inspection.service';
 import { CreateVehicleInspectionDto } from '../dto/vehicle-inspection.dto';
-import { VehicleInspectionType } from '../entities/vehicle-inspection.entity';
+import {
+  VehicleInspectionTitleType,
+  VehicleInspectionType,
+} from '../entities/vehicle-inspection.entity';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(
@@ -75,16 +77,17 @@ export class VehicleInspectionController {
           type: 'string',
           format: 'binary',
         },
-        type: {
+        title: {
           type: 'string',
-          enum: Object.values(VehicleInspectionType),
+          enum: Object.values(VehicleInspectionTitleType),
           description: 'The type of vehicle inspection view',
           example: 'FRONT_VIEW',
         },
-        title: {
+        type: {
           type: 'string',
+          enum: Object.values(VehicleInspectionType),
           description: 'The title of the vehicle inspection',
-          example: 'Front View Inspection',
+          example: 'INTERIOR',
         },
         number_of_issues: {
           type: 'number',

@@ -11,7 +11,7 @@ import {
 import { Vehicle } from './vehicles.entity';
 import { VehicleInspectionReport } from './vehicle-inspection-report.entity';
 
-export enum VehicleInspectionType {
+export enum VehicleInspectionTitleType {
   FRONT_VIEW = 'FRONT_VIEW',
   FRONT_RIGHT_ANGLE = 'FRONT_RIGHT_ANGLE',
   RIGHT_SIDE = 'RIGHT_SIDE',
@@ -20,6 +20,17 @@ export enum VehicleInspectionType {
   REAR_LEFT_ANGLE = 'REAR_LEFT_ANGLE',
   LEFT_SIDE = 'LEFT_SIDE',
   FRONT_LEFT_ANGLE = 'FRONT_LEFT_ANGLE',
+  DASHBOARD_AND_ODOMETER = 'DASHBOARD_AND_ODOMETER',
+  DRIVER_SEAT_AND_STREERING = 'DRIVER_SEAT_AND_STREERING',
+  CENTER_CONSOLE = 'CENTER_CONSOLE',
+  FRONT_PASSENGER_SEAT = 'FRONT_PASSENGER_SEAT',
+  REAR_SEATING_AREA = 'REAR_SEATING_AREA',
+}
+
+export enum VehicleInspectionType {
+  EXTERIOR = 'EXTERIOR',
+  INTERIOR = 'INTERIOR',
+  DAMAGE = 'DAMAGE',
 }
 
 @Entity('vehicle_inspections')
@@ -33,11 +44,11 @@ export class VehicleInspection {
   @Column({ nullable: false })
   vehicle_inspection_report_id: number;
 
+  @Column({ type: 'enum', enum: VehicleInspectionTitleType, nullable: false })
+  title: VehicleInspectionTitleType;
+
   @Column({ type: 'enum', enum: VehicleInspectionType, nullable: false })
   type: VehicleInspectionType;
-
-  @Column()
-  title: string;
 
   @Column()
   number_of_issues: number;
