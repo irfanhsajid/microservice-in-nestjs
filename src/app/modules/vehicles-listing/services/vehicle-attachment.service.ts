@@ -95,7 +95,9 @@ export class VehicleAttachmentService implements ServiceInterface {
       await queryRunner.rollbackTransaction();
 
       if (uploadedFiles) {
-        await this.fileUploadService.deleteFile(uploadedFiles);
+        await this.fileUploadService.deleteFile(
+          this.fileUploadService.path(uploadedFiles),
+        );
       }
       this.logger.error(error);
       return throwCatchError(error);

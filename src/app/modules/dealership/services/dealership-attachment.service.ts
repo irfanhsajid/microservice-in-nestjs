@@ -71,12 +71,14 @@ export class DealershipAttachmentService {
       delete data?.user;
       return {
         ...data,
-        path: this.fileUploaderService.path(tempFilePath + '/' + filePath),
+        path: this.fileUploaderService.path(tempFilePath),
       };
     } catch (error) {
       // delete file if attachment not created
       if (tempFilePath) {
-        await this.fileUploaderService.deleteFile(tempFilePath);
+        await this.fileUploaderService.deleteFile(
+          this.fileUploaderService.path(tempFilePath),
+        );
       }
       this.logger.error(error);
       return throwCatchError(error);

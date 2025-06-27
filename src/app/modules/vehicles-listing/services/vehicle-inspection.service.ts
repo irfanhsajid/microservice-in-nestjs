@@ -10,6 +10,8 @@ import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { VehicleInspection } from '../entities/vehicle-inspection.entity';
+import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 @Injectable()
 export class VehicleInspectionService implements ServiceInterface {
@@ -36,14 +38,27 @@ export class VehicleInspectionService implements ServiceInterface {
 
     try {
       const user = req['user'] as User;
-      const vechicle = await queryRunner.manager.findOne(Vehicle, {
-        where: {
-          vehicle_vin_id: dto?.id,
-        },
-      });
+      const vechicle_id = dto.id;
 
-      if (!vechicle) {
-        throw new BadRequestException('Not vechile found to upload inspection');
+      // find vehicle report
+      let vehicleReport = await queryRunner.manager.findOne(
+        VehicleInspectionReport,
+        {
+          where: {
+            vehicle_id: vechicle_id,
+          },
+        },
+      );
+
+      if (!vehicleReport) {
+        vehicleReport = queryRunner.manager.create(VehicleInspectionReport, {
+          vehicle_id: vechicle_id,
+        });
+
+        vehicleReport = await queryRunner.manager.save(
+          VehicleInspectionReport,
+          vehicleReport,
+        );
       }
 
       // Upload file
@@ -51,7 +66,7 @@ export class VehicleInspectionService implements ServiceInterface {
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
 
-      const folder = `vehicle/${vechicle.id}`;
+      const folder = `vehicle/inspection/${vechicle_id}`;
 
       const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
@@ -66,21 +81,24 @@ export class VehicleInspectionService implements ServiceInterface {
         name: newFile,
         user_id: user?.id,
         path: newFile,
-        vehicle_id: vechicle?.id,
-        vehicle_inspection_report_id: dto?.id,
+        vehicle_id: vechicle_id,
         ...dto.dto,
+        vehicle_inspection_report_id: vehicleReport?.id,
       });
       u = await queryRunner.manager.save(VehicleInspection, u);
 
       await queryRunner.commitTransaction();
       return {
         ...u,
+        path: this.fileUploadService.path(uploadedFiles),
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
 
       if (uploadedFiles) {
-        await this.fileUploadService.deleteFile(uploadedFiles);
+        await this.fileUploadService.deleteFile(
+          this.fileUploadService.path(uploadedFiles),
+        );
       }
       this.logger.error(error);
       return throwCatchError(error);
@@ -90,17 +108,10 @@ export class VehicleInspectionService implements ServiceInterface {
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
       const user = req['user'] as User;
-      const vehicle = await this.vehicleInspectionRepository.findOne({
-        where: { id: id },
-      });
-
-      if (!vehicle) {
-        return [];
-      }
 
       return await this.vehicleInspectionRepository.find({
         where: {
-          vehicle_id: vehicle?.id,
+          vehicle_id: id,
         },
       });
     } catch (error) {
@@ -117,22 +128,30 @@ export class VehicleInspectionService implements ServiceInterface {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const user = req['user'] as User;
-      const attachment = await queryRunner.manager.findOne(VehicleAttachment, {
+      const defaultDealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
+
+      const inspection = await queryRunner.manager.findOne(VehicleInspection, {
         where: {
           id: id,
-          user_id: user.id,
+          vehicle: {
+            vehicle_vin: {
+              dealership_id: defaultDealership.dealership_id,
+            },
+          },
         },
       });
-      if (!attachment) {
-        throw new BadRequestException('Vehicle attachment deletetion failed');
+
+      if (!inspection) {
+        throw new BadRequestException('Not Vehicle inspection found to delete');
       }
 
       // try delete the attachment from s3
-      await this.fileUploadService.deleteFile(attachment.path);
+      await this.fileUploadService.deleteFile(inspection.path);
 
       // delete attachment from database Record
-      await queryRunner.manager.delete(VehicleAttachment, id);
+      await queryRunner.manager.delete(VehicleInspection, id);
 
       // commit transaction
       await queryRunner.commitTransaction();

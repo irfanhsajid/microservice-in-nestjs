@@ -8,7 +8,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from '../modules/user/user.service';
-import { AppAbility, CaslAbilityFactory } from '../modules/auth/casl/casl-ability.factory';
+import {
+  AppAbility,
+  CaslAbilityFactory,
+} from '../modules/auth/casl/casl-ability.factory';
 
 @Injectable()
 export class ApiGuard implements CanActivate {

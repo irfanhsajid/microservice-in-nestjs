@@ -47,7 +47,7 @@ export class VehicleInspectionController {
     private readonly vehicleInspectionService: VehicleInspectionService,
   ) {}
 
-  @Post('vehicle/inspection/:vinId')
+  @Post('vehicle/inspection/:vehicleId')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(), // Minimal buffering to access metadata
@@ -107,7 +107,7 @@ export class VehicleInspectionController {
   })
   async upload(
     @Request() req: any,
-    @Param('vinId') id: number,
+    @Param('vehicleId') id: number,
     @Body() dto: CreateVehicleInspectionDto,
   ) {
     const file = req.file;
@@ -128,7 +128,7 @@ export class VehicleInspectionController {
     return await this.vehicleInspectionService.store(req, dtoCombine);
   }
 
-  @Get('vehicle/inspection/:vinId')
+  @Get('vehicle/inspection/:vehicleId')
   @ApiOperation({ summary: 'Get all attachments for a vehicle' })
   @ApiResponse({
     status: 200,

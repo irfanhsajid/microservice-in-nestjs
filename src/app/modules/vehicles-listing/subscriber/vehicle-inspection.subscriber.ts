@@ -17,7 +17,7 @@ export class VehicleInspectionSubscriber
   afterLoad(entity: VehicleInspection) {
     if (entity.path && entity.vehicle_id) {
       entity.path = this.fileUploadService.path(
-        `inspection/${entity.vehicle_id}/${entity.path}`,
+        `vehicle/inspection/${entity.vehicle_id}/${entity.path}`,
       );
     }
   }
