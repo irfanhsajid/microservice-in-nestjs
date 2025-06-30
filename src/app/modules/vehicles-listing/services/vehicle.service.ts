@@ -55,17 +55,28 @@ export class VehicleService implements ServiceInterface {
     }
 
     const [vehicles, total] = await this.vehicleRepository.findAndCount({
-      where: {
-        vehicle_vin: {
-          user_id: In(dealershipUserIds),
-          dealership_id: user_default_dealership.dealership_id || IsNull(),
-          status: params.status,
+      where: [
+        {
+          vehicle_vin: {
+            user_id: In(dealershipUserIds),
+            dealership_id: user_default_dealership.dealership_id || IsNull(),
+            status: params.status,
+          },
+          information: {
+            title: params.search ? Like(`%${params.search}%`) : undefined,
+          },
         },
-
-        information: {
-          title: params.search ? Like(`%${params.search}%`) : undefined,
+        {
+          vehicle_vin: {
+            user_id: In(dealershipUserIds),
+            dealership_id: user_default_dealership.dealership_id || IsNull(),
+            status: params.status,
+          },
+          information: {
+            description: params.search ? Like(`%${params.search}%`) : undefined,
+          },
         },
-      },
+      ],
       select: [
         'id',
         'vehicle_vin',
