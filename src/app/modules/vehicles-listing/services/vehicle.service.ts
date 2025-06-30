@@ -63,6 +63,8 @@ export class VehicleService implements ServiceInterface {
         'fuel_type',
         'transmission',
         'created_at',
+        'vehicle_attachment',
+        'information',
       ],
       relations: ['vehicle_attachment', 'information'],
       order: { [params.sort_column]: params.sort_direction },

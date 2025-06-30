@@ -174,6 +174,8 @@ export class UserService {
       }
 
       user.email_verified_at = new Date();
+      user.profile_completed =
+        user.account_type !== UserAccountType.DEALER ? new Date() : null;
       const newUser = await queryRunner.manager.save(User, user);
 
       //Assign user role
