@@ -14,7 +14,7 @@ export class Permission {
   id: number;
 
   @Column({ nullable: false, type: 'varchar', length: 100 })
-  name: string;
+  name: string; // e.g., "create:File"
 
   @Column({ nullable: false, type: 'varchar', length: 100 })
   title: string;

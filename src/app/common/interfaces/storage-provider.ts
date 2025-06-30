@@ -9,4 +9,5 @@ export interface StorageProvider {
     fileSize: number,
   ): Promise<string>;
   deleteFile(filePath: string): Promise<void>;
+  path(path: string): string;
 }

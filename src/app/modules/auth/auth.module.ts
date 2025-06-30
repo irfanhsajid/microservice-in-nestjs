@@ -10,7 +10,7 @@ import { UserModule } from '../user/user.module';
 import { AuthenticatedController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { InjectRepository, TypeOrmModule } from '@nestjs/typeorm';
 import { Session } from './entities/session.entity';
 import { PassportModule } from '@nestjs/passport';
 import { DocsController } from './controllers/docs-auth.controller';
@@ -21,7 +21,7 @@ import { BlacklistTokenStorageProvider } from 'src/app/common/interfaces/blackli
 import { TypeOrmBlacklistTokenStorageProvider } from './providers/typeorm-blacklist-token-store.provider';
 import { RedisBlacklistTokenStorageProvider } from './providers/redis-blacklist-token-store.provider';
 import { BlacklistTokenStore } from './entities/blacklist-token-store.entity';
-import { RegisteredController } from './controllers/auth.registered.controller';
+import { RegisterController } from './controllers/auth.register.controller';
 import { VerifyEmailController } from './controllers/auth.verifyemail.controller';
 import { PasswordResetLinkController } from './controllers/auth.passwordresetlink.controller';
 import { AuthMailService } from './mail/auth.service';
@@ -30,6 +30,11 @@ import { OAuthController } from './controllers/oauth.controller';
 import { GoogleAuthStrategy } from './strategy/google-auth.strategy';
 import { GoogleAuthService } from './services/google-auth-service.service';
 import { TwitterAuthService } from './services/twitter-auth-service.service';
+import { Repository } from 'typeorm';
+import { useContainer } from 'class-validator';
+import { IsUnique } from './dto/validator/is-unique.validator';
+import { CaslModule } from './casl/casl.module';
+import { GuardsModule } from 'src/app/guards/guards.module';
 
 @Module({
   imports: [
@@ -78,11 +83,13 @@ import { TwitterAuthService } from './services/twitter-auth-service.service';
       }),
       inject: [ConfigService],
     }),
+    CaslModule,
+    GuardsModule,
   ],
   controllers: [
     AuthenticatedController,
     DocsController,
-    RegisteredController,
+    RegisterController,
     VerifyEmailController,
     PasswordResetLinkController,
     OAuthController,

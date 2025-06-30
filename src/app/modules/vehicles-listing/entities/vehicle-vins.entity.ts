@@ -3,10 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { Dealership } from '../../dealership/entities/dealerships.entity';
+import { Vehicle } from './vehicles.entity';
 
 export enum MileageType {
   KM = 'KM',
@@ -19,6 +21,11 @@ export interface VehicleDiagnostic {
   engine_light?: boolean;
   unreported_accidents?: boolean;
   description: string;
+}
+
+export enum VehicleVinStatus {
+  DRAFT = 'DRAFT',
+  LISTED = 'LISTED',
 }
 
 @Entity('vehicle_vins')
@@ -34,6 +41,20 @@ export class VehicleVins {
 
   @Column({ type: 'varchar', nullable: false })
   vin_number: string;
+
+  @Column({
+    type: 'enum',
+    enum: VehicleVinStatus,
+    nullable: false,
+    default: VehicleVinStatus.DRAFT,
+  })
+  status: VehicleVinStatus;
+
+  @Column({ type: 'boolean', default: false })
+  is_inspect: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  is_report: boolean;
 
   @Column({ type: 'varchar', nullable: false })
   mileage: string;
@@ -51,4 +72,9 @@ export class VehicleVins {
   @ManyToOne(() => Dealership, (dealership) => dealership.vechicle_vins)
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
+
+  @OneToOne(() => Vehicle, (vehicle) => vehicle.vehicle_vin, {
+    cascade: true,
+  })
+  vehicle: Vehicle;
 }

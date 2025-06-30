@@ -54,7 +54,7 @@ export class DealershipAttachmentService {
         folder,
       );
 
-      tempFilePath = filePath;
+      tempFilePath = `${folder}/${filePath}`;
 
       // Create an attachment record
       const attachment = this.attachmentRepository.create({
@@ -69,11 +69,16 @@ export class DealershipAttachmentService {
       const data = instanceToPlain(attachment);
       delete data?.dealership;
       delete data?.user;
-      return data;
+      return {
+        ...data,
+        path: this.fileUploaderService.path(tempFilePath),
+      };
     } catch (error) {
       // delete file if attachment not created
       if (tempFilePath) {
-        await this.fileUploaderService.deleteFile(tempFilePath);
+        await this.fileUploaderService.deleteFile(
+          this.fileUploaderService.path(tempFilePath),
+        );
       }
       this.logger.error(error);
       return throwCatchError(error);

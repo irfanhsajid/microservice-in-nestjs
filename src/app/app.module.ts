@@ -15,17 +15,22 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { PaymentModule } from './modules/payment/payment.module';
 // import { AppThrottlerModule } from './modules/throttler/throttler.module';
-import session from '../config/session';
-import { AppController } from './app.controller';
-import { GuardsModule } from './guards/guards.module';
-import { DealershipModule } from './modules/dealership/dealership.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { UserModule } from './modules/user/user.module';
-import { RolesModule } from './modules/roles/roles.module';
+import session from '../config/session';
+import { DealershipModule } from './modules/dealership/dealership.module';
+import { AppController } from './app.controller';
+import { GuardsModule } from './guards/guards.module';
 import oauth from 'src/config/oauth';
+import { VehiclesListingModule } from './modules/vehicles-listing/vehicles-listing.module';
+import { AbilityMiddleware } from './modules/auth/casl/ability.middleware';
+import { CaslAbilityFactory } from './modules/auth/casl/casl-ability.factory';
+import { RolesModule } from './modules/roles/roles.module';
+import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
 
 @Module({
   imports: [
+    AuthModule,
     // AppThrottlerModule,
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -93,8 +98,9 @@ import oauth from 'src/config/oauth';
     UploadsModule,
     GuardsModule,
     RolesModule,
+    VehiclesListingModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],
 })
 export class AppModule {}

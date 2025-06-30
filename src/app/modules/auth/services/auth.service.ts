@@ -83,7 +83,7 @@ export class AuthService extends Service implements AuthInterface {
       if (!token) {
         throw new Error('Token validation failed');
       }
-      // Activate user account
+      // Activate a user account
       const user = await this.userService.updateEmailVerifiedAt(dto.email);
 
       if (!user) {
