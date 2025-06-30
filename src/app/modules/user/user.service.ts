@@ -16,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { Role } from '../roles/entities/role.entity';
 import { Permission } from '../roles/entities/permission.entity';
 import { RoleHasPermissions } from '../roles/entities/role_has_permissions.entity';
+import { comparePassword } from 'src/app/common/utils/hash';
 
 @Injectable()
 export class UserService {
@@ -108,7 +109,8 @@ export class UserService {
         return null;
       }
 
-      if (!(await user.comparePassword(dto.password))) {
+      if (!(await comparePassword(dto.password, user.password))) {
+        console.log('password not match');
         return null;
       }
 
