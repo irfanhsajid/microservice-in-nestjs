@@ -60,7 +60,7 @@ export class UserDealership {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToOne(() => Dealership, (dealership) => dealership.user_dealerships, {
+  @ManyToOne(() => Dealership, (dealership) => dealership.user_dealerships, {
     cascade: true,
     nullable: false,
   })
