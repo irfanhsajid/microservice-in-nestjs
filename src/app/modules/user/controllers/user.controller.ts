@@ -7,6 +7,7 @@ import { UserResource } from '../resource/user.resource';
 import { UserService } from '../user.service';
 import { AbilityGuard } from '../../auth/casl/ability.guard';
 import { CheckAbility } from '../../auth/casl/check-ability.decorator';
+import { User } from '../entities/user.entity';
 
 @ApiTags('User')
 @ApiBearerAuth('jwt')
@@ -33,10 +34,9 @@ export class UserController {
 
   @Get('/user')
   @ApiOperation({ summary: 'Revoke authenticate user' })
-  async show(@Request() request: Request): Promise<UserResource | null> {
+  show(@Request() request: Request): UserResource | null {
     try {
-      const user = await this.userService.getUserByEmail(request['user'].email);
-      if (!user) return null;
+      const user = request['user'] as User;
       return new UserResource(user);
     } catch (e) {
       this.logger.error(e);
