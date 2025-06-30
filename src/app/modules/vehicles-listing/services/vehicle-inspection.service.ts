@@ -3,13 +3,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { VehicleAttachment } from '../entities/vehicle-attachments.entity';
 import { Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
-import { Vehicle } from '../entities/vehicles.entity';
 import { VehicleInspection } from '../entities/vehicle-inspection.entity';
 import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
@@ -41,15 +39,22 @@ export class VehicleInspectionService implements ServiceInterface {
     let uploadedFiles: any;
 
     try {
-      const user = req['user'] as User;
       const vechicle_id = dto.id;
+      const defaultUserDealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
 
-      // find vehicle report
+      // find a vehicle report
       let vehicleReport = await queryRunner.manager.findOne(
         VehicleInspectionReport,
         {
           where: {
             vehicle_id: vechicle_id,
+            vehicle: {
+              vehicle_vin: {
+                dealership_id: defaultUserDealership.dealership_id,
+              },
+            },
           },
         },
       );
@@ -65,7 +70,7 @@ export class VehicleInspectionService implements ServiceInterface {
         );
       }
 
-      // Upload file
+      // Upload a file
       const fileName = dto.file.originalname;
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
@@ -131,11 +136,21 @@ export class VehicleInspectionService implements ServiceInterface {
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
-      const user = req['user'] as User;
+      const defaultDealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
 
+      if (!defaultDealership) {
+        return [];
+      }
       return await this.vehicleInspectionRepository.find({
         where: {
           vehicle_id: id,
+          vehicle: {
+            vehicle_vin: {
+              dealership_id: defaultDealership.dealership_id,
+            },
+          },
         },
       });
     } catch (error) {
@@ -143,9 +158,11 @@ export class VehicleInspectionService implements ServiceInterface {
       return throwCatchError(error);
     }
   }
+
   update(req: Request, dto: any, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
+
   async destroy(req: Request, id: number): Promise<Record<string, any>> {
     const queryRunner =
       this.vehicleInspectionRepository.manager.connection.createQueryRunner();
@@ -155,6 +172,12 @@ export class VehicleInspectionService implements ServiceInterface {
       const defaultDealership = req[
         'user_default_dealership'
       ] as UserDealership;
+
+      if (!defaultDealership) {
+        throw new BadRequestException(
+          'Opps, Falied to delete resoure, it might not exist',
+        );
+      }
 
       const inspection = await queryRunner.manager.findOne(VehicleInspection, {
         where: {

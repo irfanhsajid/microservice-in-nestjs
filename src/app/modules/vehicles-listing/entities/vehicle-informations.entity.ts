@@ -2,8 +2,8 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-  ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Vehicle } from './vehicles.entity';
 
@@ -15,7 +15,7 @@ export class VehicleInformation {
   @Column({ nullable: false })
   vehicle_id: number;
 
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.information)
+  @OneToOne(() => Vehicle, (vehicle) => vehicle.information)
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: Vehicle;
 

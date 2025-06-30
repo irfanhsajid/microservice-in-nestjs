@@ -17,7 +17,7 @@ export class VehicleAttachmentSubscriber
   afterLoad(entity: VehicleAttachment) {
     if (entity.path && entity.vehicle_id) {
       entity.path = this.fileUploadService.path(
-        `vehicle/${entity.vehicle_id}/${entity.path}`,
+        `vehicle/images/${entity.vehicle_id}/${entity.path}`,
       );
     }
   }

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
-import { QueryRunner, Repository } from 'typeorm';
+import { In, IsNull, QueryRunner, Repository, Unique } from 'typeorm';
 import { VehicleDimension } from '../entities/vehicle-dimensions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceInterface } from '../../../common/interfaces/service.interface';
@@ -32,6 +32,9 @@ export class VehicleService implements ServiceInterface {
 
     @InjectRepository(Vehicle)
     private readonly vehicleRepository: Repository<Vehicle>,
+
+    @InjectRepository(UserDealership)
+    private readonly userDealershipRepository: Repository<UserDealership>,
   ) {}
 
   async index(
@@ -47,11 +50,26 @@ export class VehicleService implements ServiceInterface {
     const limit = params.limit || 10;
     const skip = (page - 1) * limit;
 
+    let dealershipUserIds = [user.id];
+    if (user_default_dealership.dealership_id) {
+      const userDealerships = await this.userDealershipRepository
+        .find({
+          where: {
+            dealership_id: user_default_dealership.dealership_id,
+          },
+          select: ['user_id'],
+        })
+        .then((res) => res.map((dealership) => dealership.user_id));
+
+      dealershipUserIds = [...dealershipUserIds, ...userDealerships];
+    }
+
     const [vehicles, total] = await this.vehicleRepository.findAndCount({
       where: {
         vehicle_vin: {
-          user_id: user.id,
-          dealership_id: user_default_dealership.dealership_id,
+          user_id: In(dealershipUserIds),
+          dealership_id: user_default_dealership.dealership_id || IsNull(),
+          status: params.status,
         },
       },
       select: [
@@ -62,6 +80,8 @@ export class VehicleService implements ServiceInterface {
         'fuel_type',
         'transmission',
         'created_at',
+        'vehicle_attachment',
+        'information',
       ],
       relations: ['vehicle_attachment', 'information'],
       order: { [params.sort_column]: params.sort_direction },
@@ -84,6 +104,10 @@ export class VehicleService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
+      if (!defaultDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
+
       // find vin number if exist
       let vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
         where: {
@@ -92,8 +116,6 @@ export class VehicleService implements ServiceInterface {
           vin_number: dto.vin_number,
         },
       });
-
-      console.info('vehicle vin', vehicleVin);
 
       if (vehicleVin) {
         vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
@@ -127,7 +149,6 @@ export class VehicleService implements ServiceInterface {
       // destruct data
       const { dimensions, vehicle_vin, vehicle_features, ...vehicleProperty } =
         dto;
-      console.info(dimensions, vehicle_vin, vehicle_features, vehicleProperty);
       // store vehicle vin
       const vehicleVin = await this.storeVehicleVin(
         req,
@@ -135,8 +156,7 @@ export class VehicleService implements ServiceInterface {
         vehicle_vin,
       );
 
-      console.log('found or create vehicle vin', vehicleVin);
-      // Check if vehicle exists by vehicle_vin_id
+      // Check if a vehicle exists by vehicle_vin_id
       let vehicle = await queryRunner.manager.findOne(Vehicle, {
         where: { vehicle_vin_id: vehicleVin.id },
         relations: ['dimensions', 'vehicle_features'],
@@ -148,7 +168,7 @@ export class VehicleService implements ServiceInterface {
           ...vehicleProperty,
         });
       } else {
-        // Create new vehicle
+        // Create a new vehicle
         vehicle = queryRunner.manager.create(Vehicle, {
           ...vehicleProperty,
           vehicle_vin_id: vehicleVin.id,
@@ -220,19 +240,23 @@ export class VehicleService implements ServiceInterface {
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
       const user = req['user'] as User;
-      const user_default_dealership = req[
+      const userDefaultDealership = req[
         'user_default_dealership'
       ] as UserDealership;
+
+      if (!userDefaultDealership) {
+        return {};
+      }
 
       const vehicle = await this.vehicleRepository.findOne({
         where: {
           vehicle_vin: {
             user_id: user.id,
-            dealership_id: user_default_dealership.dealership_id,
+            dealership_id: userDefaultDealership.dealership_id,
           },
           vehicle_vin_id: id,
         },
-        relations: ['vehicle_attachment', 'information', 'vehicle_features'],
+        relations: ['vehicle_attachments', 'information', 'vehicle_features'],
       });
 
       if (!vehicle) {

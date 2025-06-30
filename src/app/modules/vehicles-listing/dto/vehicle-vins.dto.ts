@@ -42,6 +42,41 @@ function OnlyOneBoolean(validationOptions?: ValidationOptions) {
   };
 }
 
+// Custom validator for description field
+function DescriptionRequiredIfBooleanTrue(
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'descriptionRequiredIfBooleanTrue',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: any, args: any) {
+          const object = args.object;
+          const booleans = [
+            object.vehicle_diagnostics,
+            object.electrical_issues,
+            object.engine_light,
+            object.unreported_accidents,
+          ];
+          const hasTrueBoolean = booleans.some((val) => val === true);
+          // If any boolean is true, description must not be empty
+          if (hasTrueBoolean) {
+            return typeof value === 'string' && value.trim().length > 0;
+          }
+          // If no booleans are true, description can be empty or undefined
+          return true;
+        },
+        defaultMessage(args: any) {
+          return 'Description is required when any of vehicle_diagnostics, electrical_issues, engine_light, or unreported_accidents is true.';
+        },
+      },
+    });
+  };
+}
+
 export class VehicleDiagnosticDto {
   @ApiProperty({ description: 'Indicates if vehicle diagnostics issue exists' })
   @IsOptional()
@@ -68,8 +103,8 @@ export class VehicleDiagnosticDto {
   unreported_accidents?: boolean;
 
   @ApiProperty({ description: 'Description of the diagnostic issue' })
-  @IsNotEmpty()
   @IsString()
+  @DescriptionRequiredIfBooleanTrue()
   description: string;
 }
 

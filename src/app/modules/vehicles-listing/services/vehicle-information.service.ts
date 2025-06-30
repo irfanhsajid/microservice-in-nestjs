@@ -41,7 +41,7 @@ export class VehicleInformationService implements ServiceInterface {
       ] as UserDealership;
 
       // check vin number exist
-      let vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
+      const vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
         where: {
           user_id: user.id,
           dealership_id: defaultUserDealership.dealership_id,
@@ -65,10 +65,29 @@ export class VehicleInformationService implements ServiceInterface {
         );
       }
 
-      let newCarInformation = queryRunner.manager.create(VehicleInformation, {
-        ...data.dto,
-        vehicle_id: vehicle.id,
-      });
+      let newCarInformation = await queryRunner.manager.findOne(
+        VehicleInformation,
+        {
+          where: {
+            vehicle_id: vehicle.id,
+          },
+        },
+      );
+
+      if (!newCarInformation) {
+        newCarInformation = queryRunner.manager.create(VehicleInformation, {
+          ...data.dto,
+          vehicle_id: vehicle.id,
+        });
+      } else {
+        newCarInformation = queryRunner.manager.merge(
+          VehicleInformation,
+          newCarInformation,
+          {
+            ...data.dto,
+          },
+        );
+      }
 
       // save the new car information
       newCarInformation = await queryRunner.manager.save(
@@ -77,9 +96,9 @@ export class VehicleInformationService implements ServiceInterface {
       );
 
       // Update vehicle vin status to listed
-      vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
-        status: VehicleVinStatus.LISTED,
-      });
+      // vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
+      //   status: VehicleVinStatus.LISTED,
+      // });
 
       // Create default inspection for the vehicle
       const newInspection = queryRunner.manager.create(
@@ -92,7 +111,7 @@ export class VehicleInformationService implements ServiceInterface {
       await queryRunner.manager.save(VehicleInspectionReport, newInspection);
 
       // run query runner
-      await queryRunner.manager.save(VehicleVins, vehicleVin);
+      // await queryRunner.manager.save(VehicleVins, vehicleVin);
 
       // transaction query runner
       await queryRunner.commitTransaction();

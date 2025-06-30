@@ -9,7 +9,7 @@ import { User } from '../../user/entities/user.entity';
 import { Readable } from 'stream';
 import { DealershipAttachment } from '../entities/dealership-attachment.entity';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
-import { DealershipAttachementDto } from '../dto/dealership-attachment.dto';
+import { DealershipAttachmentDto } from '../dto/dealership-attachment.dto';
 import { Request } from 'express';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { CustomLogger } from '../../logger/logger.service';
@@ -31,7 +31,7 @@ export class DealershipAttachmentService {
     req: Request,
     originalFileName: string,
     fileStream: Readable,
-    dto: DealershipAttachementDto,
+    dto: DealershipAttachmentDto,
     fileSize: number,
   ): Promise<any> {
     if (!fileStream) {

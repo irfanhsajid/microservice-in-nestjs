@@ -1,25 +1,28 @@
 import { IsEnum, IsInt, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { VehicleInspectionType } from '../entities/vehicle-inspection.entity';
+import {
+  VehicleInspectionTitleType,
+  VehicleInspectionType,
+} from '../entities/vehicle-inspection.entity';
 
 export class CreateVehicleInspectionDto {
   @ApiProperty({
     description: 'The type of vehicle inspection view',
+    enum: VehicleInspectionTitleType,
+    example: VehicleInspectionTitleType.FRONT_VIEW,
+  })
+  @IsEnum(VehicleInspectionTitleType)
+  @IsNotEmpty()
+  title: VehicleInspectionTitleType;
+
+  @ApiProperty({
+    description: 'The type of vehicle inspection type',
     enum: VehicleInspectionType,
-    example: VehicleInspectionType.FRONT_VIEW,
+    example: VehicleInspectionType.INTERIOR,
   })
   @IsEnum(VehicleInspectionType)
   @IsNotEmpty()
   type: VehicleInspectionType;
-
-  @ApiProperty({
-    description: 'The title of the vehicle inspection',
-    example: 'Front View Inspection',
-    type: String,
-  })
-  @IsString()
-  @IsNotEmpty()
-  title: string;
 
   @ApiProperty({
     description: 'The number of issues found during the inspection',

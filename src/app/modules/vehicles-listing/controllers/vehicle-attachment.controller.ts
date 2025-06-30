@@ -32,7 +32,7 @@ import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.g
   ApiGuard,
   EnsureEmailVerifiedGuard,
   EnsureProfileCompletedGuard,
-  EnsureHasDealershipGuard,
+  //EnsureHasDealershipGuard,
 )
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
@@ -85,7 +85,7 @@ export class VehicleAttachmentController {
     // Validate file count (3 to 5 files required)
     if (!file) {
       throw new UnprocessableEntityException({
-        files: 'You must upload between 3 and 5 files.',
+        file: 'The file field is required',
       });
     }
 

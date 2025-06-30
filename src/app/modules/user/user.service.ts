@@ -16,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { Role } from '../roles/entities/role.entity';
 import { Permission } from '../roles/entities/permission.entity';
 import { RoleHasPermissions } from '../roles/entities/role_has_permissions.entity';
+import { comparePassword } from 'src/app/common/utils/hash';
 
 @Injectable()
 export class UserService {
@@ -84,7 +85,10 @@ export class UserService {
         });
       }
 
-      let user = queryRunner.manager.create(User, dto);
+      let user = queryRunner.manager.create(User, {
+        ...dto,
+        status: true,
+      });
 
       user = await queryRunner.manager.save(User, user);
 
@@ -105,7 +109,8 @@ export class UserService {
         return null;
       }
 
-      if (!(await user.comparePassword(dto.password))) {
+      if (!(await comparePassword(dto.password, user.password))) {
+        console.log('password not match');
         return null;
       }
 
@@ -169,6 +174,8 @@ export class UserService {
       }
 
       user.email_verified_at = new Date();
+      user.profile_completed =
+        user.account_type !== UserAccountType.DEALER ? new Date() : null;
       const newUser = await queryRunner.manager.save(User, user);
 
       //Assign user role
@@ -223,6 +230,15 @@ export class UserService {
       where: { email: email },
       cache: cache,
     });
+  }
+
+  async getUserWithPermissionsByRole(user: User, roleId: number) {
+    const permissions = await this.getPermissionsByRole(roleId);
+
+    return {
+      ...user,
+      permissions: permissions,
+    };
   }
 
   async userDefaultDealership(user: User): Promise<UserDealership | null> {

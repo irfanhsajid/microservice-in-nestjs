@@ -23,8 +23,8 @@ import { CustomLogger } from '../../logger/logger.service';
 import { DealershipAttachmentService } from '../services/dealership-attachment.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  DealershipAttachementDto,
-  DealershipAttachementFileType,
+  DealershipAttachmentDto,
+  DealershipAttachmentFileType,
 } from '../dto/dealership-attachment.dto';
 import { memoryStorage } from 'multer';
 import { Readable } from 'stream';
@@ -75,7 +75,7 @@ export class DealershipAttachmentController {
         },
         name: {
           type: 'string',
-          enum: Object.values(DealershipAttachementFileType),
+          enum: Object.values(DealershipAttachmentFileType),
         },
       },
     },
@@ -84,7 +84,7 @@ export class DealershipAttachmentController {
   @ApiResponse({ status: 201, description: 'Attachment uploaded successfully' })
   async uploadAttachment(
     @Request() req: any,
-    @Body() dto: DealershipAttachementDto,
+    @Body() dto: DealershipAttachmentDto,
   ) {
     const file = req.file;
     if (!file) {

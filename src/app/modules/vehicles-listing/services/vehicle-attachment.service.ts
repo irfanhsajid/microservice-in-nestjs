@@ -9,6 +9,7 @@ import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 @Injectable()
 export class VehicleAttachmentService implements ServiceInterface {
@@ -38,14 +39,19 @@ export class VehicleAttachmentService implements ServiceInterface {
 
     try {
       const user = req['user'] as User;
+      const userDealership = req['user_default_dealership'] as UserDealership;
+
       const vechicle = await queryRunner.manager.findOne(Vehicle, {
         where: {
-          vehicle_vin_id: dto?.id,
+          vehicle_vin: {
+            id: dto.id,
+            dealership_id: userDealership.dealership_id,
+          },
         },
       });
 
       if (!vechicle) {
-        throw new BadRequestException('Not vechile found to upload image');
+        throw new BadRequestException('No vehicle found to upload image');
       }
 
       // check how many file user has uploaded
@@ -67,7 +73,7 @@ export class VehicleAttachmentService implements ServiceInterface {
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
 
-      const folder = `vehicle/${vechicle.id}`;
+      const folder = `vehicle/images/${vechicle.id}`;
 
       const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
@@ -143,7 +149,7 @@ export class VehicleAttachmentService implements ServiceInterface {
         },
       });
       if (!attachment) {
-        throw new BadRequestException('Vehicle attachment deletetion failed');
+        throw new BadRequestException('Vehicle attachment deletion failed');
       }
 
       // try delete the attachment from s3

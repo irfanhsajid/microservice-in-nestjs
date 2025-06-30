@@ -21,7 +21,7 @@ import { CreateVehicleInformationDto } from '../dto/vehicle-information.dto';
   ApiGuard,
   EnsureEmailVerifiedGuard,
   EnsureProfileCompletedGuard,
-  EnsureHasDealershipGuard,
+  //EnsureHasDealershipGuard,
 )
 @ApiBearerAuth('jwt')
 @Controller('api/v1')
