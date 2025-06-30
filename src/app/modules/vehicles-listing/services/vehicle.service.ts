@@ -1,11 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
-import { In, IsNull, QueryRunner, Repository, Unique } from 'typeorm';
+import { In, IsNull, Like, QueryRunner, Repository, Unique } from 'typeorm';
 import { VehicleDimension } from '../entities/vehicle-dimensions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceInterface } from '../../../common/interfaces/service.interface';
 import { VehicleFeature } from '../entities/vehicle-features.entity';
-import { VehicleInformation } from '../entities/vehicle-informations.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
@@ -21,15 +20,6 @@ export class VehicleService implements ServiceInterface {
   private readonly logger = new CustomLogger(VehicleService.name);
 
   constructor(
-    @InjectRepository(VehicleDimension)
-    private readonly vehicleDimensionRepository: Repository<VehicleDimension>,
-
-    @InjectRepository(VehicleFeature)
-    private readonly vehicleFeatureRepository: Repository<VehicleFeature>,
-
-    @InjectRepository(VehicleInformation)
-    private readonly vehicleInformationRepository: Repository<VehicleInformation>,
-
     @InjectRepository(Vehicle)
     private readonly vehicleRepository: Repository<Vehicle>,
 
@@ -71,6 +61,10 @@ export class VehicleService implements ServiceInterface {
           dealership_id: user_default_dealership.dealership_id || IsNull(),
           status: params.status,
         },
+
+        information: {
+          title: params.search ? Like(`%${params.search}%`) : undefined,
+        },
       },
       select: [
         'id',
@@ -84,7 +78,9 @@ export class VehicleService implements ServiceInterface {
         'information',
       ],
       relations: ['vehicle_attachment', 'information'],
-      order: { [params.sort_column]: params.sort_direction },
+      order: {
+        [params.sort_column || 'created_at']: params.sort_direction || 'desc',
+      },
       skip: skip,
       take: limit,
     });
