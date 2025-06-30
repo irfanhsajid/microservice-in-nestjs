@@ -50,6 +50,7 @@ export class VehicleController {
       return responseReturn('Vehicles fetched successfully', vehicles);
     } catch (error) {
       this.logger.error(error);
+      console.log('Error in VehicleController.index:', error);
       return throwCatchError(error);
     }
   }

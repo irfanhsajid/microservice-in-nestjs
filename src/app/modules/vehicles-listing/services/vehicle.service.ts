@@ -52,6 +52,7 @@ export class VehicleService implements ServiceInterface {
         vehicle_vin: {
           user_id: user.id,
           dealership_id: user_default_dealership.dealership_id,
+          status: params.status,
         },
       },
       select: [

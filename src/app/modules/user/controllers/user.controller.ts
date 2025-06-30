@@ -18,7 +18,7 @@ export class UserController {
 
   @Get('/user/me')
   @ApiOperation({ summary: 'Get authenticated user' })
-  @UseGuards(AbilityGuard)
+  //@UseGuards(AbilityGuard)
   @CheckAbility('create', 'user')
   async me(@Request() request: Request): Promise<UserResource | null> {
     try {
