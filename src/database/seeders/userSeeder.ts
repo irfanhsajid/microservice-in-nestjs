@@ -13,6 +13,7 @@ const userSeeder = async (conn: DataSource) => {
   const userRepo = conn.getRepository(User);
   const userDealershipRepo = conn.getRepository(UserDealership);
 
+  // Step 1: Create user
   const data = [
     {
       password: await hashPassword('Password@123'),

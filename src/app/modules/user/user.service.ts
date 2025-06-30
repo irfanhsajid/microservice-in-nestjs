@@ -230,6 +230,15 @@ export class UserService {
     });
   }
 
+  async getUserWithPermissionsByRole(user: User, roleId: number) {
+    const permissions = await this.getPermissionsByRole(roleId);
+
+    return {
+      ...user,
+      permissions: permissions,
+    };
+  }
+
   async userDefaultDealership(user: User): Promise<UserDealership | null> {
     try {
       return await this.userDealershipRepository.findOne({
