@@ -55,7 +55,7 @@ export class VehicleInspectionService implements ServiceInterface {
             vehicle_id: vechicle_id,
             vehicle: {
               vehicle_vin: {
-                dealership_id: defaultUserDealership.id,
+                dealership_id: defaultUserDealership.dealership_id,
               },
             },
           },
@@ -151,7 +151,7 @@ export class VehicleInspectionService implements ServiceInterface {
           vehicle_id: id,
           vehicle: {
             vehicle_vin: {
-              dealership_id: defaultDealership.id,
+              dealership_id: defaultDealership.dealership_id,
             },
           },
         },

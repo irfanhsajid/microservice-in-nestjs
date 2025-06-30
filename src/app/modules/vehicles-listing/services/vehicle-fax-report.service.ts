@@ -56,7 +56,7 @@ export class VehicleFaxReportService implements ServiceInterface {
         where: {
           id: dto.id,
           vehicle_vin: {
-            dealership_id: userDealership.id,
+            dealership_id: userDealership.dealership_id,
           },
         },
       });
@@ -154,7 +154,7 @@ export class VehicleFaxReportService implements ServiceInterface {
           vehicle_id: id,
           vehicle: {
             vehicle_vin: {
-              dealership_id: userDealership.id,
+              dealership_id: userDealership.dealership_id,
             },
           },
         },
@@ -243,7 +243,7 @@ export class VehicleFaxReportService implements ServiceInterface {
             vehicle_id: id,
             vehicle: {
               vehicle_vin: {
-                dealership_id: defaultDealership.id,
+                dealership_id: defaultDealership.dealership_id,
               },
             },
           },
