@@ -84,7 +84,10 @@ export class UserService {
         });
       }
 
-      let user = queryRunner.manager.create(User, dto);
+      let user = queryRunner.manager.create(User, {
+        ...dto,
+        status: true,
+      });
 
       user = await queryRunner.manager.save(User, user);
 
