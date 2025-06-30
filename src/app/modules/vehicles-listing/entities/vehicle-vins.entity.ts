@@ -36,7 +36,7 @@ export class VehicleVins {
   @Column({ nullable: false })
   user_id: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   dealership_id: number;
 
   @Column({ type: 'varchar', nullable: false })

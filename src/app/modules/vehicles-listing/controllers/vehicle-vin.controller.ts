@@ -14,7 +14,7 @@ import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.g
   ApiGuard,
   EnsureEmailVerifiedGuard,
   EnsureProfileCompletedGuard,
-  EnsureHasDealershipGuard,
+  //EnsureHasDealershipGuard,
 )
 @ApiBearerAuth('jwt')
 @Controller('api/v1')

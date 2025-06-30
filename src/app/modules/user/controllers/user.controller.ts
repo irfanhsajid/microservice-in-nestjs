@@ -1,13 +1,13 @@
 import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { responseReturn } from 'src/app/common/utils/response-return';
 import { throwCatchError } from '../../../common/utils/throw-error';
 import { ApiGuard } from '../../../guards/api.guard';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { CustomLogger } from '../../logger/logger.service';
+import { User } from '../entities/user.entity';
 import { UserResource } from '../resource/user.resource';
 import { UserService } from '../user.service';
-import { User } from '../entities/user.entity';
-import { responseReturn } from 'src/app/common/utils/response-return';
-import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 @ApiTags('User')
 @ApiBearerAuth('jwt')
@@ -42,10 +42,9 @@ export class UserController {
 
   @Get('/user')
   @ApiOperation({ summary: 'Revoke authenticate user' })
-  async show(@Request() request: Request): Promise<UserResource | null> {
+  show(@Request() request: Request): UserResource | null {
     try {
-      const user = await this.userService.getUserByEmail(request['user'].email);
-      if (!user) return null;
+      const user = request['user'] as User;
       return new UserResource(user);
     } catch (e) {
       this.logger.error(e);

@@ -34,19 +34,16 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // grpc server
-  const grpcServer = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
-      transport: Transport.GRPC,
-      options: {
-        package: CARVU_PACKAGE_NAME,
-        protoPath: globSync('src/grpc/proto/carvu_proto/**/*.proto', {
-          absolute: true,
-        }),
-        url: `${configService.get<string>('services.grpc.host')}:${configService.get<number>('services.grpc.port')}`,
-      },
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: CARVU_PACKAGE_NAME,
+      protoPath: globSync('src/grpc/proto/carvu_proto/**/*.proto', {
+        absolute: true,
+      }),
+      url: `${configService.get<string>('services.grpc.host')}:${configService.get<number>('services.grpc.port')}`,
     },
-  );
+  });
 
   // Get Session repository
   const dataSource = app.get(DataSource); // Get the DataSource
@@ -158,9 +155,10 @@ async function bootstrap() {
   app.setViewEngine('hbs');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  await app.listen(configService.get<number>('app.port') || 3000);
-
-  await grpcServer.listen();
+  await Promise.all([
+    await app.startAllMicroservices(),
+    await app.listen(configService.get<number>('app.port') || 3000),
+  ]);
 }
 
 bootstrap().catch((e) => console.error(e));

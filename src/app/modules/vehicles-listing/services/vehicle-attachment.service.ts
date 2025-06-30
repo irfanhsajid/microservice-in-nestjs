@@ -40,20 +40,18 @@ export class VehicleAttachmentService implements ServiceInterface {
     try {
       const user = req['user'] as User;
       const userDealership = req['user_default_dealership'] as UserDealership;
-      if (!userDealership) {
-        throw new BadRequestException('Opps, No user dealership found!');
-      }
+
       const vechicle = await queryRunner.manager.findOne(Vehicle, {
         where: {
-          vehicle_vin_id: dto?.id,
           vehicle_vin: {
-            dealership_id: userDealership.id,
+            id: dto.id,
+            dealership_id: userDealership.dealership_id,
           },
         },
       });
 
       if (!vechicle) {
-        throw new BadRequestException('Not vechile found to upload image');
+        throw new BadRequestException('No vehicle found to upload image');
       }
 
       // check how many file user has uploaded
