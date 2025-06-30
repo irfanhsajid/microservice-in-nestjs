@@ -117,7 +117,7 @@ export class VehicleInspectionController {
 
     if (!file) {
       throw new UnprocessableEntityException({
-        files: 'You must upload between 3 and 5 files.',
+        file: 'The File is required',
       });
     }
 

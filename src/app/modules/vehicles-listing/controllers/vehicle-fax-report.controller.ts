@@ -84,7 +84,7 @@ export class VehicleFaxReportController {
 
     if (!file) {
       throw new UnprocessableEntityException({
-        files: 'You must upload between 3 and 5 files.',
+        file: 'The file is required',
       });
     }
 
