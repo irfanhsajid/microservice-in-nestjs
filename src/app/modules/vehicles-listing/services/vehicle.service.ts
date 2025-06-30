@@ -5,7 +5,6 @@ import { VehicleDimension } from '../entities/vehicle-dimensions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceInterface } from '../../../common/interfaces/service.interface';
 import { VehicleFeature } from '../entities/vehicle-features.entity';
-import { VehicleInformation } from '../entities/vehicle-informations.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
@@ -21,15 +20,6 @@ export class VehicleService implements ServiceInterface {
   private readonly logger = new CustomLogger(VehicleService.name);
 
   constructor(
-    @InjectRepository(VehicleDimension)
-    private readonly vehicleDimensionRepository: Repository<VehicleDimension>,
-
-    @InjectRepository(VehicleFeature)
-    private readonly vehicleFeatureRepository: Repository<VehicleFeature>,
-
-    @InjectRepository(VehicleInformation)
-    private readonly vehicleInformationRepository: Repository<VehicleInformation>,
-
     @InjectRepository(Vehicle)
     private readonly vehicleRepository: Repository<Vehicle>,
 
