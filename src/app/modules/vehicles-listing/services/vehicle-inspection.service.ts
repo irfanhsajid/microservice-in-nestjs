@@ -39,15 +39,25 @@ export class VehicleInspectionService implements ServiceInterface {
     let uploadedFiles: any;
 
     try {
-      const user = req['user'] as User;
       const vechicle_id = dto.id;
+      const defaultUserDealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
 
+      if (!defaultUserDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
       // find vehicle report
       let vehicleReport = await queryRunner.manager.findOne(
         VehicleInspectionReport,
         {
           where: {
             vehicle_id: vechicle_id,
+            vehicle: {
+              vehicle_vin: {
+                dealership_id: defaultUserDealership.id,
+              },
+            },
           },
         },
       );
@@ -129,9 +139,21 @@ export class VehicleInspectionService implements ServiceInterface {
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
+      const defaultDealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
+
+      if (!defaultDealership) {
+        return [];
+      }
       return await this.vehicleInspectionRepository.find({
         where: {
           vehicle_id: id,
+          vehicle: {
+            vehicle_vin: {
+              dealership_id: defaultDealership.id,
+            },
+          },
         },
       });
     } catch (error) {
@@ -153,6 +175,12 @@ export class VehicleInspectionService implements ServiceInterface {
       const defaultDealership = req[
         'user_default_dealership'
       ] as UserDealership;
+
+      if (!defaultDealership) {
+        throw new BadRequestException(
+          'Opps, Falied to delete resoure, it might not exist',
+        );
+      }
 
       const inspection = await queryRunner.manager.findOne(VehicleInspection, {
         where: {

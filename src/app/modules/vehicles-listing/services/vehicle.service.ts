@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { QueryRunner, Repository } from 'typeorm';
 import { VehicleDimension } from '../entities/vehicle-dimensions.entity';
@@ -85,6 +85,10 @@ export class VehicleService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
+      if (!defaultDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
+
       // find vin number if exist
       let vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
         where: {
@@ -93,8 +97,6 @@ export class VehicleService implements ServiceInterface {
           vin_number: dto.vin_number,
         },
       });
-
-      console.info('vehicle vin', vehicleVin);
 
       if (vehicleVin) {
         vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
@@ -128,7 +130,6 @@ export class VehicleService implements ServiceInterface {
       // destruct data
       const { dimensions, vehicle_vin, vehicle_features, ...vehicleProperty } =
         dto;
-      console.info(dimensions, vehicle_vin, vehicle_features, vehicleProperty);
       // store vehicle vin
       const vehicleVin = await this.storeVehicleVin(
         req,
@@ -136,7 +137,6 @@ export class VehicleService implements ServiceInterface {
         vehicle_vin,
       );
 
-      console.log('found or create vehicle vin', vehicleVin);
       // Check if vehicle exists by vehicle_vin_id
       let vehicle = await queryRunner.manager.findOne(Vehicle, {
         where: { vehicle_vin_id: vehicleVin.id },
@@ -221,15 +221,19 @@ export class VehicleService implements ServiceInterface {
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
       const user = req['user'] as User;
-      const user_default_dealership = req[
+      const userDefaultDealership = req[
         'user_default_dealership'
       ] as UserDealership;
+
+      if (!userDefaultDealership) {
+        return {};
+      }
 
       const vehicle = await this.vehicleRepository.findOne({
         where: {
           vehicle_vin: {
             user_id: user.id,
-            dealership_id: user_default_dealership.dealership_id,
+            dealership_id: userDefaultDealership.dealership_id,
           },
           vehicle_vin_id: id,
         },
