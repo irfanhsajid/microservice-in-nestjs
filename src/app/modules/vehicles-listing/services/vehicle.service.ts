@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
-import { In, IsNull, QueryRunner, Repository, Unique } from 'typeorm';
+import { In, IsNull, Like, QueryRunner, Repository, Unique } from 'typeorm';
 import { VehicleDimension } from '../entities/vehicle-dimensions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceInterface } from '../../../common/interfaces/service.interface';
@@ -70,6 +70,10 @@ export class VehicleService implements ServiceInterface {
           user_id: In(dealershipUserIds),
           dealership_id: user_default_dealership.dealership_id || IsNull(),
           status: params.status,
+        },
+
+        information: {
+          title: params.search ? Like(`%${params.search}%`) : undefined,
         },
       },
       select: [
