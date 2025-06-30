@@ -9,6 +9,7 @@ import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 @Injectable()
 export class VehicleAttachmentService implements ServiceInterface {
@@ -38,9 +39,16 @@ export class VehicleAttachmentService implements ServiceInterface {
 
     try {
       const user = req['user'] as User;
+      const userDealership = req['user_default_dealership'] as UserDealership;
+      if (!userDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
       const vechicle = await queryRunner.manager.findOne(Vehicle, {
         where: {
           vehicle_vin_id: dto?.id,
+          vehicle_vin: {
+            dealership_id: userDealership.id,
+          },
         },
       });
 

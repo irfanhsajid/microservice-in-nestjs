@@ -47,11 +47,17 @@ export class VehicleFaxReportService implements ServiceInterface {
 
     try {
       const vechicle_id = dto.id;
-
+      const userDealership = req['user_default_dealership'] as UserDealership;
+      if (!userDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
       // find vehicle report
       const vehicle = await queryRunner.manager.findOne(Vehicle, {
         where: {
           id: dto.id,
+          vehicle_vin: {
+            dealership_id: userDealership.id,
+          },
         },
       });
 
@@ -139,9 +145,18 @@ export class VehicleFaxReportService implements ServiceInterface {
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
+      const userDealership = req['user_default_dealership'] as UserDealership;
+      if (!userDealership) {
+        return {};
+      }
       return await this.vehicleFaxReportRepository.find({
         where: {
           vehicle_id: id,
+          vehicle: {
+            vehicle_vin: {
+              dealership_id: userDealership.id,
+            },
+          },
         },
       });
     } catch (error) {
@@ -164,6 +179,11 @@ export class VehicleFaxReportService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
+      if (!defaultDealership) {
+        throw new BadRequestException(
+          'Opps, Falied to delete resoure, it might not exist',
+        );
+      }
       const vehicleFaxReport = await queryRunner.manager.findOne(
         VehicleFaxReport,
         {
@@ -213,11 +233,19 @@ export class VehicleFaxReportService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
+      if (!defaultDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
       let vehicleFaxReport = await queryRunner.manager.findOne(
         VehicleFaxReport,
         {
           where: {
             vehicle_id: id,
+            vehicle: {
+              vehicle_vin: {
+                dealership_id: defaultDealership.id,
+              },
+            },
           },
         },
       );

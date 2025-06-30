@@ -40,8 +40,11 @@ export class VehicleInformationService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
+      if (!defaultUserDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
       // check vin number exist
-      let vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
+      const vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
         where: {
           user_id: user.id,
           dealership_id: defaultUserDealership.dealership_id,
@@ -96,9 +99,9 @@ export class VehicleInformationService implements ServiceInterface {
       );
 
       // Update vehicle vin status to listed
-      vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
-        status: VehicleVinStatus.LISTED,
-      });
+      // vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
+      //   status: VehicleVinStatus.LISTED,
+      // });
 
       // Create default inspection for the vehicle
       const newInspection = queryRunner.manager.create(
@@ -111,7 +114,7 @@ export class VehicleInformationService implements ServiceInterface {
       await queryRunner.manager.save(VehicleInspectionReport, newInspection);
 
       // run query runner
-      await queryRunner.manager.save(VehicleVins, vehicleVin);
+      // await queryRunner.manager.save(VehicleVins, vehicleVin);
 
       // transaction query runner
       await queryRunner.commitTransaction();

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { Repository } from 'typeorm';
 import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
@@ -23,6 +23,10 @@ export class VehicleVinsService {
       const defaultDealership = req[
         'user_default_dealership'
       ] as UserDealership;
+
+      if (!defaultDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
 
       // find vin number if exist
       let vehicleVin = await this.vehicleVinsRepository.findOne({
@@ -57,6 +61,10 @@ export class VehicleVinsService {
       const defaultDealership = req[
         'user_default_dealership'
       ] as UserDealership;
+
+      if (!defaultDealership) {
+        return null;
+      }
       return await this.vehicleVinsRepository.findOne({
         where: {
           user_id: user.id,
