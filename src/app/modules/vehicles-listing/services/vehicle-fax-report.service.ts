@@ -48,10 +48,8 @@ export class VehicleFaxReportService implements ServiceInterface {
     try {
       const vechicle_id = dto.id;
       const userDealership = req['user_default_dealership'] as UserDealership;
-      if (!userDealership) {
-        throw new BadRequestException('Opps, No user dealership found!');
-      }
-      // find vehicle report
+
+      // find a vehicle report
       const vehicle = await queryRunner.manager.findOne(Vehicle, {
         where: {
           id: dto.id,
@@ -64,7 +62,7 @@ export class VehicleFaxReportService implements ServiceInterface {
       if (!vehicle) {
         throw new BadRequestException('Invalid vehicle id');
       }
-      // Find vehicle fax attachment report exist
+      // Find a vehicle fax attachment report exist
       let vehicleFaxReport = await queryRunner.manager.findOne(
         VehicleFaxReport,
         {
@@ -91,7 +89,7 @@ export class VehicleFaxReportService implements ServiceInterface {
       uploadedFiles = `${folder}/${newFile}`;
 
       if (!vehicleFaxReport) {
-        // create vehicle report and upload vehicle and delete old one
+        // create a vehicle report and upload vehicle and delete old one
         vehicleFaxReport = queryRunner.manager.create(VehicleFaxReport, {
           vehicle_id: vehicle.id,
           attachment: newFile,
@@ -233,9 +231,6 @@ export class VehicleFaxReportService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
-      if (!defaultDealership) {
-        throw new BadRequestException('Opps, No user dealership found!');
-      }
       let vehicleFaxReport = await queryRunner.manager.findOne(
         VehicleFaxReport,
         {
@@ -251,7 +246,7 @@ export class VehicleFaxReportService implements ServiceInterface {
       );
 
       if (!vehicleFaxReport) {
-        // create vehicle report and upload vehicle and delete old one
+        // create a vehicle report and upload vehicle and delete old one
         vehicleFaxReport = queryRunner.manager.create(VehicleFaxReport, {
           vehicle_id: id,
           expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days

@@ -32,7 +32,7 @@ import { VehicleFaxReportService } from '../services/vehicle-fax-report.service'
   ApiGuard,
   EnsureEmailVerifiedGuard,
   EnsureProfileCompletedGuard,
-  EnsureHasDealershipGuard,
+  //EnsureHasDealershipGuard,
 )
 @Controller('api/v1')
 @ApiBearerAuth('jwt')

@@ -40,9 +40,6 @@ export class VehicleInformationService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
-      if (!defaultUserDealership) {
-        throw new BadRequestException('Opps, No user dealership found!');
-      }
       // check vin number exist
       const vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
         where: {

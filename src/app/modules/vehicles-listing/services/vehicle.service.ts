@@ -68,7 +68,7 @@ export class VehicleService implements ServiceInterface {
       where: {
         vehicle_vin: {
           user_id: In(dealershipUserIds),
-          dealership_id: user_default_dealership.dealership_id,
+          dealership_id: user_default_dealership.dealership_id || IsNull(),
           status: params.status,
         },
       },
