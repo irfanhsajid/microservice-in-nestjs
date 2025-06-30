@@ -5,6 +5,28 @@ export default () => ({
       { name: 'read:user', title: 'Read User', route: '/users/:id' },
     ],
     post: [{ name: 'create:post', title: 'Create Post', route: '/posts' }],
+    dealership: [
+      {
+        name: 'create:dealership',
+        title: 'Create Dealership',
+        route: '/dealerships',
+      },
+      {
+        name: 'read:dealership',
+        title: 'Read Dealership',
+        route: '/dealerships/:id',
+      },
+      {
+        name: 'update:dealership',
+        title: 'Update Dealership',
+        route: '/dealerships/:id',
+      },
+      {
+        name: 'delete:dealership',
+        title: 'Delete Dealership',
+        route: '/dealerships/:id',
+      },
+    ],
   },
   rolePermissions: {
     super_admin: ['create:user', 'read:user', 'create:post'], // [Action:Subject] & must be singular
