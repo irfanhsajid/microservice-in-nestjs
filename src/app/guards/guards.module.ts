@@ -9,10 +9,24 @@ import { DealershipModule } from '../modules/dealership/dealership.module';
 import { EnsureEmailVerifiedGuard } from './ensure-email-verified.guard';
 import { EnsureProfileCompletedGuard } from './ensure-profile-completed.guard';
 import { CaslModule } from '../modules/auth/casl/casl.module';
+import { EnsureHasDealershipGuard } from './ensure-has-dealership.guard';
+import { AuthOriginGuard } from './check-origin.guard';
 
 @Module({
   imports: [JwtModule, ConfigModule, DealershipModule, UserModule, CaslModule],
-  providers: [ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard],
-  exports: [ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard],
+  providers: [
+    ApiGuard,
+    EnsureEmailVerifiedGuard,
+    EnsureProfileCompletedGuard,
+    EnsureHasDealershipGuard,
+    AuthOriginGuard,
+  ],
+  exports: [
+    ApiGuard,
+    EnsureEmailVerifiedGuard,
+    EnsureProfileCompletedGuard,
+    EnsureHasDealershipGuard,
+    AuthOriginGuard,
+  ],
 })
 export class GuardsModule {}

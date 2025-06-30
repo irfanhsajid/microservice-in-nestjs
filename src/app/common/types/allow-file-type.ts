@@ -38,3 +38,13 @@ export const allowedImageMimeTypes = [
   'image/png',
   'image/ttf',
 ];
+
+export const allowedCarFaxMimeTypes = [
+  'application/pdf',
+  // Excel
+  'application/vnd.ms-excel', // .xls
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+
+  // CSV
+  'text/csv',
+];

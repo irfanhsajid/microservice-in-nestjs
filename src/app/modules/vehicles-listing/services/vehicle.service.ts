@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { VehicleDimension } from '../entities/vehicle-dimensions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ServiceInterface } from '../../../common/interfaces/service.interface';
@@ -13,6 +13,8 @@ import { User } from '../../user/entities/user.entity';
 import { paginate } from '../../../common/pagination/paginate';
 import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { CreateVehicleDto } from '../dto/vehicle.dto';
+import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
+import { CreateVehicleVinsDto } from '../dto/vehicle-vins.dto';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {
@@ -49,7 +51,8 @@ export class VehicleService implements ServiceInterface {
       where: {
         vehicle_vin: {
           user_id: user.id,
-          dealership_id: user_default_dealership.dealership_id!,
+          dealership_id: user_default_dealership.dealership_id,
+          status: params.status,
         },
       },
       select: [
@@ -69,6 +72,52 @@ export class VehicleService implements ServiceInterface {
 
     return paginate(vehicles, total, page, limit);
   }
+
+  // Store or create
+  async storeVehicleVin(
+    req: Request,
+    queryRunner: QueryRunner,
+    dto: CreateVehicleVinsDto,
+  ): Promise<VehicleVins> {
+    try {
+      const user = req['user'] as User;
+      const defaultDealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
+
+      if (!defaultDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
+
+      // find vin number if exist
+      let vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
+        where: {
+          user_id: user.id,
+          dealership_id: defaultDealership.dealership_id,
+          vin_number: dto.vin_number,
+        },
+      });
+
+      if (vehicleVin) {
+        vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
+          ...dto,
+        });
+      } else {
+        vehicleVin = queryRunner.manager.create(VehicleVins, {
+          user_id: user?.id,
+          dealership_id: defaultDealership?.dealership_id,
+          ...dto,
+          status: VehicleVinStatus.DRAFT,
+        });
+      }
+
+      return await queryRunner.manager.save(VehicleVins, vehicleVin);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
   async store(
     req: Request,
     dto: CreateVehicleDto,
@@ -79,11 +128,18 @@ export class VehicleService implements ServiceInterface {
     await queryRunner.startTransaction();
     try {
       // destruct data
-      const { dimensions, vehicle_features, ...vehicleProperty } = dto;
+      const { dimensions, vehicle_vin, vehicle_features, ...vehicleProperty } =
+        dto;
+      // store vehicle vin
+      const vehicleVin = await this.storeVehicleVin(
+        req,
+        queryRunner,
+        vehicle_vin,
+      );
 
       // Check if vehicle exists by vehicle_vin_id
       let vehicle = await queryRunner.manager.findOne(Vehicle, {
-        where: { vehicle_vin_id: vehicleProperty.vehicle_vin_id },
+        where: { vehicle_vin_id: vehicleVin.id },
         relations: ['dimensions', 'vehicle_features'],
       });
 
@@ -96,6 +152,7 @@ export class VehicleService implements ServiceInterface {
         // Create new vehicle
         vehicle = queryRunner.manager.create(Vehicle, {
           ...vehicleProperty,
+          vehicle_vin_id: vehicleVin.id,
         });
       }
       vehicle = await queryRunner.manager.save(Vehicle, vehicle);
@@ -153,6 +210,7 @@ export class VehicleService implements ServiceInterface {
         ...vehicle,
         vehicle_features: newFeatures,
         dimensions: dimension,
+        vehicle_vin: vehicleVin,
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -161,16 +219,40 @@ export class VehicleService implements ServiceInterface {
     }
   }
   async show(req: Request, id: number): Promise<Record<string, any>> {
+    try {
+      const user = req['user'] as User;
+      const userDefaultDealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
+
+      if (!userDefaultDealership) {
+        return {};
+      }
+
+      const vehicle = await this.vehicleRepository.findOne({
+        where: {
+          vehicle_vin: {
+            user_id: user.id,
+            dealership_id: userDefaultDealership.dealership_id,
+          },
+          vehicle_vin_id: id,
+        },
+        relations: ['vehicle_attachments', 'information', 'vehicle_features'],
+      });
+
+      if (!vehicle) {
+        return {};
+      }
+      return vehicle;
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+  update(req: Request, dto: any, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
-  async update(
-    req: Request,
-    dto: any,
-    id: number,
-  ): Promise<Record<string, any>> {
-    throw new Error('Method not implemented.');
-  }
-  async destroy(req: Request, id: number): Promise<Record<string, any>> {
+  destroy(req: Request, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
 }

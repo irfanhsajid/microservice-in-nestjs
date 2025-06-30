@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -24,8 +25,13 @@ import { memoryStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
-import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
 import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
+import { VehicleInspectionService } from '../services/vehicle-inspection.service';
+import { CreateVehicleInspectionDto } from '../dto/vehicle-inspection.dto';
+import {
+  VehicleInspectionTitleType,
+  VehicleInspectionType,
+} from '../entities/vehicle-inspection.entity';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(
@@ -36,14 +42,14 @@ import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.g
 )
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
-export class VehicleAttachmentController {
-  private readonly logger = new CustomLogger(VehicleAttachmentController.name);
+export class VehicleInspectionController {
+  private readonly logger = new CustomLogger(VehicleInspectionController.name);
 
   constructor(
-    private readonly vehicleAttachmentService: VehicleAttachmentService,
+    private readonly vehicleInspectionService: VehicleInspectionService,
   ) {}
 
-  @Post('vehicle/attachments/:vinId')
+  @Post('vehicle/inspection/:vehicleId')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(), // Minimal buffering to access metadata
@@ -71,6 +77,29 @@ export class VehicleAttachmentController {
           type: 'string',
           format: 'binary',
         },
+        title: {
+          type: 'string',
+          enum: Object.values(VehicleInspectionTitleType),
+          description: 'The type of vehicle inspection view',
+          example: 'FRONT_VIEW',
+        },
+        type: {
+          type: 'string',
+          enum: Object.values(VehicleInspectionType),
+          description: 'The title of the vehicle inspection',
+          example: 'INTERIOR',
+        },
+        number_of_issues: {
+          type: 'number',
+          description: 'The number of issues found during the inspection',
+          example: 3,
+        },
+        description: {
+          type: 'string',
+          description: 'Detailed description of the inspection findings',
+          example:
+            'Minor scratches on the front bumper, headlight alignment issue detected.',
+        },
       },
     },
   })
@@ -79,25 +108,29 @@ export class VehicleAttachmentController {
     status: 201,
     description: 'Attachments uploaded successfully',
   })
-  async upload(@Request() req: any, @Param('vinId') id: number) {
+  async upload(
+    @Request() req: any,
+    @Param('vehicleId') id: number,
+    @Body() dto: CreateVehicleInspectionDto,
+  ) {
     const file = req.file;
 
-    // Validate file count (3 to 5 files required)
     if (!file) {
       throw new UnprocessableEntityException({
-        file: 'The file field is required',
+        file: 'The File is required',
       });
     }
 
     const dtoCombine = {
       id,
       file: file,
+      dto: dto,
     };
 
-    return await this.vehicleAttachmentService.store(req, dtoCombine);
+    return await this.vehicleInspectionService.store(req, dtoCombine);
   }
 
-  @Get('vehicle/attachments/:vinId')
+  @Get('vehicle/inspection/:vehicleId')
   @ApiOperation({ summary: 'Get all attachments for a vehicle' })
   @ApiResponse({
     status: 200,
@@ -105,22 +138,22 @@ export class VehicleAttachmentController {
   })
   async getAttachments(
     @Request() req: any,
-    @Param('vinId') id: number,
+    @Param('vehicleId') id: number,
   ): Promise<any> {
     try {
-      return await this.vehicleAttachmentService.show(req, id);
+      return await this.vehicleInspectionService.show(req, id);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
       throw error;
     }
   }
 
-  @Delete('vehicle/attachments/:id')
+  @Delete('vehicle/inspection/:id')
   @ApiOperation({ summary: 'Delete an attachment by ID' })
   @ApiResponse({ status: 200, description: 'Attachment deleted successfully' })
   async delete(@Request() req: any, @Param('id') id: number): Promise<any> {
     try {
-      return await this.vehicleAttachmentService.destroy(req, id);
+      return await this.vehicleInspectionService.destroy(req, id);
     } catch (error) {
       this.logger.error(`Failed to delete attachment: ${error.message}`);
       throw error;

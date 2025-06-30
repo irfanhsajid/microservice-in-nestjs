@@ -7,6 +7,7 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
@@ -88,35 +89,52 @@ export class S3StorageProvider implements StorageProvider {
 
   async deleteFile(filePath: string): Promise<void> {
     try {
-      if (!filePath) {
-        throw new BadRequestException('File path is required');
+      console.info(
+        `Deleting file from S3 with key: ${filePath}, bucket: ${this.bucket}`,
+      );
+      const key = this.getKeyFromPath(filePath);
+      // Verify object exists (optional, for better error handling)
+      try {
+        await this.s3Client.send(
+          new HeadObjectCommand({
+            Bucket: this.bucket,
+            Key: key,
+          }),
+        );
+        console.info('File exists, proceeding with deletion');
+      } catch (error) {
+        if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
+          throw new BadRequestException(`File does not exist: ${key}`);
+        }
+        throw new BadRequestException(
+          `Error checking file existence: ${error.message}`,
+        );
       }
 
-      // Extract the key from the filePath
-      // const urlPattern = new RegExp(
-      //   `https://${this.bucket}\\.s3\\.[a-z0-9-]+\\.amazonaws\\.com/(.+)`,
-      // );
-      // const match = filePath.match(urlPattern);
-      // console.info('match path', match, urlPattern);
-      // if (!match || !match[1]) {
-      //   throw new BadRequestException(`Invalid file path: ${filePath}`);
-      // }
-      // const key = match[1];
-
-      // console.info(`Deleting file from S3 with key: ${key}`);
-      const command = new DeleteObjectCommand({
-        Bucket: this.bucket,
-        Key: filePath,
-      });
-
-      await this.s3Client.send(command);
-      console.info(`File deleted successfully: ${filePath}`);
-    } catch (error) {
-      console.error(`S3 deletion error: ${error.message}`);
-      throw new BadRequestException(
-        `File deletion failed: S3 deletion error: ${error.message}`,
+      // Delete object using the extracted key
+      await this.s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+        }),
       );
+      console.info(`File deleted successfully: ${key}`);
+    } catch (error) {
+      console.error('S3 deletion error:', error);
+      if (error.name === 'NoSuchKey' || error.name === 'NotFound') {
+        throw new BadRequestException(`File does not exist: ${filePath}`);
+      } else if (error.name === 'AccessDenied') {
+        throw new BadRequestException('Permission denied to delete file');
+      }
+      throw new BadRequestException(`File deletion failed: ${error.message}`);
     }
+  }
+
+  getKeyFromPath(url: string) {
+    const u = new URL(url);
+    const path = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
+
+    return path;
   }
 
   setClient(client: S3Client) {
