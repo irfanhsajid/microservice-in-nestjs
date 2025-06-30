@@ -158,9 +158,10 @@ async function bootstrap() {
   app.setViewEngine('hbs');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  await app.listen(configService.get<number>('app.port') || 3000);
-
-  await grpcServer.listen();
+  await Promise.all([
+    await app.listen(configService.get<number>('app.port') || 3000),
+    grpcServer.listen(),
+  ]);
 }
 
 bootstrap().catch((e) => console.error(e));
