@@ -34,19 +34,6 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // grpc server
-  // const grpcServer = await NestFactory.createMicroservice<MicroserviceOptions>(
-  //   AppModule,
-  //   {
-  //     transport: Transport.GRPC,
-  //     options: {
-  //       package: CARVU_PACKAGE_NAME,
-  //       protoPath: globSync('src/grpc/proto/carvu_proto/**/*.proto', {
-  //         absolute: true,
-  //       }),
-  //       url: `${configService.get<string>('services.grpc.host')}:${configService.get<number>('services.grpc.port')}`,
-  //     },
-  //   },
-  // );
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
@@ -171,7 +158,6 @@ async function bootstrap() {
   await Promise.all([
     await app.startAllMicroservices(),
     await app.listen(configService.get<number>('app.port') || 3000),
-    // grpcServer.listen(),
   ]);
 }
 
