@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { Repository } from 'typeorm';
 import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
@@ -24,11 +24,15 @@ export class VehicleVinsService {
         'user_default_dealership'
       ] as UserDealership;
 
+      if (!defaultDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
+
       // find vin number if exist
       let vehicleVin = await this.vehicleVinsRepository.findOne({
         where: {
           user_id: user.id,
-          dealership_id: defaultDealership.dealership_id!,
+          dealership_id: defaultDealership.dealership_id,
           vin_number: dto.vin_number,
         },
       });
@@ -51,17 +55,21 @@ export class VehicleVinsService {
     }
   }
 
-  async show(req: Request, vinNumber: string): Promise<VehicleVins | null> {
+  async show(req: Request, id: number): Promise<VehicleVins | null> {
     try {
       const user = req['user'] as User;
       const defaultDealership = req[
         'user_default_dealership'
       ] as UserDealership;
+
+      if (!defaultDealership) {
+        return null;
+      }
       return await this.vehicleVinsRepository.findOne({
         where: {
           user_id: user.id,
           dealership_id: defaultDealership.dealership_id,
-          vin_number: vinNumber,
+          id: id,
         },
       });
     } catch (error) {

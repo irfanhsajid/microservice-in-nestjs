@@ -23,8 +23,11 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://staging.carvu.ca',
+      'https://staging.admin.carvu.ca',
       'http://10.0.0.56:3000',
+      'http://10.0.0.195:3000',
       'http://localhost:3000',
+      'http://localhost:3001',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   });

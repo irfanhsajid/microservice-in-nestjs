@@ -13,6 +13,9 @@ import { VehicleFeature } from './vehicle-features.entity';
 import { VehicleDimension } from './vehicle-dimensions.entity';
 import { VehicleInformation } from './vehicle-informations.entity';
 import { VehicleAttachment } from './vehicle-attachments.entity';
+import { VehicleInspectionReport } from './vehicle-inspection-report.entity';
+import { VehicleInspection } from './vehicle-inspection.entity';
+import { VehicleFaxReport } from './vehicle-fax-report.entity';
 
 export enum VehicleCondition {
   USED = 'USED',
@@ -86,7 +89,7 @@ export class Vehicle {
   })
   vehicle_features: VehicleFeature[];
 
-  @OneToMany(() => VehicleInformation, (information) => information.vehicle, {
+  @OneToOne(() => VehicleInformation, (information) => information.vehicle, {
     cascade: true,
   })
   information: VehicleInformation[];
@@ -100,4 +103,27 @@ export class Vehicle {
     cascade: true,
   })
   vehicle_attachment: VehicleAttachment[];
+
+  @OneToMany(
+    () => VehicleInspectionReport,
+    (vehicleInspectionReport) => vehicleInspectionReport.vehicle,
+    {
+      cascade: true,
+    },
+  )
+  vehicle_inspection_reports: VehicleInspectionReport[];
+
+  @OneToMany(
+    () => VehicleInspection,
+    (vehicleInspection) => vehicleInspection.vehicle,
+    { cascade: true },
+  )
+  vehicle_inspections: VehicleInspection[];
+
+  @OneToOne(
+    () => VehicleFaxReport,
+    (vehicleFaxReport) => vehicleFaxReport.vehicle,
+    { cascade: true },
+  )
+  vehicle_fax_report: VehicleFaxReport;
 }

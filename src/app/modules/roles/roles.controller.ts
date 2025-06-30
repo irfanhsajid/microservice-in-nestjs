@@ -21,7 +21,7 @@ import { responseReturn } from 'src/app/common/utils/response-return';
 
 @ApiTags('Roles')
 @ApiBearerAuth('jwt')
-@Controller('roles')
+@Controller('api/v1/roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
   private readonly logger = new CustomLogger(RolesController.name);
