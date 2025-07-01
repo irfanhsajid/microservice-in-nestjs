@@ -5,7 +5,7 @@ import { UserDealership } from 'src/app/modules/dealership/entities/user-dealers
 import { ILike, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dealership } from 'src/app/modules/dealership/entities/dealerships.entity';
-import { paginate } from 'src/app/common/pagination/paginate';
+import paginate from 'src/app/common/pagination/paginate';
 
 @Injectable()
 export class AdminDealershipService implements ServiceInterface {
@@ -36,7 +36,8 @@ export class AdminDealershipService implements ServiceInterface {
       take: limit,
     });
 
-    return paginate(dealerships, total, page, limit);
+    return { dealerships, total, page, limit };
+    // return paginate(dealerships, total, page, limit);
   }
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
