@@ -32,6 +32,11 @@ import { VehicleFaxReportSubscriber } from './subscriber/vehicle-fax.subscriber'
 import { VehicleFaxReportService } from './services/vehicle-fax-report.service';
 import { BullModule } from '@nestjs/bullmq';
 import { VehicleConsumer } from './job/vehicle.queue';
+import { VehicleFaxReportDetails } from './entities/vehicle-fax-report-details.entity';
+import { VehicleFaxReportDetailsAccident } from './entities/vehicle-fax-report-details-accident.entity';
+import { VehicleFaxReportDetailsDetailedHistory } from './entities/vehicle-fax-report-details-detailed-record.entity';
+import { VehicleFaxReportDetailsRecall } from './entities/vehicle-fax-report-details-recall.entity';
+import { VehicleFaxReportDetailsServiceRecord } from './entities/vehicle-fax-report-details-service-record.entity';
 
 @Module({
   imports: [
@@ -45,6 +50,11 @@ import { VehicleConsumer } from './job/vehicle.queue';
       VehicleInspectionReport,
       VehicleInspection,
       VehicleFaxReport,
+      VehicleFaxReportDetails,
+      VehicleFaxReportDetailsAccident,
+      VehicleFaxReportDetailsDetailedHistory,
+      VehicleFaxReportDetailsRecall,
+      VehicleFaxReportDetailsServiceRecord,
     ]),
     UserModule,
     UploadsModule,

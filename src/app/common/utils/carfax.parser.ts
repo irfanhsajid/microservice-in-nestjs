@@ -1,3 +1,4 @@
+import axios from 'axios';
 import * as fs from 'fs';
 import { writeFile } from 'fs/promises';
 import * as pdf from 'pdf-parse';
@@ -36,11 +37,7 @@ export interface CarfaxData {
 
   detailed_history: DetailedHistory[];
 
-  registrations: Array<{
-    date?: string | null;
-    source?: string;
-    record_type?: string;
-  }>;
+  registration: string;
 
   recalls: Array<{
     recallNumber: string;
@@ -50,8 +47,19 @@ export interface CarfaxData {
   isStolen: boolean;
 }
 
-export async function parseCarfaxPDF(filePath: string): Promise<CarfaxData> {
-  const buffer = fs.readFileSync(filePath);
+async function downloadFileFromUrl(url: string): Promise<Buffer> {
+  const response = await axios.get(url, { responseType: 'arraybuffer' });
+  return Buffer.from(response.data);
+}
+
+export async function parseCarfaxPDF(
+  filePath: string,
+  protocol: 'web' | 'local' = 'web',
+): Promise<CarfaxData> {
+  const buffer =
+    protocol === 'web'
+      ? await downloadFileFromUrl(filePath)
+      : fs.readFileSync(filePath);
   const data = await pdf(buffer);
   const text = data.text;
 
@@ -96,16 +104,15 @@ export async function parseCarfaxPDF(filePath: string): Promise<CarfaxData> {
     detailed_history = parseVehicleHistory(detailedHistory[0]);
   }
   // 🔹 Registrations
-  const registrationMatches = [
-    ...text.matchAll(
-      /(\d{4} [A-Za-z]+ \d{1,2})[\s\S]*?Motor Vehicle Dept\.\s+(.*?)\s+(Canadian Renewal.*?)\n/g,
-    ),
-  ];
-  const registrations = registrationMatches.map((m) => ({
-    date: m[1],
-    source: m[2].trim(),
-    info: m[3].trim(),
-  }));
+  const registrationMatches = text.match(
+    /This vehicle has been registered.*?with .*?branding\.\s*We checked for:.*?(?=DATEODOMETERSOURCEDETAILS)/s,
+  );
+
+  let registration = '';
+
+  if (registrationMatches) {
+    registration = registrationMatches[0];
+  }
 
   // 🔹 Recalls
   const recalls: CarfaxData['recalls'] = [];
@@ -126,28 +133,32 @@ export async function parseCarfaxPDF(filePath: string): Promise<CarfaxData> {
     accidents,
     service_records,
     detailed_history,
-    registrations,
+    registration,
     recalls,
     isStolen,
   };
 }
 
-// void (async () => {
-//   console.time('parseCarfaxPDF'); // Start timer
+export async function validateCarfaxFormat(buffer: Buffer): Promise<boolean> {
+  try {
+    const data = await pdf(buffer);
+    const text = data.text;
 
-//   const result = await parseCarfaxPDF(
-//     '/home/mrk/Desktop/project/carvu/CARFAX Canada Vehicle History Report 2.pdf',
-//   );
+    const requiredMarkers = [
+      'Vehicle History Report',
+      'This vehicle has been registered',
+      'Country of Assembly:',
+      'Last Reported Odometer:',
+      'Detailed History',
+      'ODOMETERSOURCEDETAILS',
+      'INCIDENT DATEDETAILSAMOUNT',
+    ];
 
-//   await writeFile(
-//     '/home/mrk/Desktop/project/carvu/output.json',
-//     JSON.stringify(result, null, 2),
-//     'utf-8',
-//   );
-
-//   console.timeEnd('parseCarfaxPDF'); // End timer and log result
-//   console.log('Saved to output.json');
-// })();
+    return requiredMarkers.every((marker) => text.includes(marker));
+  } catch (error) {
+    return false;
+  }
+}
 
 function parseIncidentData(text: string): Incident[] {
   const lines = text
@@ -402,3 +413,22 @@ function parseVehicleHistory(raw: string): DetailedHistory[] {
 
   return result;
 }
+
+// Test code
+// void (async () => {
+//   console.time('parseCarfaxPDF'); // Start timer
+
+//   const result = await parseCarfaxPDF(
+//     '/home/mrk/Desktop/project/carvu/CARFAX Canada Vehicle History Report 2.pdf',
+//     'local',
+//   );
+
+//   await writeFile(
+//     '/home/mrk/Desktop/project/carvu/output.json',
+//     JSON.stringify(result, null, 2),
+//     'utf-8',
+//   );
+
+//   console.timeEnd('parseCarfaxPDF'); // End timer and log result
+//   console.log('Saved to output.json');
+// })();

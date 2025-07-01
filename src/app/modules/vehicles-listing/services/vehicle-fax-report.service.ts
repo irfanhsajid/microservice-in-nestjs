@@ -15,6 +15,7 @@ import { VehicleFaxReport } from '../entities/vehicle-fax-report.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { validateCarfaxFormat } from 'src/app/common/utils/carfax.parser';
 
 @Injectable()
 export class VehicleFaxReportService implements ServiceInterface {
@@ -61,6 +62,12 @@ export class VehicleFaxReportService implements ServiceInterface {
 
       if (!vehicle) {
         throw new BadRequestException('Invalid vehicle id');
+      }
+      // Validate valid carfax buffer
+      const isValidFile = await validateCarfaxFormat(dto.file.buffer);
+
+      if (!isValidFile) {
+        throw new BadRequestException('Invalid CARFAX PDF format');
       }
       // Find a vehicle fax attachment report exist
       let vehicleFaxReport = await queryRunner.manager.findOne(
@@ -119,7 +126,11 @@ export class VehicleFaxReportService implements ServiceInterface {
       );
 
       // Add extraction task to queue
-      await this.vehicleQueue.add('vehicle-fax-report', vehicleFaxReport);
+      await this.vehicleQueue.add('vehicle-fax-report', {
+        vehicleFaxReport,
+        filePath: this.fileUploadService.path(uploadedFiles),
+        user: req['user'],
+      });
 
       // commit transaction
       await queryRunner.commitTransaction();

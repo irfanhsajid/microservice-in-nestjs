@@ -7970,6 +7970,11 @@ pdf-parse@^1.1.1:
     debug "^3.1.0"
     node-ensure "^0.0.0"
 
+pdf2json@^3.1.6:
+  version "3.1.6"
+  resolved "https://registry.yarnpkg.com/pdf2json/-/pdf2json-3.1.6.tgz#221faf7e82a902850d283d597d1dc33eab96fad5"
+  integrity sha512-Nkwo9qeCvqVH0ZgYRUfPyj6o4o7StvNIxMFECeiz4y0uMOVyqc5Y9hjsdFVxdYCeiUjjXLQXA8KIz0iJL3HM0w==
+
 peberminta@^0.9.0:
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/peberminta/-/peberminta-0.9.0.tgz#8ec9bc0eb84b7d368126e71ce9033501dca2a352"
