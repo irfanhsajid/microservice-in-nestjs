@@ -8,10 +8,7 @@ import { S3Client } from '@aws-sdk/client-s3';
 import { UploadsController } from './uploads.controller';
 import { Agent } from 'https';
 import { Agent as HttpAgent } from 'http';
-import {
-  NodeHttpHandler,
-  NodeHttpHandlerOptions,
-} from '@aws-sdk/node-http-handler';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
 
 @Module({
   imports: [ConfigModule],
