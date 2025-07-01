@@ -24,20 +24,38 @@ export class AdminDealershipService implements ServiceInterface {
   async index(req: Request, params: any): Promise<Record<string, any>> {
     const page = params.page || 1;
     const limit = params.limit || 10;
-    const skip = (page - 1) * limit;
     const search = params.search || '';
+    const orderBy = params.sort_column || 'name';
+    const orderDirection = params.sort_direction || 'asc';
 
-    const [dealerships, total] = await this.dealershipRepository.findAndCount({
-      where: {
-        name: ILike(`%${search}%`),
-      },
-      relations: ['vechicle_vins'],
-      skip,
-      take: limit,
+    const dealershipsQuery = this.dealershipRepository
+      .createQueryBuilder('dealership')
+      .leftJoinAndSelect('dealership.vechicle_vins', 'vechicle_vins')
+      .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
+      .loadRelationCountAndMap(
+        'dealership.total_listings',
+        'dealership.vechicle_vins',
+      )
+      .where('dealership.name ILIKE :search', { search: `%${search}%` })
+      .select([
+        'dealership.id',
+        'dealership.name',
+        'dealership.email',
+        'user_dealerships.status',
+        'dealership.created_at',
+        'dealership.updated_at',
+      ])
+      .orderBy(
+        orderBy === 'status'
+          ? 'user_dealerships.status'
+          : `dealership.${orderBy}`,
+        orderDirection.toUpperCase(),
+      );
+
+    return await paginate(dealershipsQuery, {
+      page,
+      limit,
     });
-
-    return { dealerships, total, page, limit };
-    // return paginate(dealerships, total, page, limit);
   }
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
