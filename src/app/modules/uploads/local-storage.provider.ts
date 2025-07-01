@@ -40,7 +40,8 @@ export class LocalStorageProvider implements StorageProvider {
       const writeStream = file.createWriteStream(filePath);
       await pipelineAsync(fileStream, writeStream);
 
-      return path.join(folder, sanitizedFileName);
+      //return path.join(folder, sanitizedFileName);
+      return sanitizedFileName;
     } catch (error) {
       throw new InternalServerErrorException(
         `Local storage stream upload error: ${error.message}`,
@@ -56,7 +57,8 @@ export class LocalStorageProvider implements StorageProvider {
       const filePath = path.join(uploadPath, fileName);
       await fs.writeFile(filePath, file.buffer);
 
-      return path.join(folder, fileName);
+      //return path.join(folder, fileName);
+      return fileName;
     } catch (error) {
       throw new InternalServerErrorException(
         `Local storage error: ${error.message}`,
