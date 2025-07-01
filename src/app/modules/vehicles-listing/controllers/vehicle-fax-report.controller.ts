@@ -24,16 +24,10 @@ import { memoryStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedCarFaxMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
-import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 import { VehicleFaxReportService } from '../services/vehicle-fax-report.service';
 
-@ApiTags('Vehicle-listing')
-@UseGuards(
-  ApiGuard,
-  EnsureEmailVerifiedGuard,
-  EnsureProfileCompletedGuard,
-  //EnsureHasDealershipGuard,
-)
+@ApiTags('Vehicle-CARFAX-Report')
+@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
 export class VehicleFaxReportController {

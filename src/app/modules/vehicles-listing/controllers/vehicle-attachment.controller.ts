@@ -25,15 +25,9 @@ import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.g
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
-import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 
 @ApiTags('Vehicle-listing')
-@UseGuards(
-  ApiGuard,
-  EnsureEmailVerifiedGuard,
-  EnsureProfileCompletedGuard,
-  //EnsureHasDealershipGuard,
-)
+@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
 export class VehicleAttachmentController {
