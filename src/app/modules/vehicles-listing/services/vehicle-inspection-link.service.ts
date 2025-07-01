@@ -1,17 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { VehicleInspectionLinkDto } from '../dto/vehicle-inspection-link.dto';
-import { Request } from 'express';
 import { VehicleInspectionLink } from '../entities/vehicle-inspection-links.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Vehicle } from '../entities/vehicles.entity';
 import { randomBytes } from 'crypto';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class VehicleInspectionLinkService {
   private readonly logger = new CustomLogger(VehicleInspectionLinkService.name);
   constructor(
+    @InjectQueue('vehicle-consumer')
+    protected vehicleQueue: Queue,
+
     @InjectRepository(VehicleInspectionLink)
     private readonly vehicleInspectionLinkRepository: Repository<VehicleInspectionLink>,
 
@@ -33,7 +37,7 @@ export class VehicleInspectionLinkService {
       throw new Error(`Vehicle with ID ${vehicleId} not found`);
     }
     let vehicleInspectionLink: VehicleInspectionLink =
-      vehicle.vehicle_inspection_links;
+      vehicle.vehicle_inspection_links || null;
 
     const token = randomBytes(32).toString('hex');
     if (vehicleInspectionLink) {
@@ -52,8 +56,15 @@ export class VehicleInspectionLinkService {
       });
     }
 
-    return await this.vehicleInspectionLinkRepository.save(
+    vehicleInspectionLink = await this.vehicleInspectionLinkRepository.save(
       vehicleInspectionLink,
     );
+
+    await this.vehicleQueue.add('vehicle-inspection-link', {
+      email: dto.email,
+      phone: dto.phone,
+      token,
+    });
+    return vehicleInspectionLink;
   }
 }

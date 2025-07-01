@@ -8,6 +8,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GenerateCarfaxReport } from './generate-carfax-report';
 import { User } from '../../user/entities/user.entity';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Processor('vehicle-consumer')
 export class VehicleConsumer extends WorkerHost {
@@ -15,7 +16,9 @@ export class VehicleConsumer extends WorkerHost {
 
   constructor(
     private readonly configService: ConfigService,
-    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
+    protected readonly mailerService: MailerService,
   ) {
     super();
   }
@@ -55,6 +58,30 @@ export class VehicleConsumer extends WorkerHost {
         const date = new Date();
         this.logger.log(
           `Queue process for vehicle fax report run on ${date.getTime()}`,
+        );
+        this.logger.log(`data ${job.data}`);
+        return;
+      }
+      case 'vehicle-inspection-link': {
+        console.log('sending vehicle inspection link');
+        const { email, phone, token } = job.data;
+        const url = `${this.configService.get<string>('app.web_url')}/vehicle-inspection?token=${token}&email=${email}`;
+        if (email) {
+          await this.mailerService.sendMail({
+            to: email,
+            subject: 'Vehicle inspection link',
+            template: 'vehicle-inspection-link',
+            context: {
+              url,
+            },
+          });
+        }
+        if (phone) {
+          // Here you would implement the logic to send an SMS with the link
+          this.logger.log(`SMS sent to ${phone} with link: ${url}`);
+        }
+        this.logger.log(
+          `Queue process for vehicle fax report run on ${new Date().getTime()}`,
         );
         this.logger.log(`data ${job.data}`);
         return;
