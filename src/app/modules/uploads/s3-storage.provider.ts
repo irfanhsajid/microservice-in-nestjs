@@ -78,7 +78,7 @@ export class S3StorageProvider implements StorageProvider {
       await this.s3Client.send(command);
       const fileUrl = `https://${this.bucket}.s3.amazonaws.com/${key}`;
       console.info(`File uploaded successfully: ${fileUrl}`);
-      return fileUrl;
+      return fileName;
     } catch (error) {
       console.error(`S3 upload error: ${error.message}`);
       throw new InternalServerErrorException(
