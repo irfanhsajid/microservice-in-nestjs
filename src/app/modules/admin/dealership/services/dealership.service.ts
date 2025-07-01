@@ -31,6 +31,7 @@ export class AdminDealershipService implements ServiceInterface {
       where: {
         name: ILike(`%${search}%`),
       },
+      relations: ['vechicle_vins'],
       skip,
       take: limit,
     });
