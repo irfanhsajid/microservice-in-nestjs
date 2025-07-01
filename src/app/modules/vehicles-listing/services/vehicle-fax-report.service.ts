@@ -15,6 +15,8 @@ import { Vehicle } from '../entities/vehicles.entity';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { validateCarfaxFormat } from 'src/app/common/utils/carfax.parser';
+import { VehicleFaxReportDetails } from '../entities/vehicle-fax-report-details.entity';
+import { User } from '../../user/entities/user.entity';
 
 @Injectable()
 export class VehicleFaxReportService implements ServiceInterface {
@@ -26,6 +28,9 @@ export class VehicleFaxReportService implements ServiceInterface {
 
     @InjectRepository(VehicleFaxReport)
     private readonly vehicleFaxReportRepository: Repository<VehicleFaxReport>,
+
+    @InjectRepository(VehicleFaxReportDetails)
+    private readonly vehicleFaxReportDetailsRepository: Repository<VehicleFaxReportDetails>,
 
     private readonly fileUploadService: FileUploaderService,
   ) {}
@@ -288,6 +293,36 @@ export class VehicleFaxReportService implements ServiceInterface {
       return {
         message: `Attachment removed successfully`,
       };
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  async getFaxReportDetails(req: Request, id: number): Promise<any> {
+    try {
+      const user = req['user'] as User;
+      const carFaxReportData =
+        await this.vehicleFaxReportDetailsRepository.findOne({
+          where: {
+            vehicle_fax_report_id: id,
+            vehicle_fax_report: {
+              vehicle: {
+                vehicle_vin: {
+                  user_id: user.id,
+                },
+              },
+            },
+          },
+          relations: [
+            'accidents',
+            'service_records',
+            'detailed_history',
+            'recalls',
+          ],
+        });
+
+      return carFaxReportData;
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);

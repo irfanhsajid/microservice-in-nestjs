@@ -26,6 +26,7 @@ import { allowedCarFaxMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 import { VehicleFaxReportService } from '../services/vehicle-fax-report.service';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(
@@ -110,7 +111,7 @@ export class VehicleFaxReportController {
       return await this.vehicleFaxReportService.show(req, id);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
-      throw error;
+      throwCatchError(error);
     }
   }
 
@@ -128,7 +129,20 @@ export class VehicleFaxReportController {
       return await this.vehicleFaxReportService.applyForCarFaxReport(req, id);
     } catch (error) {
       this.logger.error(`Failed to retrieve attachments: ${error.message}`);
-      throw error;
+      throwCatchError(error);
+    }
+  }
+
+  @Get('vehicle/fax/details/:faxReportId')
+  async getFaxReportDetails(
+    @Request() req: any,
+    @Param('faxReportId') id: number,
+  ): Promise<any> {
+    try {
+      return await this.vehicleFaxReportService.getFaxReportDetails(req, id);
+    } catch (error) {
+      this.logger.error(error);
+      throwCatchError(error);
     }
   }
 }
