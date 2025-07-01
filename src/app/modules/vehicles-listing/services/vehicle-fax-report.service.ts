@@ -1,4 +1,3 @@
-import { CreateVehicleInspectionDto } from './../dto/vehicle-inspection.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
@@ -7,11 +6,11 @@ import { Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
-import { User } from '../../user/entities/user.entity';
-import { VehicleInspection } from '../entities/vehicle-inspection.entity';
-import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
-import { VehicleFaxReport } from '../entities/vehicle-fax-report.entity';
+import {
+  VehicleFaxReport,
+  VehicleFaxReportStatus,
+} from '../entities/vehicle-fax-report.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
@@ -101,6 +100,7 @@ export class VehicleFaxReportService implements ServiceInterface {
           vehicle_id: vehicle.id,
           attachment: newFile,
           expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
+          status: VehicleFaxReportStatus.REQUESTED,
         });
       } else {
         // Delete old vehicle fax report and update new one and merge
@@ -115,6 +115,7 @@ export class VehicleFaxReportService implements ServiceInterface {
           {
             attachment: newFile,
             expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
+            status: VehicleFaxReportStatus.REQUESTED,
           },
         );
       }

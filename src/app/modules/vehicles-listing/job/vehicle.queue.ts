@@ -30,6 +30,7 @@ export class VehicleConsumer extends WorkerHost {
           // Parse PDF
           console.time('parseCarfaxPDF'); // Start timer
           const parsedResult = await parseCarfaxPDF(filePath);
+
           const newReport = new GenerateCarfaxReport(this.dataSource, {
             user: user as User,
             vehicleFaxReport,
