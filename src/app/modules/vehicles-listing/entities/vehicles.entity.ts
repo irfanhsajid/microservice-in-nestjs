@@ -113,6 +113,15 @@ export class Vehicle {
   )
   vehicle_inspection_reports: VehicleInspectionReport[];
 
+  @OneToOne(
+    () => VehicleInspectionReport,
+    (vehicleInspectionReport) => vehicleInspectionReport.vehicle,
+    {
+      cascade: true,
+    },
+  )
+  vehicle_inspection_report: VehicleInspectionReport[];
+
   @OneToMany(
     () => VehicleInspection,
     (vehicleInspection) => vehicleInspection.vehicle,

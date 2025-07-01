@@ -29,7 +29,15 @@ export default () => ({
     ],
   },
   rolePermissions: {
-    super_admin: ['create:user', 'read:user', 'create:post'], // [Action:Subject] & must be singular
+    super_admin: [
+      'create:user',
+      'read:user',
+      'create:post',
+      'create:dealership',
+      'read:dealership',
+      'update:dealership',
+      'delete:dealership',
+    ], // [Action:Subject] & must be singular
     wholesale_dealer: ['read:user'],
     general_dealer: ['read:user', 'create:post'],
     other_dealer: ['create:post'],

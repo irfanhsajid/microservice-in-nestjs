@@ -9,11 +9,12 @@ import { Vehicle } from '../entities/vehicles.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { User } from '../../user/entities/user.entity';
-import { paginate } from '../../../common/pagination/paginate';
+import paginate from '../../../common/pagination/paginate';
 import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { CreateVehicleDto } from '../dto/vehicle.dto';
 import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
 import { CreateVehicleVinsDto } from '../dto/vehicle-vins.dto';
+import { VehicleResource } from '../resource/vehicle.resource';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {
@@ -36,10 +37,6 @@ export class VehicleService implements ServiceInterface {
       'user_default_dealership'
     ] as UserDealership;
 
-    const page = params.page || 1;
-    const limit = params.limit || 10;
-    const skip = (page - 1) * limit;
-
     let dealershipUserIds = [user.id];
     if (user_default_dealership.dealership_id) {
       const userDealerships = await this.userDealershipRepository
@@ -54,38 +51,65 @@ export class VehicleService implements ServiceInterface {
       dealershipUserIds = [...dealershipUserIds, ...userDealerships];
     }
 
-    const [vehicles, total] = await this.vehicleRepository.findAndCount({
-      where: {
-        vehicle_vin: {
-          user_id: In(dealershipUserIds),
-          dealership_id: user_default_dealership.dealership_id || IsNull(),
-          status: params.status,
+    return await paginate(this.vehicleRepository, {
+      page: params.page || 1,
+      limit: params.limit || 10,
+      findOptions: {
+        where: [
+          {
+            vehicle_vin: {
+              user_id: In(dealershipUserIds),
+              dealership_id: user_default_dealership.dealership_id || IsNull(),
+              status: params.status,
+            },
+            information: {
+              title: params.search ? Like(`%${params.search}%`) : undefined,
+            },
+          },
+          {
+            vehicle_vin: {
+              user_id: In(dealershipUserIds),
+              dealership_id: user_default_dealership.dealership_id || IsNull(),
+              status: params.status,
+            },
+            information: {
+              description: params.search
+                ? Like(`%${params.search}%`)
+                : undefined,
+            },
+          },
+        ],
+        select: {
+          id: true,
+          vehicle_vin_id: true,
+          mileage: true,
+          fuel_type: true,
+          transmission: true,
+          created_at: true,
+          vehicle_attachment: {
+            id: true,
+            user_id: true,
+            vehicle_id: true,
+            name: true,
+            path: true,
+          },
+          information: {
+            id: true,
+            vehicle_id: true,
+            title: true,
+            description: true,
+            characteristics: true,
+          },
         },
-
-        information: {
-          title: params.search ? Like(`%${params.search}%`) : undefined,
+        relations: {
+          vehicle_attachment: true,
+          information: true,
+        },
+        order: {
+          [params.sort_column || 'created_at']: params.sort_direction || 'desc',
         },
       },
-      select: [
-        'id',
-        'vehicle_vin',
-        'vehicle_vin_id',
-        'mileage',
-        'fuel_type',
-        'transmission',
-        'created_at',
-        'vehicle_attachment',
-        'information',
-      ],
-      relations: ['vehicle_attachment', 'information'],
-      order: {
-        [params.sort_column || 'created_at']: params.sort_direction || 'desc',
-      },
-      skip: skip,
-      take: limit,
     });
-
-    return paginate(vehicles, total, page, limit);
   }
 
   // Store or create
@@ -233,6 +257,131 @@ export class VehicleService implements ServiceInterface {
       return throwCatchError(error);
     }
   }
+  async details(req: Request, id: number): Promise<Record<string, any>> {
+    try {
+      const user = req['user'] as User;
+      const userDefaultDealership = req[
+        'user_default_dealership'
+      ] as UserDealership;
+
+      if (!userDefaultDealership) {
+        return {};
+      }
+
+      const vehicle = await this.vehicleRepository.findOne({
+        where: {
+          vehicle_vin: {
+            user_id: user.id,
+            dealership_id: userDefaultDealership.dealership_id || IsNull(),
+          },
+          vehicle_vin_id: id,
+        },
+        select: {
+          id: true,
+          vehicle_vin_id: true,
+          body: true,
+          mileage: true,
+          fuel_type: true,
+          business_phone: true,
+          model_year: true,
+          transmission: true,
+          drive_type: true,
+          condition: true,
+          engine_size: true,
+          door: true,
+          cylinder: true,
+          color: true,
+          created_at: true,
+          vehicle_vin: {
+            id: true,
+            user_id: true,
+            dealership_id: true,
+            user: {
+              id: true,
+              name: true,
+              email: true,
+              phone_number: true,
+            },
+            dealership: {
+              id: true,
+              name: true,
+              addresses: true,
+            },
+          },
+          vehicle_attachments: {
+            id: true,
+            user_id: true,
+            vehicle_id: true,
+            name: true,
+            path: true,
+          },
+          dimensions: {
+            id: true,
+            vehicle_id: true,
+            length: true,
+            width: true,
+            height: true,
+            wheelbase: true,
+            height_including_roof_rails: true,
+            width_including_mirrors: true,
+            gross_weight: true,
+            max_loading_weight: true,
+            max_roof_load: true,
+            seats: true,
+          },
+          information: {
+            id: true,
+            vehicle_id: true,
+            title: true,
+            description: true,
+            characteristics: true,
+          },
+          vehicle_features: {
+            id: true,
+            vehicle_id: true,
+            type: true,
+            specs: true,
+          },
+          vehicle_inspections: {
+            id: true,
+            vehicle_id: true,
+            vehicle_inspection_report_id: true,
+            title: true,
+            type: true,
+            number_of_issues: true,
+            path: true,
+            description: true,
+          },
+          vehicle_inspection_report: {
+            id: true,
+            vehicle_id: true,
+            point: true,
+            title: true,
+            details: true,
+            created_at: true,
+          },
+        },
+        relations: [
+          'vehicle_vin.user',
+          'vehicle_attachments',
+          'dimensions',
+          'information',
+          'vehicle_features',
+          'vehicle_inspections',
+          'vehicle_inspection_report',
+        ],
+      });
+
+      if (!vehicle) {
+        return {};
+      }
+      return vehicle;
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
       const user = req['user'] as User;
@@ -248,11 +397,17 @@ export class VehicleService implements ServiceInterface {
         where: {
           vehicle_vin: {
             user_id: user.id,
-            dealership_id: userDefaultDealership.dealership_id,
+            dealership_id: userDefaultDealership.dealership_id || IsNull(),
           },
           vehicle_vin_id: id,
         },
-        relations: ['vehicle_attachments', 'information', 'vehicle_features'],
+        relations: [
+          'vehicle_vin',
+          'vehicle_attachments',
+          'dimensions',
+          'information',
+          'vehicle_features',
+        ],
       });
 
       if (!vehicle) {
@@ -264,6 +419,7 @@ export class VehicleService implements ServiceInterface {
       return throwCatchError(error);
     }
   }
+
   update(req: Request, dto: any, id: number): Promise<Record<string, any>> {
     throw new Error('Method not implemented.');
   }
