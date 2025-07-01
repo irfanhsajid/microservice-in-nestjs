@@ -65,6 +65,9 @@ src/grpc/types/*
 !src/grpc/types/README.md
 
 storage/app/*
+storage/app/temp/*
+!storage/app/temp
+!storage/app/temp/.gitkeep
 !storage/app/.gitkeep
 storage/logs/*
 !storage/logs

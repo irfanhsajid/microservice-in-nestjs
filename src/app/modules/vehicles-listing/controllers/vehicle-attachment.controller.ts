@@ -20,7 +20,7 @@ import {
 import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
+import { diskStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
@@ -40,7 +40,13 @@ export class VehicleAttachmentController {
   @Post('vehicle/attachments/:vinId')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: memoryStorage(), // Minimal buffering to access metadata
+      storage: diskStorage({
+        destination: './storage/app/temp',
+        filename: (req, file, cb) => {
+          const filename = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          cb(null, filename);
+        },
+      }), // Minimal buffering to access metadata
       // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
       fileFilter: (req, file, cb) => {
         if (!allowedImageMimeTypes.includes(file.mimetype)) {

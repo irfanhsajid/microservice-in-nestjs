@@ -58,6 +58,14 @@ export class FileUploaderService {
     }
   }
 
+  async uploadFileFromPath(
+    filePath: string,
+    key: string,
+    contentType = 'application/octet-stream',
+  ): Promise<string> {
+    return this.storageProvider.uploadFileFromPath(filePath, key, contentType);
+  }
+
   path(path: string): string {
     return this.storageProvider.path(path);
   }
