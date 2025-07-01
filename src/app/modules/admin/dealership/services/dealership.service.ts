@@ -1,8 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { UpdateDealershipStatusDto } from '../dto/update-dealership-status.dto';
-import { UserDealership } from 'src/app/modules/dealership/entities/user-dealership.entity';
-import { ILike, Repository } from 'typeorm';
+import {
+  UserDealership,
+  UserDealershipStatus,
+} from 'src/app/modules/dealership/entities/user-dealership.entity';
+import {
+  Between,
+  FindOptionsWhere,
+  ILike,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dealership } from 'src/app/modules/dealership/entities/dealerships.entity';
 import paginate from 'src/app/common/pagination/paginate';
@@ -52,10 +61,42 @@ export class AdminDealershipService implements ServiceInterface {
         orderDirection.toUpperCase(),
       );
 
-    return await paginate(dealershipsQuery, {
+    const paginatedDealerships = await paginate(dealershipsQuery, {
       page,
       limit,
     });
+
+    paginatedDealerships.data.forEach((dealership: any) => {
+      dealership.last_active = new Date(); // Dummy data
+      dealership.total_sold = 0; // Dummy data
+      dealership.sell_rate = 0.0; // Dummy data
+    });
+
+    // Statistics
+    const totalDealersStats = await this.getCountWithGrowth({});
+
+    const activeDealersStats = await this.getCountWithGrowth({
+      user_dealerships: {
+        status: UserDealershipStatus.APPROVED,
+      },
+    });
+
+    const paidDealerStats = await this.getCountWithGrowth({
+      user_dealerships: {
+        status: UserDealershipStatus.REQUESTED, // Dummy Data
+      },
+    });
+
+    const statistics = {
+      total_dealers: totalDealersStats,
+      active_dealers: activeDealersStats,
+      paid_dealers: paidDealerStats,
+    };
+
+    return {
+      ...paginatedDealerships,
+      statistics,
+    };
   }
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
@@ -101,5 +142,92 @@ export class AdminDealershipService implements ServiceInterface {
     await this.userDealershipRepository.save(userDealership);
 
     return userDealership;
+  }
+
+  getPercentageIncrease(current: number, previous: number): number {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return ((current - previous) / previous) * 100;
+  }
+
+  getStartOfThisMonth() {
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    return startOfThisMonth;
+  }
+
+  getStartOfLastMonth() {
+    const now = new Date();
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return startOfLastMonth;
+  }
+
+  getEndOfLastMonth() {
+    const now = new Date();
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+    return endOfLastMonth;
+  }
+
+  async getTotalDealersWithGrowth(): Promise<{
+    count: number;
+    growth: number;
+  }> {
+    // Count of dealerships created last month
+    const lastMonthCount = await this.dealershipRepository.count({
+      where: {
+        created_at: Between(
+          this.getStartOfLastMonth(),
+          this.getEndOfLastMonth(),
+        ),
+      },
+    });
+
+    // Count of dealerships created this month
+    const thisMonthCount = await this.dealershipRepository.count({
+      where: {
+        created_at: MoreThanOrEqual(this.getStartOfThisMonth()),
+      },
+    });
+
+    // Count of all dealerships
+    const totalCount = await this.dealershipRepository.count();
+
+    const growth = this.getPercentageIncrease(thisMonthCount, lastMonthCount);
+
+    return {
+      count: totalCount,
+      growth,
+    };
+  }
+
+  async getCountWithGrowth(
+    where: FindOptionsWhere<Dealership> = {},
+  ): Promise<{ count: number; growth: number }> {
+    const lastMonthCount = await this.dealershipRepository.count({
+      where: {
+        ...where,
+        created_at: Between(
+          this.getStartOfLastMonth(),
+          this.getEndOfLastMonth(),
+        ),
+      },
+    });
+
+    const thisMonthCount = await this.dealershipRepository.count({
+      where: {
+        ...where,
+        created_at: MoreThanOrEqual(this.getStartOfThisMonth()),
+      },
+    });
+
+    const totalCount = await this.dealershipRepository.count({
+      where,
+    });
+
+    const growth = this.getPercentageIncrease(thisMonthCount, lastMonthCount);
+
+    return {
+      count: totalCount,
+      growth,
+    };
   }
 }
