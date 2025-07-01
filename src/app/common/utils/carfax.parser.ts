@@ -150,8 +150,6 @@ export async function validateCarfaxFormat(buffer: Buffer): Promise<boolean> {
       'Country of Assembly:',
       'Last Reported Odometer:',
       'Detailed History',
-      'ODOMETERSOURCEDETAILS',
-      'INCIDENT DATEDETAILSAMOUNT',
     ];
 
     return requiredMarkers.every((marker) => text.includes(marker));

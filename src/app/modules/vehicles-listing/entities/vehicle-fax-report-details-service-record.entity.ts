@@ -9,8 +9,8 @@ import { VehicleFaxReportDetails } from './vehicle-fax-report-details.entity';
 
 @Entity('vehicle_fax_report_details_service_records')
 export class VehicleFaxReportDetailsServiceRecord {
-  @PrimaryGeneratedColumn('uuid')
-  service_id: string;
+  @PrimaryGeneratedColumn()
+  id: string;
 
   @Column({ nullable: false })
   vehicleFaxReportDetails_id: number;

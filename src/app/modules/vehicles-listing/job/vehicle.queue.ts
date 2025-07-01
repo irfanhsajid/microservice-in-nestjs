@@ -6,6 +6,8 @@ import { parseCarfaxPDF } from 'src/app/common/utils/carfax.parser';
 import { writeFile } from 'fs/promises';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { GenerateCarfaxReport } from './generate-carfax-report';
+import { User } from '../../user/entities/user.entity';
 
 @Processor('vehicle-consumer')
 export class VehicleConsumer extends WorkerHost {
@@ -22,31 +24,23 @@ export class VehicleConsumer extends WorkerHost {
     switch (job.name) {
       case 'vehicle-fax-report': {
         this.logger.log('Running job for vehicle-fax-report');
-        const { reportId, filePath } = job.data;
+        const { vehicleFaxReport, filePath, user } = job.data;
 
         try {
           // Parse PDF
           console.time('parseCarfaxPDF'); // Start timer
           const parsedResult = await parseCarfaxPDF(filePath);
+          const newReport = new GenerateCarfaxReport(this.dataSource, {
+            user: user as User,
+            vehicleFaxReport,
+            carfaxData: parsedResult,
+          });
 
-          await writeFile(
-            '/home/mrk/Desktop/project/carvu/output.json',
-            JSON.stringify(parsedResult, null, 2),
-            'utf-8',
-          );
-
+          console.log(await newReport.save());
           console.timeEnd('parseCarfaxPDF');
           console.log('Saved to output.json');
 
-          // Optionally: store parsed JSON in DB
-          // await this.dataSource
-          //   .createQueryBuilder()
-          //   .update(VehicleFaxReport)
-          //   .set({ json_result: parsedResult }) // assume you have a `json_result` column (jsonb or text)
-          //   .where('id = :id', { id: reportId })
-          //   .execute();
-
-          return { status: 'success', reportId };
+          return { status: 'success' };
         } catch (error) {
           this.logger.error(
             `Failed to parse PDF: ${error.message}`,
