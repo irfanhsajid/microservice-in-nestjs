@@ -100,17 +100,30 @@ export class AdminDealershipService implements ServiceInterface {
   }
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
-    const dealership = await this.dealershipRepository.findOne({
-      where: {
-        id,
-      },
-    });
+    const dealership = await this.dealershipRepository
+      .createQueryBuilder('dealership')
+      .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
+      .leftJoinAndSelect('dealership.addresses', 'addresses')
+      .leftJoinAndSelect('dealership.payment_infos', 'payment_infos')
+      .leftJoinAndSelect('dealership.attachments', 'attachments')
+      .loadRelationCountAndMap(
+        'dealership.total_listings',
+        'dealership.vechicle_vins',
+      )
+      .addSelect('10', 'total_revenue')
+      .where('dealership.id = :id', { id })
+      .getOne();
 
     if (!dealership) {
       throw new NotFoundException(`Dealership with ID ${id} not found`);
     }
 
-    return dealership;
+    return {
+      ...dealership,
+      total_revenue: 0,
+      total_sold: 0,
+      total_sold_revenue: 0,
+    };
   }
 
   store(req: Request, dto: any): Record<string, any> {
