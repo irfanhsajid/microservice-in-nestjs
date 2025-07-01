@@ -55,6 +55,16 @@ export class VehicleController {
     }
   }
 
+  @Get('/vehicle-details/:vinId')
+  async details(@Request() req: any, @Param('vinId') id: number): Promise<any> {
+    try {
+      return await this.vehicleService.details(req, id);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
   @Get('/vehicles/:vinId')
   async show(@Request() req: any, @Param('vinId') id: number): Promise<any> {
     try {
