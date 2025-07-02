@@ -28,6 +28,8 @@ import {
   VehicleInspectionType,
 } from '../entities/vehicle-inspection.entity';
 import { EnsureTokenIsValidGuard } from '../../../guards/ensure-token-valid.guard';
+import { throwCatchError } from '../../../common/utils/throw-error';
+import { VehicleService } from '../services/vehicle.service';
 
 @ApiTags('Vehicle-Public-Inspection')
 @UseGuards(EnsureTokenIsValidGuard)
@@ -39,6 +41,7 @@ export class VehiclePublicInspectionController {
 
   constructor(
     private readonly vehicleInspectionService: VehicleInspectionService,
+    private readonly vehicleService: VehicleService,
   ) {}
 
   @Post('vehicle/public-inspection/:vehicleId')
@@ -149,6 +152,25 @@ export class VehiclePublicInspectionController {
     } catch (error) {
       this.logger.error(`Failed to delete attachment: ${error.message}`);
       throw error;
+    }
+  }
+
+  @Get('/public-vehicle-details/:vehicleId')
+  async details(
+    @Request() req: any,
+    @Param('vehicleId') id: number,
+  ): Promise<any> {
+    try {
+      const vehicle = await this.vehicleService.findById(id);
+      if (!vehicle) {
+        throw new UnprocessableEntityException({
+          message: 'Vehicle not found',
+        });
+      }
+      return await this.vehicleService.details(req, vehicle.vehicle_vin_id);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
     }
   }
 }

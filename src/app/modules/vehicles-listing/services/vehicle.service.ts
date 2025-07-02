@@ -14,7 +14,6 @@ import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { CreateVehicleDto } from '../dto/vehicle.dto';
 import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
 import { CreateVehicleVinsDto } from '../dto/vehicle-vins.dto';
-import { VehicleResource } from '../resource/vehicle.resource';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {
@@ -308,7 +307,19 @@ export class VehicleService implements ServiceInterface {
             dealership: {
               id: true,
               name: true,
-              addresses: true,
+              license_class: true,
+              business_type: true,
+              addresses: {
+                id: true,
+                type: true,
+                dealership_id: true,
+                make_as_default: true,
+                street_address: true,
+                city: true,
+                country: true,
+                state: true,
+                zip_code: true,
+              },
             },
           },
           vehicle_attachments: {
@@ -366,6 +377,7 @@ export class VehicleService implements ServiceInterface {
         },
         relations: [
           'vehicle_vin.user',
+          'vehicle_vin.dealership.addresses',
           'vehicle_attachments',
           'dimensions',
           'information',
@@ -417,6 +429,15 @@ export class VehicleService implements ServiceInterface {
         return {};
       }
       return vehicle;
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  async findById(id: number): Promise<Vehicle | null> {
+    try {
+      return await this.vehicleRepository.findOne({ where: { id } });
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
