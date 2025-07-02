@@ -23,14 +23,10 @@ import {
 } from '@nestjs/swagger';
 import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
-import { FileUploaderService } from '../../uploads/file-uploader.service';
-import { Readable } from 'stream';
 import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
 
 @ApiTags('Vehicle-listing')
@@ -42,53 +38,7 @@ export class VehicleAttachmentController {
 
   constructor(
     private readonly vehicleAttachmentService: VehicleAttachmentService,
-    private readonly fileUploaderService: FileUploaderService,
   ) {}
-
-  @Post('attachments/:vinId')
-  @UseInterceptors(
-    new CustomFileInterceptor(
-      'files',
-      2,
-      {
-        limits: {
-          // limit to 100Mb
-          fileSize: 1024 * 1024 * 100,
-        },
-      },
-      allowedImageMimeTypes,
-    ),
-  )
-  @ApiBody({
-    description: 'File upload along with metadata',
-    schema: {
-      type: 'object',
-      properties: {
-        files: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  @ApiConsumes('multipart/form-data')
-  async uploadStream(
-    @Param('vinId') vinId: string,
-    @UploadedFiles()
-    files: Express.Multer.File[],
-  ) {
-    // throw new BadRequestException('you have hit max');
-    const newFileName = `${Date()}-${files[0].originalname}`;
-    console.log(newFileName);
-    const upload = await this.fileUploaderService.uploadStream(
-      `testing/${newFileName}`,
-      Readable.from(files[0].buffer),
-      files[0].mimetype,
-      files[0].size,
-    );
-
-    return { status: true, upload };
-  }
 
   @Post('vehicle/attachments/:vinId')
   @UseInterceptors(

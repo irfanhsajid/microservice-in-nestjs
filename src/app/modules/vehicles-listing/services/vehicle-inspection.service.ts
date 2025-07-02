@@ -1,5 +1,9 @@
 import { CreateVehicleInspectionDto } from './../dto/vehicle-inspection.dto';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -63,6 +67,13 @@ export class VehicleInspectionService implements ServiceInterface {
       );
 
       if (!vehicleReport) {
+        // check file is exist or not in current vehicle report not exist
+        if (!dto.file) {
+          throw new UnprocessableEntityException({
+            file: 'The File is required',
+          });
+        }
+
         vehicleReport = queryRunner.manager.create(VehicleInspectionReport, {
           vehicle_id: vechicle_id,
         });
@@ -72,22 +83,23 @@ export class VehicleInspectionService implements ServiceInterface {
           vehicleReport,
         );
       }
-
-      // Upload a file
-      const folder = `vehicle/inspection/${vechicle_id}`;
-      const file = dto.file;
-      const fileName = file.originalname;
-      const fileStream = Readable.from(file.buffer);
-      const key = `${folder}/${fileName}`;
-
-      const newFile = await this.fileUploadService.uploadStream(
-        key,
-        fileStream,
-        file.mimetype,
-        file.size,
-      );
-
-      uploadedFiles = `${folder}/${newFile}`;
+      let newFile = '';
+      // Check if file exist
+      if (dto.file) {
+        // Upload a file
+        const folder = `vehicle/inspection/${vechicle_id}`;
+        const file = dto.file;
+        const fileName = `${Date.now()}-${file.originalname}`;
+        const fileStream = Readable.from(file.buffer);
+        const key = `${folder}/${fileName}`;
+        newFile = await this.fileUploadService.uploadStream(
+          key,
+          fileStream,
+          file.mimetype,
+          file.size,
+        );
+        uploadedFiles = `${folder}/${newFile}`;
+      }
 
       // find inspection
       let inspection = await queryRunner.manager.findOne(VehicleInspection, {
@@ -95,6 +107,7 @@ export class VehicleInspectionService implements ServiceInterface {
           vehicle_id: vechicle_id,
           vehicle_inspection_report_id: vehicleReport.id,
           type: dto.dto.type,
+          title: dto.dto.title,
         },
       });
 
@@ -108,7 +121,7 @@ export class VehicleInspectionService implements ServiceInterface {
       } else {
         inspection = queryRunner.manager.merge(VehicleInspection, inspection, {
           ...dto.dto,
-          path: newFile,
+          ...(dto.file ? { path: newFile } : {}),
         });
       }
 
@@ -122,7 +135,9 @@ export class VehicleInspectionService implements ServiceInterface {
 
       return {
         ...inspection,
-        path: this.fileUploadService.path(uploadedFiles),
+        path: dto.file
+          ? this.fileUploadService.path(uploadedFiles)
+          : inspection.path,
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();

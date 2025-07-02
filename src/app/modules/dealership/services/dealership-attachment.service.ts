@@ -39,7 +39,7 @@ export class DealershipAttachmentService {
     try {
       const folder = `dealership/${userDealership?.dealership_id}`;
 
-      const fileName = file.originalname;
+      const fileName = `${Date.now()}-${file.originalname}`;
       const key = `${folder}/${fileName}`;
 
       // Upload file stream to storage

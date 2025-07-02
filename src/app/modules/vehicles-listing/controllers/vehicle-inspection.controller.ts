@@ -107,12 +107,6 @@ export class VehicleInspectionController {
     @UploadedFile()
     file: Express.Multer.File,
   ) {
-    if (!file) {
-      throw new UnprocessableEntityException({
-        file: 'The File is required',
-      });
-    }
-
     const dtoCombine = {
       id,
       file: file,

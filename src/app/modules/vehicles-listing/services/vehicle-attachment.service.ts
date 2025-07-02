@@ -10,7 +10,6 @@ import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
-import * as fs from 'fs';
 
 @Injectable()
 export class VehicleAttachmentService implements ServiceInterface {
@@ -73,7 +72,7 @@ export class VehicleAttachmentService implements ServiceInterface {
       }
       const folder = `vehicle/images/${vechicle.id}`;
       const file = dto.file;
-      const fileName = file.originalname;
+      const fileName = `${Date.now()}-${file.originalname}`;
       const key = `${folder}/${fileName}`;
 
       const newFile = await this.fileUploadService.uploadStream(

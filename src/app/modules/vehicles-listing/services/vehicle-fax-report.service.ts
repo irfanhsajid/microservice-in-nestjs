@@ -87,7 +87,7 @@ export class VehicleFaxReportService implements ServiceInterface {
 
       // Upload attachment file
       const file = dto.file;
-      const fileName = file.originalname;
+      const fileName = `${Date.now()}-${file.originalname}`;
       const fileStream = Readable.from(file.buffer);
       const key = `${folder}/${fileName}`;
 
