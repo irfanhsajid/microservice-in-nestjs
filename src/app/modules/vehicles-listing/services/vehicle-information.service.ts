@@ -9,7 +9,7 @@ import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { User } from '../../user/entities/user.entity';
 import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { CreateVehicleInformationDto } from '../dto/vehicle-information.dto';
-import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
+import { VehicleVins } from '../entities/vehicle-vins.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 
@@ -120,6 +120,8 @@ export class VehicleInformationService implements ServiceInterface {
       await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
   show(req: Request, id: number): Promise<Record<string, any>> {

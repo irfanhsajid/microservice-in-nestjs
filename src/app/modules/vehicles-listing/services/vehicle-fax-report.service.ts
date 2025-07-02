@@ -41,7 +41,7 @@ export class VehicleFaxReportService implements ServiceInterface {
 
   async store(
     req: Request,
-    dto: { id: number; file: any },
+    dto: { id: number; file: Express.Multer.File },
   ): Promise<Record<string, any>> {
     const queryRunner =
       this.vehicleFaxReportRepository.manager.connection.createQueryRunner();
@@ -86,15 +86,16 @@ export class VehicleFaxReportService implements ServiceInterface {
       const folder = `vehicle/fax/${vechicle_id}`;
 
       // Upload attachment file
-      const fileName = dto.file.originalname;
-      const fileStream = Readable.from(dto.file.buffer);
-      const fileSize = dto.file.size;
+      const file = dto.file;
+      const fileName = `${Date.now()}-${file.originalname}`;
+      const fileStream = Readable.from(file.buffer);
+      const key = `${folder}/${fileName}`;
 
-      const newFile = await this.fileUploadService.uploadFileStream(
+      const newFile = await this.fileUploadService.uploadStream(
+        key,
         fileStream,
-        fileName,
-        fileSize,
-        folder,
+        file.mimetype,
+        file.size,
       );
 
       uploadedFiles = `${folder}/${newFile}`;
@@ -155,6 +156,8 @@ export class VehicleFaxReportService implements ServiceInterface {
       }
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -230,8 +233,11 @@ export class VehicleFaxReportService implements ServiceInterface {
         message: `Attachment removed successfully`,
       };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -291,11 +297,14 @@ export class VehicleFaxReportService implements ServiceInterface {
       await queryRunner.commitTransaction();
 
       return {
-        message: `Attachment removed successfully`,
+        message: `CarFax report applied successfully`,
       };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 

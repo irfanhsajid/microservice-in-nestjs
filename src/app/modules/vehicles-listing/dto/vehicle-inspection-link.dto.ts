@@ -1,6 +1,5 @@
 import {
   IsString,
-  IsNotEmpty,
   IsEmail,
   IsOptional,
   IsPhoneNumber,
@@ -9,9 +8,9 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class VehicleInspectionLinkDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
   email: string;
 

@@ -64,8 +64,8 @@ export class VehicleConsumer extends WorkerHost {
       }
       case 'vehicle-inspection-link': {
         console.log('sending vehicle inspection link');
-        const { email, phone, token } = job.data;
-        const url = `${this.configService.get<string>('app.web_url')}/vehicle-inspection?token=${token}&email=${email}`;
+        const { email, phone, vehicleId, token } = job.data;
+        const url = `${this.configService.get<string>('app.web_url')}/vehicle-inspection?token=${token}&email=${email}&vehicleId=${vehicleId}`;
         if (email) {
           await this.mailerService.sendMail({
             to: email,

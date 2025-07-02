@@ -29,16 +29,9 @@ export class DealershipAttachmentService {
 
   async uploadAttachment(
     req: Request,
-    originalFileName: string,
-    fileStream: Readable,
     dto: DealershipAttachmentDto,
-    fileSize: number,
+    file: Express.Multer.File,
   ): Promise<any> {
-    if (!fileStream) {
-      throw new UnprocessableEntityException({
-        file: 'File stream or file name not provided',
-      });
-    }
     const currentUser = req['user'] as User;
     const userDealership = req['user_default_dealership'] as UserDealership;
     let tempFilePath: string = '';
@@ -46,12 +39,15 @@ export class DealershipAttachmentService {
     try {
       const folder = `dealership/${userDealership?.dealership_id}`;
 
+      const fileName = `${Date.now()}-${file.originalname}`;
+      const key = `${folder}/${fileName}`;
+
       // Upload file stream to storage
-      const filePath = await this.fileUploaderService.uploadFileStream(
-        fileStream,
-        originalFileName,
-        fileSize,
-        folder,
+      const filePath = await this.fileUploaderService.uploadStream(
+        key,
+        Readable.from(file.buffer),
+        file.mimetype,
+        file.size,
       );
 
       tempFilePath = `${folder}/${filePath}`;
