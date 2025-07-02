@@ -53,7 +53,7 @@ export default () =>
         },
       },
       template: {
-        dir: join(__dirname, '../app/modules/mail/templates'),
+        dir: join(__dirname, '../../views/mail/templates'),
         adapter: new HandlebarsAdapter(),
         options: {
           strict: true,

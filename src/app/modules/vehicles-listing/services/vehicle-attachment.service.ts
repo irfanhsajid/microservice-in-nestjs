@@ -10,6 +10,7 @@ import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
+import * as fs from 'fs';
 
 @Injectable()
 export class VehicleAttachmentService implements ServiceInterface {
@@ -66,14 +67,23 @@ export class VehicleAttachmentService implements ServiceInterface {
       );
 
       if (existingAttachment && existingAttachment.length >= 5) {
+        // Clean up the temp file
+        fs.unlink(dto.file.path, (err) => {
+          if (err) console.error('Temp file deletion failed:', err.message);
+        });
+
         throw new BadRequestException('You can upload up to 5 files max');
       }
 
-      const fileName = dto.file.originalname;
-      const fileStream = Readable.from(dto.file.buffer);
-      const fileSize = dto.file.size;
+      // const fileName = dto.file.originalname;
+      // const fileStream = Readable.from(dto.file.buffer);
+      // const fileSize = dto.file.size;
 
       const folder = `vehicle/images/${vechicle.id}`;
+      const file = dto.file;
+      const localFilePath = file.path;
+      const sanitizedFileName = file.filename;
+      const key = `${folder}/${sanitizedFileName}`;
 
       /*const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
@@ -82,7 +92,18 @@ export class VehicleAttachmentService implements ServiceInterface {
         folder,
       );*/
 
-      const newFile = await this.fileUploadService.uploadFile(dto.file, folder);
+      // const newFile = await this.fileUploadService.uploadFile(dto.file, folder);
+      const newFile = await this.fileUploadService.uploadFileFromPath(
+        localFilePath,
+        key,
+        file.mimetype,
+      );
+
+      console.log('file path', localFilePath);
+      // Clean up the temp file
+      fs.unlink(localFilePath, (err) => {
+        if (err) console.error('Temp file deletion failed:', err.message);
+      });
 
       uploadedFiles = `${folder}/${newFile}`;
 
