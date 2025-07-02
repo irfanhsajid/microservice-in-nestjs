@@ -30,7 +30,10 @@ export class VehicleAttachmentService implements ServiceInterface {
     throw new Error('Method not implemented.');
   }
 
-  async store(req: Request, dto: any): Promise<Record<string, any>> {
+  async store(
+    req: Request,
+    dto: { id: number; file: Express.Multer.File },
+  ): Promise<Record<string, any>> {
     const queryRunner =
       this.vehicleAttachmentRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
@@ -65,45 +68,20 @@ export class VehicleAttachmentService implements ServiceInterface {
           },
         },
       );
-
       if (existingAttachment && existingAttachment.length >= 5) {
-        // Clean up the temp file
-        fs.unlink(dto.file.path, (err) => {
-          if (err) console.error('Temp file deletion failed:', err.message);
-        });
-
         throw new BadRequestException('You can upload up to 5 files max');
       }
-
-      // const fileName = dto.file.originalname;
-      // const fileStream = Readable.from(dto.file.buffer);
-      // const fileSize = dto.file.size;
-
       const folder = `vehicle/images/${vechicle.id}`;
       const file = dto.file;
-      const localFilePath = file.path;
-      const sanitizedFileName = file.filename;
-      const key = `${folder}/${sanitizedFileName}`;
+      const fileName = file.originalname;
+      const key = `${folder}/${fileName}`;
 
-      /*const newFile = await this.fileUploadService.uploadFileStream(
-        fileStream,
-        fileName,
-        fileSize,
-        folder,
-      );*/
-
-      // const newFile = await this.fileUploadService.uploadFile(dto.file, folder);
-      const newFile = await this.fileUploadService.uploadFileFromPath(
-        localFilePath,
+      const newFile = await this.fileUploadService.uploadStream(
         key,
+        Readable.from(file.buffer),
         file.mimetype,
+        file.size,
       );
-
-      console.log('file path', localFilePath);
-      // Clean up the temp file
-      fs.unlink(localFilePath, (err) => {
-        if (err) console.error('Temp file deletion failed:', err.message);
-      });
 
       uploadedFiles = `${folder}/${newFile}`;
 
@@ -130,6 +108,9 @@ export class VehicleAttachmentService implements ServiceInterface {
       }
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      // Relese the query runner if not it will throw error
+      await queryRunner.release();
     }
   }
 
@@ -190,6 +171,8 @@ export class VehicleAttachmentService implements ServiceInterface {
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 }

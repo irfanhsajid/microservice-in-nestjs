@@ -20,6 +20,13 @@ export class LocalStorageProvider implements StorageProvider {
       'uploads',
     );
   }
+  uploadStream(
+    key: string,
+    fileStream: Readable,
+    contentType: string,
+  ): Promise<string> {
+    throw new Error('Method not implemented.');
+  }
   uploadFileFromPath(
     filePath: string,
     key: string,

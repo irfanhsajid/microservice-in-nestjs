@@ -10,6 +10,7 @@ import * as Busboy from 'busboy';
 import { Limits } from 'busboy';
 import { randomUUID } from 'crypto';
 import { Observable } from 'rxjs';
+import { allowedMimeTypes } from 'src/app/common/types/allow-file-type';
 import { Readable } from 'stream';
 
 type FileInterceptorOptions = {
@@ -22,6 +23,7 @@ export class CustomFileInterceptor implements NestInterceptor {
     private fieldName: string,
     private maxCount?: number,
     private options: FileInterceptorOptions = {},
+    private mimeTypes: string[] = allowedMimeTypes,
   ) {}
   intercept(
     context: ExecutionContext,
@@ -52,6 +54,17 @@ export class CustomFileInterceptor implements NestInterceptor {
           const id = randomUUID();
           if (name !== this.fieldName) {
             file.resume();
+            return;
+          }
+
+          // Check MIME type
+          if (!this.mimeTypes.includes(information.mimeType)) {
+            file.resume();
+            reject(
+              new BadRequestException(
+                `Invalid file type: ${information.mimeType}`,
+              ),
+            );
             return;
           }
 
