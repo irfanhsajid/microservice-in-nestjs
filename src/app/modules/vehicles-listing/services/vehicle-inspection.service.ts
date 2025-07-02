@@ -44,10 +44,7 @@ export class VehicleInspectionService implements ServiceInterface {
         'user_default_dealership'
       ] as UserDealership;
 
-      if (!defaultUserDealership) {
-        throw new BadRequestException('Opps, No user dealership found!');
-      }
-      // find vehicle report
+      // find a vehicle report
       let vehicleReport = await queryRunner.manager.findOne(
         VehicleInspectionReport,
         {
@@ -55,7 +52,7 @@ export class VehicleInspectionService implements ServiceInterface {
             vehicle_id: vechicle_id,
             vehicle: {
               vehicle_vin: {
-                dealership_id: defaultUserDealership.id,
+                dealership_id: defaultUserDealership.dealership_id,
               },
             },
           },
@@ -73,7 +70,7 @@ export class VehicleInspectionService implements ServiceInterface {
         );
       }
 
-      // Upload file
+      // Upload a file
       const fileName = dto.file.originalname;
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
@@ -151,7 +148,7 @@ export class VehicleInspectionService implements ServiceInterface {
           vehicle_id: id,
           vehicle: {
             vehicle_vin: {
-              dealership_id: defaultDealership.id,
+              dealership_id: defaultDealership.dealership_id,
             },
           },
         },

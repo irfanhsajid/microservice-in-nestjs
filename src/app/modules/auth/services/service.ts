@@ -14,9 +14,6 @@ import { Queue } from 'bullmq';
 import { PasswordResetService } from '../../user/password-reset.service';
 import { User } from '../../user/entities/user.entity';
 import { throwCatchError } from '../../../common/utils/throw-error';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserDealership } from '../../dealership/entities/user-dealership.entity';
-import { Repository } from 'typeorm';
 
 export class Service {
   protected readonly logger = new CustomLogger(Service.name);

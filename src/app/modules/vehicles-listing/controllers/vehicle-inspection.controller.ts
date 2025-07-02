@@ -25,7 +25,6 @@ import { memoryStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
-import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 import { VehicleInspectionService } from '../services/vehicle-inspection.service';
 import { CreateVehicleInspectionDto } from '../dto/vehicle-inspection.dto';
 import {
@@ -33,13 +32,8 @@ import {
   VehicleInspectionType,
 } from '../entities/vehicle-inspection.entity';
 
-@ApiTags('Vehicle-listing')
-@UseGuards(
-  ApiGuard,
-  EnsureEmailVerifiedGuard,
-  EnsureProfileCompletedGuard,
-  EnsureHasDealershipGuard,
-)
+@ApiTags('Vehicle-Inspection')
+@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
 export class VehicleInspectionController {

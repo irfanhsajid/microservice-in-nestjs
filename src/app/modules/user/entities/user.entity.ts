@@ -101,7 +101,6 @@ export class User {
   vehicle_attachment: VehicleAttachment[];
 
   @BeforeInsert()
-  @BeforeUpdate()
   async hashPassword() {
     if (this.password) {
       this.password = await bcrypt.hash(this.password, 10);

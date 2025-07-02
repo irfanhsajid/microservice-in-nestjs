@@ -10,4 +10,5 @@ export interface StorageProvider {
   ): Promise<string>;
   deleteFile(filePath: string): Promise<void>;
   path(path: string): string;
+  uploadFileFromPath(filePath: string, key: string, contentType): Promise<any>;
 }

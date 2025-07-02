@@ -25,7 +25,7 @@ import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.g
   ApiGuard,
   EnsureEmailVerifiedGuard,
   EnsureProfileCompletedGuard,
-  EnsureHasDealershipGuard,
+  //EnsureHasDealershipGuard,
 )
 @ApiBearerAuth('jwt')
 @Controller('api/v1')
@@ -51,6 +51,16 @@ export class VehicleController {
     } catch (error) {
       this.logger.error(error);
       console.log('Error in VehicleController.index:', error);
+      return throwCatchError(error);
+    }
+  }
+
+  @Get('/vehicle-details/:vinId')
+  async details(@Request() req: any, @Param('vinId') id: number): Promise<any> {
+    try {
+      return await this.vehicleService.details(req, id);
+    } catch (error) {
+      this.logger.error(error);
       return throwCatchError(error);
     }
   }

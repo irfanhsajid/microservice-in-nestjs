@@ -20,6 +20,13 @@ export class LocalStorageProvider implements StorageProvider {
       'uploads',
     );
   }
+  uploadFileFromPath(
+    filePath: string,
+    key: string,
+    contentType: any,
+  ): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   path(path: string): string {
     return `${this.configService.get<string>('app.url', '')}/storage/${path}`;
@@ -40,7 +47,8 @@ export class LocalStorageProvider implements StorageProvider {
       const writeStream = file.createWriteStream(filePath);
       await pipelineAsync(fileStream, writeStream);
 
-      return path.join(folder, sanitizedFileName);
+      //return path.join(folder, sanitizedFileName);
+      return sanitizedFileName;
     } catch (error) {
       throw new InternalServerErrorException(
         `Local storage stream upload error: ${error.message}`,
@@ -56,7 +64,8 @@ export class LocalStorageProvider implements StorageProvider {
       const filePath = path.join(uploadPath, fileName);
       await fs.writeFile(filePath, file.buffer);
 
-      return path.join(folder, fileName);
+      //return path.join(folder, fileName);
+      return fileName;
     } catch (error) {
       throw new InternalServerErrorException(
         `Local storage error: ${error.message}`,

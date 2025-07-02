@@ -16,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { Role } from '../roles/entities/role.entity';
 import { Permission } from '../roles/entities/permission.entity';
 import { RoleHasPermissions } from '../roles/entities/role_has_permissions.entity';
-import { comparePassword } from 'src/app/common/utils/hash';
+import { comparePassword, hashPassword } from 'src/app/common/utils/hash';
 
 @Injectable()
 export class UserService {
@@ -174,6 +174,8 @@ export class UserService {
       }
 
       user.email_verified_at = new Date();
+      user.profile_completed =
+        user.account_type !== UserAccountType.DEALER ? new Date() : null;
       const newUser = await queryRunner.manager.save(User, user);
 
       //Assign user role
@@ -205,7 +207,7 @@ export class UserService {
         return null;
       }
 
-      user.password = password;
+      user.password = await hashPassword(password);
       await this.userRepository.save(user);
       return user;
     } catch (error) {

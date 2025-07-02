@@ -12,17 +12,11 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ApiGuard } from '../../../guards/api.guard';
 import { EnsureEmailVerifiedGuard } from '../../../guards/ensure-email-verified.guard';
 import { EnsureProfileCompletedGuard } from '../../../guards/ensure-profile-completed.guard';
-import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 import { VehicleInformationService } from '../services/vehicle-information.service';
 import { CreateVehicleInformationDto } from '../dto/vehicle-information.dto';
 
 @ApiTags('Vehicle-listing')
-@UseGuards(
-  ApiGuard,
-  EnsureEmailVerifiedGuard,
-  EnsureProfileCompletedGuard,
-  EnsureHasDealershipGuard,
-)
+@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
 @ApiBearerAuth('jwt')
 @Controller('api/v1')
 export class VehicleInformationController {

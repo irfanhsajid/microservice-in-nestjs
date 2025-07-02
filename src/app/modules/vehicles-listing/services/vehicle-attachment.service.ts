@@ -3,13 +3,14 @@ import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VehicleAttachment } from '../entities/vehicle-attachments.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
+import * as fs from 'fs';
 
 @Injectable()
 export class VehicleAttachmentService implements ServiceInterface {
@@ -40,23 +41,21 @@ export class VehicleAttachmentService implements ServiceInterface {
     try {
       const user = req['user'] as User;
       const userDealership = req['user_default_dealership'] as UserDealership;
-      if (!userDealership) {
-        throw new BadRequestException('Opps, No user dealership found!');
-      }
+
       const vechicle = await queryRunner.manager.findOne(Vehicle, {
         where: {
-          vehicle_vin_id: dto?.id,
           vehicle_vin: {
-            dealership_id: userDealership.id,
+            id: dto.id,
+            dealership_id: userDealership.dealership_id || IsNull(),
           },
         },
       });
 
       if (!vechicle) {
-        throw new BadRequestException('Not vechile found to upload image');
+        throw new BadRequestException('No vehicle found to upload image');
       }
 
-      // check how many file user has uploaded
+      // check how many file users have uploaded
       const existingAttachment = await queryRunner.manager.find(
         VehicleAttachment,
         {
@@ -68,21 +67,43 @@ export class VehicleAttachmentService implements ServiceInterface {
       );
 
       if (existingAttachment && existingAttachment.length >= 5) {
+        // Clean up the temp file
+        fs.unlink(dto.file.path, (err) => {
+          if (err) console.error('Temp file deletion failed:', err.message);
+        });
+
         throw new BadRequestException('You can upload up to 5 files max');
       }
 
-      const fileName = dto.file.originalname;
-      const fileStream = Readable.from(dto.file.buffer);
-      const fileSize = dto.file.size;
+      // const fileName = dto.file.originalname;
+      // const fileStream = Readable.from(dto.file.buffer);
+      // const fileSize = dto.file.size;
 
       const folder = `vehicle/images/${vechicle.id}`;
+      const file = dto.file;
+      const localFilePath = file.path;
+      const sanitizedFileName = file.filename;
+      const key = `${folder}/${sanitizedFileName}`;
 
-      const newFile = await this.fileUploadService.uploadFileStream(
+      /*const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
         fileName,
         fileSize,
         folder,
+      );*/
+
+      // const newFile = await this.fileUploadService.uploadFile(dto.file, folder);
+      const newFile = await this.fileUploadService.uploadFileFromPath(
+        localFilePath,
+        key,
+        file.mimetype,
       );
+
+      console.log('file path', localFilePath);
+      // Clean up the temp file
+      fs.unlink(localFilePath, (err) => {
+        if (err) console.error('Temp file deletion failed:', err.message);
+      });
 
       uploadedFiles = `${folder}/${newFile}`;
 
