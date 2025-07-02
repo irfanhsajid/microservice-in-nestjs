@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Vehicle } from './vehicles.entity';
+import { VehicleFaxReportDetails } from './vehicle-fax-report-details.entity';
 
 export enum VehicleFaxReportStatus {
   REQUESTED = 'REQUESTED',
@@ -50,4 +51,11 @@ export class VehicleFaxReport {
   @OneToOne(() => Vehicle, (vehicle) => vehicle.vehicle_fax_report)
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: Vehicle;
+
+  @OneToOne(
+    () => VehicleFaxReportDetails,
+    (vehicleFaxReportDetails) => vehicleFaxReportDetails.vehicle_fax_report,
+    { cascade: true },
+  )
+  vehicle_fax_report_details: VehicleFaxReportDetails;
 }

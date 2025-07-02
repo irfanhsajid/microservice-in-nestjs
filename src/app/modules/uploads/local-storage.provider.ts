@@ -20,6 +20,13 @@ export class LocalStorageProvider implements StorageProvider {
       'uploads',
     );
   }
+  uploadFileFromPath(
+    filePath: string,
+    key: string,
+    contentType: any,
+  ): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
 
   path(path: string): string {
     return `${this.configService.get<string>('app.url', '')}/storage/${path}`;

@@ -6,6 +6,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
 import { S3Client } from '@aws-sdk/client-s3';
 import { UploadsController } from './uploads.controller';
+import { Agent } from 'https';
+import { Agent as HttpAgent } from 'http';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
 
 @Module({
   imports: [ConfigModule],
@@ -43,6 +46,11 @@ import { UploadsController } from './uploads.controller';
             throw new Error('Missing required S3 configuration.');
           }
 
+          const agentConfig = {
+            keepAlive: true,
+            maxSockets: 50,
+          };
+
           s3Provider.setClient(
             new S3Client({
               region,
@@ -51,6 +59,10 @@ import { UploadsController } from './uploads.controller';
                 accessKeyId,
                 secretAccessKey,
               },
+              requestHandler: new NodeHttpHandler({
+                httpAgent: new HttpAgent(agentConfig),
+                httpsAgent: new Agent(agentConfig),
+              }),
             }),
           );
           return s3Provider;

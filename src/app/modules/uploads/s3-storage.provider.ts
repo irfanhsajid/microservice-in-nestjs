@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   Injectable,
   InternalServerErrorException,
@@ -12,6 +14,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
 import { Readable } from 'stream';
+import { createReadStream, statSync } from 'fs';
 
 @Injectable()
 export class S3StorageProvider implements StorageProvider {
@@ -51,7 +54,18 @@ export class S3StorageProvider implements StorageProvider {
         ContentType: contentType || 'application/octet-stream',
       });
 
-      await this.s3Client.send(command);
+      await new Promise<void>((resolve, reject) => {
+        setImmediate(async () => {
+          try {
+            await this.s3Client.send(command);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+      });
+
+      // await this.s3Client.send(command);
       console.info(`File uploaded successfully: ${key}`);
       return sanitizedFileName;
     } catch (error) {
@@ -75,7 +89,18 @@ export class S3StorageProvider implements StorageProvider {
         ContentType: file.mimetype,
       });
 
-      await this.s3Client.send(command);
+      await new Promise<void>((resolve, reject) => {
+        setImmediate(async () => {
+          try {
+            await this.s3Client.send(command);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+      });
+
+      // await this.s3Client.send(command);
       const fileUrl = `https://${this.bucket}.s3.amazonaws.com/${key}`;
       console.info(`File uploaded successfully: ${fileUrl}`);
       return fileName;
@@ -112,12 +137,29 @@ export class S3StorageProvider implements StorageProvider {
       }
 
       // Delete object using the extracted key
-      await this.s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: this.bucket,
-          Key: key,
-        }),
-      );
+      // await this.s3Client.send(
+      //   new DeleteObjectCommand({
+      //     Bucket: this.bucket,
+      //     Key: key,
+      //   }),
+      // );
+
+      await new Promise<void>((resolve, reject) => {
+        setImmediate(async () => {
+          try {
+            await this.s3Client.send(
+              new DeleteObjectCommand({
+                Bucket: this.bucket,
+                Key: key,
+              }),
+            );
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+      });
+
       console.info(`File deleted successfully: ${key}`);
     } catch (error) {
       console.error('S3 deletion error:', error);
@@ -127,6 +169,45 @@ export class S3StorageProvider implements StorageProvider {
         throw new BadRequestException('Permission denied to delete file');
       }
       throw new BadRequestException(`File deletion failed: ${error.message}`);
+    }
+  }
+
+  async uploadFileFromPath(
+    filePath: string,
+    key: string,
+    contentType = 'application/octet-stream',
+  ): Promise<string> {
+    try {
+      const fileStream = createReadStream(filePath);
+      const fileSize = statSync(filePath).size;
+
+      console.info(`Uploading file from path to S3 with key: ${key}`);
+      const command = new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+        Body: fileStream,
+        ContentLength: fileSize,
+        ContentType: contentType,
+      });
+
+      await new Promise<void>((resolve, reject) => {
+        setImmediate(async () => {
+          try {
+            await this.s3Client.send(command);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+      });
+
+      console.info(`File uploaded successfully: ${key}`);
+      return key.split('/').pop()!;
+    } catch (error) {
+      console.error(`S3 upload error (path): ${error.message}`);
+      throw new InternalServerErrorException(
+        `S3 upload error (path): ${error.message}`,
+      );
     }
   }
 
