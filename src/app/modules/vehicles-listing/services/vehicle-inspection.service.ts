@@ -7,7 +7,6 @@ import { Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
-import { User } from '../../user/entities/user.entity';
 import { VehicleInspection } from '../entities/vehicle-inspection.entity';
 import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';

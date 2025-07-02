@@ -8,6 +8,7 @@ import { Vehicle } from '../entities/vehicles.entity';
 import { randomBytes } from 'crypto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { User } from '../../user/entities/user.entity';
 
 @Injectable()
 export class VehicleInspectionLinkService {
@@ -63,8 +64,24 @@ export class VehicleInspectionLinkService {
     await this.vehicleQueue.add('vehicle-inspection-link', {
       email: dto.email,
       phone: dto.phone,
+      vehicleId: vehicle.id,
       token,
     });
     return vehicleInspectionLink;
+  }
+
+  async validateToken(token: string | undefined): Promise<User | null> {
+    const vehicleInspectionLink =
+      await this.vehicleInspectionLinkRepository.findOne({
+        where: { token },
+        relations: { vehicle: { vehicle_vin: { user: true } } },
+      });
+
+    if (!vehicleInspectionLink) {
+      this.logger.warn('No inspection link found for the user');
+      return null;
+    }
+
+    return vehicleInspectionLink.vehicle?.vehicle_vin?.user;
   }
 }
