@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsObject, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateVehicleInformationDto {
   @ApiProperty()
@@ -13,9 +13,9 @@ export class CreateVehicleInformationDto {
   description?: string;
 
   @ApiProperty()
-  @IsObject()
+  @IsArray()
   @IsNotEmpty()
-  characteristics?: object;
+  characteristics?: Array<any>;
 }
 
 export class UpdateVehicleInformationDto extends CreateVehicleInformationDto {}

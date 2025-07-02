@@ -7,8 +7,10 @@ export default () => ({
     post: [{ name: 'create:post', title: 'Create Post', route: '/posts' }],
   },
   rolePermissions: {
-    admin: ['create:user', 'read:user', 'create:post'], // [Action:Subject] & must be singular
-    buyer: ['read:user'],
-    seller: ['create:post'],
+    super_admin: ['create:user', 'read:user', 'create:post'], // [Action:Subject] & must be singular
+    wholesale_dealer: ['read:user'],
+    general_dealer: ['read:user', 'create:post'],
+    other_dealer: ['create:post'],
+    user: ['read:user'],
   },
 });

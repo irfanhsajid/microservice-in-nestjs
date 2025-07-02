@@ -9,6 +9,7 @@ import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
 import { User } from '../../user/entities/user.entity';
 import { Vehicle } from '../entities/vehicles.entity';
+import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 
 @Injectable()
 export class VehicleAttachmentService implements ServiceInterface {
@@ -24,27 +25,8 @@ export class VehicleAttachmentService implements ServiceInterface {
     private readonly fileUploadService: FileUploaderService,
   ) {}
 
-  async index(req: Request, params: any): Promise<Record<string, any>> {
-    try {
-      const user = req['user'] as User;
-      const vehicle = await this.vehicleRepository.findOne({
-        where: { vehicle_vin_id: params },
-      });
-
-      if (!vehicle) {
-        return [];
-      }
-
-      return await this.vehicleAttachmentRepository.find({
-        where: {
-          vehicle_id: vehicle?.id,
-          user_id: user.id,
-        },
-      });
-    } catch (error) {
-      this.logger.log(error);
-      return throwCatchError(error);
-    }
+  index(req: Request, params: any): Promise<Record<string, any>> {
+    throw new Error('Method not implemented.');
   }
 
   async store(req: Request, dto: any): Promise<Record<string, any>> {
@@ -57,9 +39,16 @@ export class VehicleAttachmentService implements ServiceInterface {
 
     try {
       const user = req['user'] as User;
+      const userDealership = req['user_default_dealership'] as UserDealership;
+      if (!userDealership) {
+        throw new BadRequestException('Opps, No user dealership found!');
+      }
       const vechicle = await queryRunner.manager.findOne(Vehicle, {
         where: {
           vehicle_vin_id: dto?.id,
+          vehicle_vin: {
+            dealership_id: userDealership.id,
+          },
         },
       });
 
@@ -86,11 +75,16 @@ export class VehicleAttachmentService implements ServiceInterface {
       const fileStream = Readable.from(dto.file.buffer);
       const fileSize = dto.file.size;
 
+      const folder = `vehicle/images/${vechicle.id}`;
+
       const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
         fileName,
         fileSize,
+        folder,
       );
+
+      uploadedFiles = `${folder}/${newFile}`;
 
       let u = queryRunner.manager.create(VehicleAttachment, {
         name: newFile,
@@ -103,12 +97,15 @@ export class VehicleAttachmentService implements ServiceInterface {
       await queryRunner.commitTransaction();
       return {
         ...u,
+        path: this.fileUploadService.path(folder + '/' + u.path),
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
 
       if (uploadedFiles) {
-        await this.fileUploadService.deleteFile(uploadedFiles);
+        await this.fileUploadService.deleteFile(
+          this.fileUploadService.path(uploadedFiles),
+        );
       }
       this.logger.error(error);
       return throwCatchError(error);
@@ -118,20 +115,60 @@ export class VehicleAttachmentService implements ServiceInterface {
   async show(req: Request, id: number): Promise<Record<string, any>> {
     try {
       const user = req['user'] as User;
-      return user;
+      const vehicle = await this.vehicleRepository.findOne({
+        where: { vehicle_vin_id: id },
+      });
+
+      if (!vehicle) {
+        return [];
+      }
+
+      return await this.vehicleAttachmentRepository.find({
+        where: {
+          vehicle_id: vehicle?.id,
+          user_id: user.id,
+        },
+      });
+    } catch (error) {
+      this.logger.log(error);
+      return throwCatchError(error);
+    }
+  }
+  update(req: Request, dto: any, id: number): Promise<Record<string, any>> {
+    throw new Error('Method not implemented.');
+  }
+  async destroy(req: Request, id: number): Promise<Record<string, any>> {
+    const queryRunner =
+      this.vehicleAttachmentRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const user = req['user'] as User;
+      const attachment = await queryRunner.manager.findOne(VehicleAttachment, {
+        where: {
+          id: id,
+          user_id: user.id,
+        },
+      });
+      if (!attachment) {
+        throw new BadRequestException('Vehicle attachment deletion failed');
+      }
+
+      // try delete the attachment from s3
+      await this.fileUploadService.deleteFile(attachment.path);
+
+      // delete attachment from database Record
+      await queryRunner.manager.delete(VehicleAttachment, id);
+
+      // commit transaction
+      await queryRunner.commitTransaction();
+
+      return {
+        message: `Attachment removed successfully`,
+      };
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
     }
-  }
-  async update(
-    req: Request,
-    dto: any,
-    id: number,
-  ): Promise<Record<string, any>> {
-    throw new Error('Method not implemented.');
-  }
-  async destroy(req: Request, id: number): Promise<Record<string, any>> {
-    throw new Error('Method not implemented.');
   }
 }

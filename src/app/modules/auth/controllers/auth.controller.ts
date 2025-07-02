@@ -7,11 +7,12 @@ import {
   UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CustomLogger } from '../../logger/logger.service';
 import { AuthService } from '../services/auth.service';
 import { SigninDto } from '../../user/dto/signin.dto';
 import { ApiGuard } from '../../../guards/api.guard';
+import { AuthOrigin } from 'src/app/guards/check-origin.guard';
 
 @ApiTags('Auth')
 @Controller('api/v1')
@@ -20,7 +21,9 @@ export class AuthenticatedController {
   private readonly logger = new CustomLogger(AuthenticatedController.name);
 
   @ApiOperation({ summary: 'Login user' })
+  @ApiBody({ type: SigninDto })
   @Post('/login')
+  @AuthOrigin()
   async login(@Body() dto: SigninDto) {
     return await this.authService.login(dto);
   }
