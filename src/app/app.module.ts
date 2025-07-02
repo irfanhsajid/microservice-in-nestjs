@@ -28,6 +28,7 @@ import { CaslAbilityFactory } from './modules/auth/casl/casl-ability.factory';
 import { RolesModule } from './modules/roles/roles.module';
 import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
 import { AdminModule } from './modules/admin/admin.module';
+import twilio from '../config/twilio';
 
 @Module({
   imports: [
@@ -50,7 +51,16 @@ import { AdminModule } from './modules/admin/admin.module';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [database, app, services, mail, filesystems, session, oauth],
+      load: [
+        database,
+        app,
+        services,
+        mail,
+        filesystems,
+        session,
+        oauth,
+        twilio,
+      ],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: driver,
