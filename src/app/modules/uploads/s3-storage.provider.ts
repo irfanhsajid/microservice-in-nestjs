@@ -118,6 +118,7 @@ export class S3StorageProvider implements StorageProvider {
         `Deleting file from S3 with key: ${filePath}, bucket: ${this.bucket}`,
       );
       const key = this.getKeyFromPath(filePath);
+      console.log('extracted key', key);
       // Verify object exists (optional, for better error handling)
       try {
         await this.s3Client.send(
@@ -211,11 +212,47 @@ export class S3StorageProvider implements StorageProvider {
     }
   }
 
+  async uploadStream(
+    key: string,
+    fileStream: Readable,
+    contentType: string,
+    size: number,
+    retries = 3,
+    delay = 1000,
+  ): Promise<string> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const command = new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+          Body: fileStream,
+          ContentType: contentType,
+          ContentLength: size,
+        });
+        await this.s3Client.send(command);
+        return key.split('/').pop()!;
+      } catch (err: any) {
+        if (err.Code === 'SlowDown' && attempt < retries) {
+          console.warn(
+            `S3 SlowDown error, retrying in ${delay}ms... attempt ${attempt}`,
+          );
+          await new Promise((r) => setTimeout(r, delay));
+          delay *= 2;
+        } else {
+          console.error('S3 upload failed:', err);
+          throw new InternalServerErrorException('Failed to upload file');
+        }
+      }
+    }
+    throw new InternalServerErrorException('Exceeded upload retries');
+  }
+
   getKeyFromPath(url: string) {
     const u = new URL(url);
-    const path = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
+    // const path = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
 
-    return path;
+    // return path;
+    return url.replace(u.origin + '/', '');
   }
 
   setClient(client: S3Client) {

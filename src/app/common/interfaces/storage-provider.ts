@@ -11,4 +11,10 @@ export interface StorageProvider {
   deleteFile(filePath: string): Promise<void>;
   path(path: string): string;
   uploadFileFromPath(filePath: string, key: string, contentType): Promise<any>;
+  uploadStream(
+    key: string,
+    fileStream: Readable,
+    contentType: string,
+    size: number,
+  ): Promise<string>;
 }

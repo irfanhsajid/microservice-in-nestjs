@@ -6,6 +6,7 @@ import {
   Put,
   Request,
   UnprocessableEntityException,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -22,10 +23,14 @@ import { CustomLogger } from '../../logger/logger.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
-import { allowedCarFaxMimeTypes } from 'src/app/common/types/allow-file-type';
+import {
+  allowedCarFaxMimeTypes,
+  allowedImageMimeTypes,
+} from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { VehicleFaxReportService } from '../services/vehicle-fax-report.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
 
 @ApiTags('Vehicle-CARFAX-Report')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
@@ -40,21 +45,16 @@ export class VehicleFaxReportController {
 
   @Post('vehicle/fax/:vehicleId')
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(), // Minimal buffering to access metadata
-      // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
-      fileFilter: (req, file, cb) => {
-        if (!allowedCarFaxMimeTypes.includes(file.mimetype)) {
-          return cb(
-            new UnprocessableEntityException({
-              file: `Invalid file type. Allowed types: ${allowedCarFaxMimeTypes.join(', ')}`,
-            }),
-            false,
-          );
-        }
-        cb(null, true);
+    new CustomFileInterceptor(
+      'file',
+      1,
+      {
+        limits: {
+          fieldSize: 1024 * 1024 * 100,
+        },
       },
-    }),
+      allowedCarFaxMimeTypes,
+    ),
   )
   @ApiOperation({ summary: 'Upload an attachment for a vehicle' })
   @ApiBody({
@@ -74,9 +74,11 @@ export class VehicleFaxReportController {
     status: 201,
     description: 'Attachments uploaded successfully',
   })
-  async upload(@Request() req: any, @Param('vehicleId') id: number) {
-    const file = req.file;
-
+  async upload(
+    @Request() req: any,
+    @Param('vehicleId') id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     if (!file) {
       throw new UnprocessableEntityException({
         file: 'The file is required',

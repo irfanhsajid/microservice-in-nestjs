@@ -66,6 +66,20 @@ export class FileUploaderService {
     return this.storageProvider.uploadFileFromPath(filePath, key, contentType);
   }
 
+  async uploadStream(
+    key: string,
+    fileStream: Readable,
+    contentType: string,
+    size: number,
+  ): Promise<string> {
+    return this.storageProvider.uploadStream(
+      key,
+      fileStream,
+      contentType,
+      size,
+    );
+  }
+
   path(path: string): string {
     return this.storageProvider.path(path);
   }
