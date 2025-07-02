@@ -255,8 +255,11 @@ export class VehicleService implements ServiceInterface {
       await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
+
   async details(req: Request, id: number): Promise<Record<string, any>> {
     try {
       const user = req['user'] as User;

@@ -7,6 +7,7 @@ import {
   Post,
   Request,
   UnprocessableEntityException,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,6 +32,7 @@ import {
   VehicleInspectionTitleType,
   VehicleInspectionType,
 } from '../entities/vehicle-inspection.entity';
+import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
 
 @ApiTags('Vehicle-Inspection')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
@@ -45,21 +47,17 @@ export class VehicleInspectionController {
 
   @Post('vehicle/inspection/:vehicleId')
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(), // Minimal buffering to access metadata
-      // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
-      fileFilter: (req, file, cb) => {
-        if (!allowedImageMimeTypes.includes(file.mimetype)) {
-          return cb(
-            new UnprocessableEntityException({
-              file: `Invalid file type. Allowed types: ${allowedImageMimeTypes.join(', ')}`,
-            }),
-            false,
-          );
-        }
-        cb(null, true);
+    new CustomFileInterceptor(
+      'file',
+      1,
+      {
+        limits: {
+          // limit to 100Mb
+          fileSize: 1024 * 1024 * 100,
+        },
       },
-    }),
+      allowedImageMimeTypes,
+    ),
   )
   @ApiOperation({ summary: 'Upload an attachment for a vehicle' })
   @ApiBody({
@@ -106,9 +104,9 @@ export class VehicleInspectionController {
     @Request() req: any,
     @Param('vehicleId') id: number,
     @Body() dto: CreateVehicleInspectionDto,
+    @UploadedFile()
+    file: Express.Multer.File,
   ) {
-    const file = req.file;
-
     if (!file) {
       throw new UnprocessableEntityException({
         file: 'The File is required',

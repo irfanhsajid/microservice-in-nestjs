@@ -28,7 +28,11 @@ export class VehicleInspectionService implements ServiceInterface {
 
   async store(
     req: Request,
-    dto: { id: number; file: any; dto: CreateVehicleInspectionDto },
+    dto: {
+      id: number;
+      file: Express.Multer.File;
+      dto: CreateVehicleInspectionDto;
+    },
   ): Promise<Record<string, any>> {
     const queryRunner =
       this.vehicleInspectionRepository.manager.connection.createQueryRunner();
@@ -70,17 +74,17 @@ export class VehicleInspectionService implements ServiceInterface {
       }
 
       // Upload a file
-      const fileName = dto.file.originalname;
-      const fileStream = Readable.from(dto.file.buffer);
-      const fileSize = dto.file.size;
-
       const folder = `vehicle/inspection/${vechicle_id}`;
+      const file = dto.file;
+      const fileName = file.originalname;
+      const fileStream = Readable.from(file.buffer);
+      const key = `${folder}/${fileName}`;
 
-      const newFile = await this.fileUploadService.uploadFileStream(
+      const newFile = await this.fileUploadService.uploadStream(
+        key,
         fileStream,
-        fileName,
-        fileSize,
-        folder,
+        file.mimetype,
+        file.size,
       );
 
       uploadedFiles = `${folder}/${newFile}`;
@@ -130,6 +134,8 @@ export class VehicleInspectionService implements ServiceInterface {
       }
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -206,8 +212,11 @@ export class VehicleInspectionService implements ServiceInterface {
         message: `Attachment removed successfully`,
       };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 }
