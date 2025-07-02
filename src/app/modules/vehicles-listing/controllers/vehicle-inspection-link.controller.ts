@@ -1,12 +1,5 @@
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import {
-  Body,
-  Controller,
-  Param,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiGuard } from '../../../guards/api.guard';
 import { EnsureEmailVerifiedGuard } from '../../../guards/ensure-email-verified.guard';
 import { EnsureProfileCompletedGuard } from '../../../guards/ensure-profile-completed.guard';
