@@ -39,11 +39,11 @@ export class AdminDealershipService implements ServiceInterface {
 
     const dealershipsQuery = this.dealershipRepository
       .createQueryBuilder('dealership')
-      .leftJoinAndSelect('dealership.vechicle_vins', 'vechicle_vins')
+      .leftJoinAndSelect('dealership.vehicle_vins', 'vehicle_vins')
       .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
       .loadRelationCountAndMap(
         'dealership.total_listings',
-        'dealership.vechicle_vins',
+        'dealership.vehicle_vins',
       )
       .where('dealership.name ILIKE :search', { search: `%${search}%` })
       .select([
@@ -108,7 +108,7 @@ export class AdminDealershipService implements ServiceInterface {
       .leftJoinAndSelect('dealership.attachments', 'attachments')
       .loadRelationCountAndMap(
         'dealership.total_listings',
-        'dealership.vechicle_vins',
+        'dealership.vehicle_vins',
       )
       .addSelect('10', 'total_revenue')
       .where('dealership.id = :id', { id })
