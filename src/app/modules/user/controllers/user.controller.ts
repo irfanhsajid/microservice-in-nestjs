@@ -8,6 +8,8 @@ import { UserService } from '../user.service';
 import { User } from '../entities/user.entity';
 import { responseReturn } from 'src/app/common/utils/response-return';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
+import { AbilityGuard } from '../../auth/casl/ability.guard';
+import { CheckAbility } from '../../auth/casl/check-ability.decorator';
 
 @ApiTags('User')
 @ApiBearerAuth('jwt')
@@ -19,8 +21,8 @@ export class UserController {
 
   @Get('/user/me')
   @ApiOperation({ summary: 'Get authenticated user' })
-  // @UseGuards(AbilityGuard)
-  // @CheckAbility('create', 'user')
+  @UseGuards(AbilityGuard)
+  @CheckAbility('create', 'user')
   async me(@Request() request: Request) {
     try {
       const user = request['user'] as User;
@@ -41,7 +43,7 @@ export class UserController {
   }
 
   @Get('/user')
-  @ApiOperation({ summary: 'Revoke authenticate user' })
+  @ApiOperation({ summary: 'Retrieve authenticated user' })
   show(@Request() request: Request): UserResource | null {
     try {
       const user = request['user'] as User;
