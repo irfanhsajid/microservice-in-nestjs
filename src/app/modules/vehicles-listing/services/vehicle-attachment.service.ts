@@ -3,7 +3,7 @@ import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VehicleAttachment } from '../entities/vehicle-attachments.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
@@ -45,7 +45,7 @@ export class VehicleAttachmentService implements ServiceInterface {
         where: {
           vehicle_vin: {
             id: dto.id,
-            dealership_id: userDealership.dealership_id,
+            dealership_id: userDealership.dealership_id || IsNull(),
           },
         },
       });
@@ -54,7 +54,7 @@ export class VehicleAttachmentService implements ServiceInterface {
         throw new BadRequestException('No vehicle found to upload image');
       }
 
-      // check how many file user has uploaded
+      // check how many file users have uploaded
       const existingAttachment = await queryRunner.manager.find(
         VehicleAttachment,
         {
@@ -75,12 +75,14 @@ export class VehicleAttachmentService implements ServiceInterface {
 
       const folder = `vehicle/images/${vechicle.id}`;
 
-      const newFile = await this.fileUploadService.uploadFileStream(
+      /*const newFile = await this.fileUploadService.uploadFileStream(
         fileStream,
         fileName,
         fileSize,
         folder,
-      );
+      );*/
+
+      const newFile = await this.fileUploadService.uploadFile(dto.file, folder);
 
       uploadedFiles = `${folder}/${newFile}`;
 

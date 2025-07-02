@@ -44,13 +44,13 @@ export class ApiGuard implements CanActivate {
 
       if (userDealership) {
         request['user_default_dealership'] = userDealership;
-        /*const permissions = await this.userService.getPermissionsByRole(
+        const permissions = await this.userService.getPermissionsByRole(
           userDealership?.role_id,
         );
         request['ability'] = this.abilityFactory.createForUser(
           user,
           permissions,
-        );*/
+        );
       }
 
       request['user'] = user;
