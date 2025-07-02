@@ -14,7 +14,6 @@ import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { CreateVehicleDto } from '../dto/vehicle.dto';
 import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
 import { CreateVehicleVinsDto } from '../dto/vehicle-vins.dto';
-import { VehicleResource } from '../resource/vehicle.resource';
 
 @Injectable()
 export class VehicleService implements ServiceInterface {
@@ -414,6 +413,15 @@ export class VehicleService implements ServiceInterface {
         return {};
       }
       return vehicle;
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  async findById(id: number): Promise<Vehicle | null> {
+    try {
+      return await this.vehicleRepository.findOne({ where: { id } });
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
