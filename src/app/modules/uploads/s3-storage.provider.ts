@@ -14,8 +14,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
 import { Readable } from 'stream';
-import { createReadStream, statSync } from 'fs';
-
 @Injectable()
 export class S3StorageProvider implements StorageProvider {
   private s3Client: S3Client;
@@ -32,48 +30,6 @@ export class S3StorageProvider implements StorageProvider {
 
   path(path: string): string {
     return `https://${this.bucket}.s3.amazonaws.com/${path}`;
-  }
-
-  async uploadFileStream(
-    fileStream: Readable,
-    fileName: string,
-    folder: string = '',
-    fileSize: number = 0,
-    contentType?: string,
-  ): Promise<string> {
-    try {
-      const sanitizedFileName = `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const key = folder ? `${folder}/${sanitizedFileName}` : sanitizedFileName;
-
-      console.info(`Uploading file to S3 with key: ${key}`);
-      const command = new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: fileStream,
-        ContentLength: fileSize,
-        ContentType: contentType || 'application/octet-stream',
-      });
-
-      await new Promise<void>((resolve, reject) => {
-        setImmediate(async () => {
-          try {
-            await this.s3Client.send(command);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        });
-      });
-
-      // await this.s3Client.send(command);
-      console.info(`File uploaded successfully: ${key}`);
-      return sanitizedFileName;
-    } catch (error) {
-      console.error(`S3 stream upload error: ${error.message}`);
-      throw new InternalServerErrorException(
-        `S3 stream upload error: ${error.message}`,
-      );
-    }
   }
 
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
@@ -137,14 +93,6 @@ export class S3StorageProvider implements StorageProvider {
         );
       }
 
-      // Delete object using the extracted key
-      // await this.s3Client.send(
-      //   new DeleteObjectCommand({
-      //     Bucket: this.bucket,
-      //     Key: key,
-      //   }),
-      // );
-
       await new Promise<void>((resolve, reject) => {
         setImmediate(async () => {
           try {
@@ -170,45 +118,6 @@ export class S3StorageProvider implements StorageProvider {
         throw new BadRequestException('Permission denied to delete file');
       }
       throw new BadRequestException(`File deletion failed: ${error.message}`);
-    }
-  }
-
-  async uploadFileFromPath(
-    filePath: string,
-    key: string,
-    contentType = 'application/octet-stream',
-  ): Promise<string> {
-    try {
-      const fileStream = createReadStream(filePath);
-      const fileSize = statSync(filePath).size;
-
-      console.info(`Uploading file from path to S3 with key: ${key}`);
-      const command = new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: fileStream,
-        ContentLength: fileSize,
-        ContentType: contentType,
-      });
-
-      await new Promise<void>((resolve, reject) => {
-        setImmediate(async () => {
-          try {
-            await this.s3Client.send(command);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        });
-      });
-
-      console.info(`File uploaded successfully: ${key}`);
-      return key.split('/').pop()!;
-    } catch (error) {
-      console.error(`S3 upload error (path): ${error.message}`);
-      throw new InternalServerErrorException(
-        `S3 upload error (path): ${error.message}`,
-      );
     }
   }
 
