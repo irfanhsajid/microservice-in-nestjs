@@ -41,6 +41,7 @@ export class AdminDealershipService implements ServiceInterface {
       .createQueryBuilder('dealership')
       .leftJoinAndSelect('dealership.vechicle_vins', 'vechicle_vins')
       .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
+      .leftJoinAndSelect('dealership.attachments', 'attachments')
       .loadRelationCountAndMap(
         'dealership.total_listings',
         'dealership.vechicle_vins',
@@ -50,6 +51,9 @@ export class AdminDealershipService implements ServiceInterface {
         'dealership.id',
         'dealership.name',
         'dealership.email',
+        'dealership.phone_number',
+        'dealership.license_class',
+        'attachments',
         'user_dealerships.status',
         'dealership.created_at',
         'dealership.updated_at',
@@ -151,8 +155,21 @@ export class AdminDealershipService implements ServiceInterface {
       );
     }
 
+    // Update dealership status
     userDealership.status = dto.status;
     await this.userDealershipRepository.save(userDealership);
+
+    // Update rejected reason if status is rejected
+    if (userDealership.status === UserDealershipStatus.DENIED) {
+      await this.dealershipRepository.update(
+        {
+          id: dealershipId,
+        },
+        {
+          rejected_reason: dto.rejected_reason,
+        },
+      );
+    }
 
     return userDealership;
   }
