@@ -41,6 +41,7 @@ export class AdminDealershipService implements ServiceInterface {
       .createQueryBuilder('dealership')
       .leftJoinAndSelect('dealership.vechicle_vins', 'vechicle_vins')
       .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
+      .leftJoinAndSelect('user_dealerships.user', 'user')
       .leftJoinAndSelect('dealership.attachments', 'attachments')
       .loadRelationCountAndMap(
         'dealership.total_listings',
@@ -49,15 +50,17 @@ export class AdminDealershipService implements ServiceInterface {
       .where('dealership.name ILIKE :search', { search: `%${search}%` })
       .select([
         'dealership.id',
-        'dealership.name',
-        'dealership.email',
-        'dealership.phone_number',
         'dealership.license_class',
-        'attachments',
+        'user.name',
+        'user.email',
+        'user.avatar',
+        'user.phone_number',
         'user_dealerships.status',
+        'attachments',
         'dealership.created_at',
         'dealership.updated_at',
       ])
+      .addSelect('dealership.name', 'dealership_name')
       .orderBy(
         orderBy === 'status'
           ? 'user_dealerships.status'
