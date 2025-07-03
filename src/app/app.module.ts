@@ -29,6 +29,8 @@ import { RolesModule } from './modules/roles/roles.module';
 import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
 import { AdminModule } from './modules/admin/admin.module';
 import twilio from '../config/twilio';
+import sms from '../config/sms';
+import { SmsModule } from './modules/sms/sms.module';
 
 @Module({
   imports: [
@@ -60,6 +62,7 @@ import twilio from '../config/twilio';
         session,
         oauth,
         twilio,
+        sms,
       ],
     }),
     TypeOrmModule.forRootAsync({
@@ -111,6 +114,7 @@ import twilio from '../config/twilio';
     RolesModule,
     VehiclesListingModule,
     AdminModule,
+    SmsModule,
   ],
   controllers: [AppController],
   providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],
