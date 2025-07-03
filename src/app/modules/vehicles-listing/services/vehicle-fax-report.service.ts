@@ -112,7 +112,9 @@ export class VehicleFaxReportService implements ServiceInterface {
         // Delete old vehicle fax report and update new one and merge
         // -------------
         // Delete old Fax report
-        await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+        if (vehicleFaxReport.attachment) {
+          await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+        }
 
         // Merge vehicle Fax report with new fax file attachment
         vehicleFaxReport = queryRunner.manager.merge(
@@ -221,7 +223,9 @@ export class VehicleFaxReportService implements ServiceInterface {
       }
 
       // try delete the attachment from s3
-      await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+      if (vehicleFaxReport.attachment) {
+        await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+      }
 
       // delete attachment from database Record
       await queryRunner.manager.delete(VehicleFaxReport, id);
@@ -273,12 +277,24 @@ export class VehicleFaxReportService implements ServiceInterface {
         vehicleFaxReport = queryRunner.manager.create(VehicleFaxReport, {
           vehicle_id: id,
           expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
+          status: VehicleFaxReportStatus.REQUESTED,
         });
       } else {
+        // Check if user already requested for carfax report
+        if (
+          vehicleFaxReport.status === VehicleFaxReportStatus.REQUESTED ||
+          vehicleFaxReport.status === VehicleFaxReportStatus.PENDING
+        ) {
+          return {
+            message: 'You have already requested for carfax report',
+          };
+        }
         // Delete old vehicle fax report and update new one and merge
         // -------------
         // Delete old Fax report
-        await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+        if (vehicleFaxReport.attachment) {
+          await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+        }
 
         // Merge vehicle Fax report with new fax file attachment
         vehicleFaxReport = queryRunner.manager.merge(
@@ -286,9 +302,13 @@ export class VehicleFaxReportService implements ServiceInterface {
           vehicleFaxReport,
           {
             expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
+            status: VehicleFaxReportStatus.REQUESTED,
+            attachment: null,
           },
         );
       }
+
+      await queryRunner.manager.save(VehicleFaxReport, vehicleFaxReport);
 
       // Add extraction task to queue
       await this.vehicleQueue.add('vehicle-fax-report-apply', vehicleFaxReport);

@@ -9,6 +9,7 @@ import { DataSource } from 'typeorm';
 import { GenerateCarfaxReport } from './generate-carfax-report';
 import { User } from '../../user/entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
+import { SmsService } from '../../sms/sms.service';
 
 @Processor('vehicle-consumer')
 export class VehicleConsumer extends WorkerHost {
@@ -19,6 +20,7 @@ export class VehicleConsumer extends WorkerHost {
     @InjectDataSource()
     private readonly dataSource: DataSource,
     protected readonly mailerService: MailerService,
+    protected readonly smsService: SmsService,
   ) {
     super();
   }
@@ -77,11 +79,14 @@ export class VehicleConsumer extends WorkerHost {
           });
         }
         if (phone) {
-          // Here you would implement the logic to send an SMS with the link
+          await this.smsService.sendSms(
+            phone,
+            `Your vehicle inspection link is ${url}`,
+          );
           this.logger.log(`SMS sent to ${phone} with link: ${url}`);
         }
         this.logger.log(
-          `Queue process for vehicle fax report run on ${new Date().getTime()}`,
+          `Queue process for send vehicle inspection link run on ${new Date().getTime()}`,
         );
         this.logger.log(`data ${job.data}`);
         return;
