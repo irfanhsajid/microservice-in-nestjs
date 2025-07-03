@@ -15,6 +15,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dealership } from 'src/app/modules/dealership/entities/dealerships.entity';
 import paginate from 'src/app/common/pagination/paginate';
+import { PaginationEnum } from '../../common/enums/pagination.enum';
 
 @Injectable()
 export class AdminDealershipService implements ServiceInterface {
@@ -31,21 +32,22 @@ export class AdminDealershipService implements ServiceInterface {
   }
 
   async index(req: Request, params: any): Promise<Record<string, any>> {
-    const page = params.page || 1;
-    const limit = params.limit || 10;
+    const page = params.page || PaginationEnum.DEFAULT_PAGE;
+    const limit = params.limit || PaginationEnum.DEFAULT_LIMIT;
     const search = params.search || '';
-    const orderBy = params.sort_column || 'name';
-    const orderDirection = params.sort_direction || 'asc';
+    const orderBy = params.sort_column || PaginationEnum.DEFAULT_SORT_COLUMN;
+    const orderDirection =
+      params.sort_direction || PaginationEnum.DEFAULT_SORT_ORDER;
 
     const dealershipsQuery = this.dealershipRepository
       .createQueryBuilder('dealership')
-      .leftJoinAndSelect('dealership.vechicle_vins', 'vechicle_vins')
+      .leftJoinAndSelect('dealership.vehicle_vins', 'vehicle_vins')
       .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
       .leftJoinAndSelect('user_dealerships.user', 'user')
       .leftJoinAndSelect('dealership.attachments', 'attachments')
       .loadRelationCountAndMap(
         'dealership.total_listings',
-        'dealership.vechicle_vins',
+        'dealership.vehicle_vins',
       )
       .where('dealership.name ILIKE :search', { search: `%${search}%` })
       .select([
@@ -115,7 +117,7 @@ export class AdminDealershipService implements ServiceInterface {
       .leftJoinAndSelect('dealership.attachments', 'attachments')
       .loadRelationCountAndMap(
         'dealership.total_listings',
-        'dealership.vechicle_vins',
+        'dealership.vehicle_vins',
       )
       .addSelect('10', 'total_revenue')
       .where('dealership.id = :id', { id })
