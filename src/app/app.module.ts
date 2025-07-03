@@ -28,6 +28,7 @@ import { CaslAbilityFactory } from './modules/auth/casl/casl-ability.factory';
 import { RolesModule } from './modules/roles/roles.module';
 import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
 import { AdminModule } from './modules/admin/admin.module';
+import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
 
 @Module({
   imports: [
@@ -101,6 +102,7 @@ import { AdminModule } from './modules/admin/admin.module';
     RolesModule,
     VehiclesListingModule,
     AdminModule,
+    PdfGrpcModule,
   ],
   controllers: [AppController],
   providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],
