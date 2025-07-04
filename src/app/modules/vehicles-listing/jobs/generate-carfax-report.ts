@@ -33,7 +33,6 @@ export class GenerateCarfaxReport {
 
     try {
       const { vehicleFaxReport, carfaxData } = this.data;
-
       if (!isValidCarfaxData(carfaxData)) {
         this.logger.error(`Error: Invalid carfax got`);
         this.logger.error(JSON.stringify(carfaxData, null, 2));

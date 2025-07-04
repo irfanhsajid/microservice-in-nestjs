@@ -122,7 +122,7 @@ export class Vehicle {
       cascade: true,
     },
   )
-  vehicle_auction: VehicleAuction;
+  vehicle_auction: VehicleAuction[];
 
   @OneToMany(
     () => VehicleInspectionReport,

@@ -17,6 +17,8 @@ import { DealershipAttachmentSubscriber } from './subscriber/dealership.attachme
 import { DataSource } from 'typeorm';
 import { FileUploaderService } from '../uploads/file-uploader.service';
 import { CaslModule } from '../auth/casl/casl.module';
+import { DealershipAddressController } from './controllers/dealership.address.controller';
+import { DealershipAddressService } from './services/dealership-address.service';
 
 @Module({
   imports: [
@@ -36,11 +38,13 @@ import { CaslModule } from '../auth/casl/casl.module';
     DealershipPaymentInfoService,
     DealershipInformationService,
     DealershipAttachmentService,
+    DealershipAddressService,
   ],
   controllers: [
     DealershipPaymentInfoController,
     DealershipInformationController,
     DealershipAttachmentController,
+    DealershipAddressController,
   ],
   exports: [DealershipInformationService],
 })

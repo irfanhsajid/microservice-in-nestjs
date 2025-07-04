@@ -424,7 +424,6 @@ export function isValidCarfaxData(data: any): boolean {
     isString(data.model) &&
     isString(data.odometer) &&
     isString(data.country) &&
-    isString(data.registration) &&
-    typeof data.isStolen === 'boolean'
+    isString(data.registration)
   );
 }
