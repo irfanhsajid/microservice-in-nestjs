@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,6 +21,7 @@ import { Queue } from 'bullmq';
 import { validateCarfaxFormat } from 'src/app/common/utils/carfax.parser';
 import { VehicleFaxReportDetails } from '../entities/vehicle-fax-report-details.entity';
 import { User } from '../../user/entities/user.entity';
+import { FileCacheHandler } from 'src/app/common/utils/file-cache-handler';
 
 @Injectable()
 export class VehicleFaxReportService implements ServiceInterface {
@@ -51,7 +56,7 @@ export class VehicleFaxReportService implements ServiceInterface {
     let uploadedFiles: any;
 
     try {
-      const vechicle_id = dto.id;
+      const vehicle_id = dto.id;
       const userDealership = req['user_default_dealership'] as UserDealership;
 
       // find a vehicle report
@@ -71,7 +76,7 @@ export class VehicleFaxReportService implements ServiceInterface {
       const isValidFile = await validateCarfaxFormat(dto.file.buffer);
 
       if (!isValidFile) {
-        throw new BadRequestException('Invalid CARFAX PDF format');
+        throw new UnprocessableEntityException('Invalid CARFAX PDF format');
       }
       // Find a vehicle fax attachment report exist
       let vehicleFaxReport = await queryRunner.manager.findOne(
@@ -83,7 +88,7 @@ export class VehicleFaxReportService implements ServiceInterface {
         },
       );
 
-      const folder = `vehicle/fax/${vechicle_id}`;
+      const folder = `vehicle/fax/${vehicle_id}`;
 
       // Upload attachment file
       const file = dto.file;
@@ -134,11 +139,23 @@ export class VehicleFaxReportService implements ServiceInterface {
         vehicleFaxReport,
       );
 
+      // save file for report processing
+      const cacheFileHandler = new FileCacheHandler();
+
+      const savedCache = await cacheFileHandler.saveFile(file);
+
+      let local = false;
+
+      if (typeof savedCache === 'string') {
+        local = true;
+      }
       // Add extraction task to queue
       await this.vehicleQueue.add('vehicle-fax-report', {
         vehicleFaxReport,
         filePath: this.fileUploadService.path(uploadedFiles),
         user: req['user'],
+        local,
+        localPath: savedCache,
       });
 
       // commit transaction

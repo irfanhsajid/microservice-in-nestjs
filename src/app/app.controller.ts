@@ -1,10 +1,13 @@
-import { Controller, Get, Render, Request } from '@nestjs/common';
+import { Controller, Get, Query, Render, Request } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import * as os from 'os';
+import { PDFGrpcService } from 'src/grpc/pdf/pdf.grpc.service';
 
 @ApiExcludeController()
 @Controller()
 export class AppController {
+  constructor(private readonly pdfGrpcService: PDFGrpcService) {}
+
   @Get()
   @Render('index')
   root(@Request() req: any) {
@@ -35,5 +38,15 @@ export class AppController {
       }
     }
     return undefined;
+  }
+
+  // test
+  @Get('/rust')
+  getRustPdfService(@Query() param: string) {
+    console.log(param['url']);
+    return this.pdfGrpcService.requestPdfParsing({
+      url: param['url'],
+      local: false,
+    });
   }
 }

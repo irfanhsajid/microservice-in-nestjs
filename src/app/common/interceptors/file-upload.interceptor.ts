@@ -31,6 +31,17 @@ export class CustomFileInterceptor implements NestInterceptor {
   ): Observable<any> | Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
 
+    // Check Content-Type header
+    const contentType = request.headers['content-type'] || '';
+
+    if (!contentType.includes('multipart/form-data')) {
+      return Promise.reject(
+        new BadRequestException(
+          'Invalid Content-Type: Expected multipart/form-data',
+        ),
+      );
+    }
+
     return new Promise((resolve, reject) => {
       const busboy = Busboy({
         headers: request.headers,
