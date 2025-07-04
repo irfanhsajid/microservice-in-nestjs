@@ -25,6 +25,8 @@ RUN apt-get update && apt-get install -y \
     g++ \
     make \
     build-essential \
+    libssl-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js (latest LTS) and Yarn
