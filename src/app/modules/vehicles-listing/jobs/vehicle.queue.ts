@@ -13,6 +13,7 @@ import { SmsService } from '../../sms/sms.service';
 import { PDFGrpcService } from 'src/grpc/pdf/pdf.grpc.service';
 import { ResponsePDFParsingPayload } from 'src/grpc/types/pdf-service/pdf-service.pb';
 import { firstValueFrom } from 'rxjs';
+import { FileUploaderService } from '../../uploads/file-uploader.service';
 
 @Processor('vehicle-consumer')
 export class VehicleConsumer extends WorkerHost {
@@ -25,6 +26,7 @@ export class VehicleConsumer extends WorkerHost {
     protected readonly mailerService: MailerService,
     protected readonly smsService: SmsService,
     private readonly pdfGrpcService: PDFGrpcService,
+    private readonly fileUploaderService: FileUploaderService,
   ) {
     super();
   }
@@ -43,11 +45,15 @@ export class VehicleConsumer extends WorkerHost {
             local: local,
           });
           if (parsedResult.data) {
-            const newReport = new GenerateCarfaxReport(this.dataSource, {
-              user: user as User,
-              vehicleFaxReport,
-              carfaxData: parsedResult.data,
-            });
+            const newReport = new GenerateCarfaxReport(
+              this.fileUploaderService,
+              this.dataSource,
+              {
+                user: user as User,
+                vehicleFaxReport: { ...vehicleFaxReport, attachment: filePath },
+                carfaxData: parsedResult.data,
+              },
+            );
             this.logger.log(await newReport.save());
           } else {
             this.logger.error(parsedResult.errors);

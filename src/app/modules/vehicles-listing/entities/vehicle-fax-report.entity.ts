@@ -15,6 +15,7 @@ export enum VehicleFaxReportStatus {
   REQUESTED = 'REQUESTED',
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
+  INVALID_CARFAX_FORMAT = 'INVALID_CARFAX_FORMAT',
 }
 
 @Entity('vehicle_fax_report')
