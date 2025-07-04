@@ -12,10 +12,12 @@ import { VehicleFaxReportDetailsRecall } from '../entities/vehicle-fax-report-de
 import { VehicleFaxReportDetailsDetailedHistory } from '../entities/vehicle-fax-report-details-detailed-record.entity';
 import { CarfaxData } from 'src/grpc/types/pdf-service/pdf-service.pb';
 import { isValidCarfaxData } from 'src/app/common/utils/carfax.parser';
+import { FileUploaderService } from '../../uploads/file-uploader.service';
 
 export class GenerateCarfaxReport {
   private readonly logger = new CustomLogger(GenerateCarfaxReport.name);
   constructor(
+    private readonly fileUploaderService: FileUploaderService,
     private readonly dataSource: DataSource,
     private readonly data: {
       user: User;
@@ -35,6 +37,25 @@ export class GenerateCarfaxReport {
       if (!isValidCarfaxData(carfaxData)) {
         this.logger.error(`Error: Invalid carfax got`);
         this.logger.error(JSON.stringify(carfaxData, null, 2));
+        await this.fileUploaderService.deleteFile(
+          vehicleFaxReport.attachment as string,
+        );
+        // Merge vehicle Fax report with new fax file attachment
+        const updateVehicleFaxReport = queryRunner.manager.merge(
+          VehicleFaxReport,
+          vehicleFaxReport,
+          {
+            attachment: null,
+            status: VehicleFaxReportStatus.INVALID_CARFAX_FORMAT,
+          },
+        );
+        await queryRunner.manager.save(
+          VehicleFaxReport,
+          updateVehicleFaxReport,
+        );
+        await queryRunner.commitTransaction();
+
+        // Early return
         return;
       }
 
