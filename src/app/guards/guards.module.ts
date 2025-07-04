@@ -11,15 +11,25 @@ import { EnsureProfileCompletedGuard } from './ensure-profile-completed.guard';
 import { CaslModule } from '../modules/auth/casl/casl.module';
 import { EnsureHasDealershipGuard } from './ensure-has-dealership.guard';
 import { AuthOriginGuard } from './check-origin.guard';
+import { EnsureTokenIsValidGuard } from './ensure-token-valid.guard';
+import { VehiclesListingModule } from '../modules/vehicles-listing/vehicles-listing.module';
 
 @Module({
-  imports: [JwtModule, ConfigModule, DealershipModule, UserModule, CaslModule],
+  imports: [
+    JwtModule,
+    ConfigModule,
+    DealershipModule,
+    UserModule,
+    CaslModule,
+    VehiclesListingModule,
+  ],
   providers: [
     ApiGuard,
     EnsureEmailVerifiedGuard,
     EnsureProfileCompletedGuard,
     EnsureHasDealershipGuard,
     AuthOriginGuard,
+    EnsureTokenIsValidGuard,
   ],
   exports: [
     ApiGuard,
@@ -27,6 +37,7 @@ import { AuthOriginGuard } from './check-origin.guard';
     EnsureProfileCompletedGuard,
     EnsureHasDealershipGuard,
     AuthOriginGuard,
+    EnsureTokenIsValidGuard,
   ],
 })
 export class GuardsModule {}

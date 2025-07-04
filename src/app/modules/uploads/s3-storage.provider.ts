@@ -14,8 +14,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
 import { Readable } from 'stream';
-import { createReadStream, statSync } from 'fs';
-
 @Injectable()
 export class S3StorageProvider implements StorageProvider {
   private s3Client: S3Client;
@@ -32,48 +30,6 @@ export class S3StorageProvider implements StorageProvider {
 
   path(path: string): string {
     return `https://${this.bucket}.s3.amazonaws.com/${path}`;
-  }
-
-  async uploadFileStream(
-    fileStream: Readable,
-    fileName: string,
-    folder: string = '',
-    fileSize: number = 0,
-    contentType?: string,
-  ): Promise<string> {
-    try {
-      const sanitizedFileName = `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const key = folder ? `${folder}/${sanitizedFileName}` : sanitizedFileName;
-
-      console.info(`Uploading file to S3 with key: ${key}`);
-      const command = new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: fileStream,
-        ContentLength: fileSize,
-        ContentType: contentType || 'application/octet-stream',
-      });
-
-      await new Promise<void>((resolve, reject) => {
-        setImmediate(async () => {
-          try {
-            await this.s3Client.send(command);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        });
-      });
-
-      // await this.s3Client.send(command);
-      console.info(`File uploaded successfully: ${key}`);
-      return sanitizedFileName;
-    } catch (error) {
-      console.error(`S3 stream upload error: ${error.message}`);
-      throw new InternalServerErrorException(
-        `S3 stream upload error: ${error.message}`,
-      );
-    }
   }
 
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
@@ -118,6 +74,7 @@ export class S3StorageProvider implements StorageProvider {
         `Deleting file from S3 with key: ${filePath}, bucket: ${this.bucket}`,
       );
       const key = this.getKeyFromPath(filePath);
+      console.log('extracted key', key);
       // Verify object exists (optional, for better error handling)
       try {
         await this.s3Client.send(
@@ -135,14 +92,6 @@ export class S3StorageProvider implements StorageProvider {
           `Error checking file existence: ${error.message}`,
         );
       }
-
-      // Delete object using the extracted key
-      // await this.s3Client.send(
-      //   new DeleteObjectCommand({
-      //     Bucket: this.bucket,
-      //     Key: key,
-      //   }),
-      // );
 
       await new Promise<void>((resolve, reject) => {
         setImmediate(async () => {
@@ -172,50 +121,47 @@ export class S3StorageProvider implements StorageProvider {
     }
   }
 
-  async uploadFileFromPath(
-    filePath: string,
+  async uploadStream(
     key: string,
-    contentType = 'application/octet-stream',
+    fileStream: Readable,
+    contentType: string,
+    size: number,
+    retries = 3,
+    delay = 1000,
   ): Promise<string> {
-    try {
-      const fileStream = createReadStream(filePath);
-      const fileSize = statSync(filePath).size;
-
-      console.info(`Uploading file from path to S3 with key: ${key}`);
-      const command = new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: fileStream,
-        ContentLength: fileSize,
-        ContentType: contentType,
-      });
-
-      await new Promise<void>((resolve, reject) => {
-        setImmediate(async () => {
-          try {
-            await this.s3Client.send(command);
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const command = new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+          Body: fileStream,
+          ContentType: contentType,
+          ContentLength: size,
         });
-      });
-
-      console.info(`File uploaded successfully: ${key}`);
-      return key.split('/').pop()!;
-    } catch (error) {
-      console.error(`S3 upload error (path): ${error.message}`);
-      throw new InternalServerErrorException(
-        `S3 upload error (path): ${error.message}`,
-      );
+        await this.s3Client.send(command);
+        return key.split('/').pop()!;
+      } catch (err: any) {
+        if (err.Code === 'SlowDown' && attempt < retries) {
+          console.warn(
+            `S3 SlowDown error, retrying in ${delay}ms... attempt ${attempt}`,
+          );
+          await new Promise((r) => setTimeout(r, delay));
+          delay *= 2;
+        } else {
+          console.error('S3 upload failed:', err);
+          throw new InternalServerErrorException('Failed to upload file');
+        }
+      }
     }
+    throw new InternalServerErrorException('Exceeded upload retries');
   }
 
   getKeyFromPath(url: string) {
     const u = new URL(url);
-    const path = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
+    // const path = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
 
-    return path;
+    // return path;
+    return url.replace(u.origin + '/', '');
   }
 
   setClient(client: S3Client) {

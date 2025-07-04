@@ -1,11 +1,15 @@
 import {
+  BadRequestException,
   Controller,
   Delete,
   Get,
   Param,
   Post,
   Request,
+  Response,
   UnprocessableEntityException,
+  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -19,17 +23,16 @@ import {
 } from '@nestjs/swagger';
 import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { VehicleAttachmentService } from '../services/vehicle-attachment.service';
+import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
 
 @ApiTags('Vehicle-listing')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
-@Controller('api/v1')
 @ApiBearerAuth('jwt')
+@Controller('api/v1')
 export class VehicleAttachmentController {
   private readonly logger = new CustomLogger(VehicleAttachmentController.name);
 
@@ -39,27 +42,16 @@ export class VehicleAttachmentController {
 
   @Post('vehicle/attachments/:vinId')
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './storage/app/temp',
-        filename: (req, file, cb) => {
-          const filename = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-          cb(null, filename);
+    new CustomFileInterceptor(
+      'file',
+      1,
+      {
+        limits: {
+          fileSize: 1024 * 1024 * 100,
         },
-      }), // Minimal buffering to access metadata
-      // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
-      fileFilter: (req, file, cb) => {
-        if (!allowedImageMimeTypes.includes(file.mimetype)) {
-          return cb(
-            new UnprocessableEntityException({
-              file: `Invalid file type. Allowed types: ${allowedImageMimeTypes.join(', ')}`,
-            }),
-            false,
-          );
-        }
-        cb(null, true);
       },
-    }),
+      allowedImageMimeTypes,
+    ),
   )
   @ApiOperation({ summary: 'Upload an attachment for a vehicle' })
   @ApiBody({
@@ -79,10 +71,12 @@ export class VehicleAttachmentController {
     status: 201,
     description: 'Attachments uploaded successfully',
   })
-  async upload(@Request() req: any, @Param('vinId') id: number) {
-    const file = req.file;
-
-    // Validate file count (3 to 5 files required)
+  async upload(
+    @Request() req: any,
+    @Param('vinId') id: number,
+    @UploadedFile()
+    file: Express.Multer.File,
+  ) {
     if (!file) {
       throw new UnprocessableEntityException({
         file: 'The file field is required',

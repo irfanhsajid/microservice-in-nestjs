@@ -67,6 +67,9 @@ export class Dealership {
   @Column({ type: 'varchar', length: 255 })
   website: string;
 
+  @Column({ type: 'text', nullable: true })
+  rejected_reason?: string;
+
   @CreateDateColumn()
   created_at: Date;
 

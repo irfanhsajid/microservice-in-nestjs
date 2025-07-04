@@ -19,12 +19,22 @@ export class AdminDealershipIndexDto {
   @IsString()
   search: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    required: false,
+    type: 'string',
+    enum: DealershipIndexSortColumn,
+    default: DealershipIndexSortColumn.NAME,
+  })
   @IsOptional()
   @IsEnum(DealershipIndexSortColumn)
   sort_column: DealershipIndexSortColumn;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    required: false,
+    type: 'string',
+    enum: Sort,
+    default: Sort.ASC,
+  })
   @IsOptional()
   @IsEnum(Sort)
   sort_direction: Sort;

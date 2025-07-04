@@ -6,12 +6,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 import { UserService } from '../modules/user/user.service';
-import {
-  AppAbility,
-  CaslAbilityFactory,
-} from '../modules/auth/casl/casl-ability.factory';
+import { CaslAbilityFactory } from '../modules/auth/casl/casl-ability.factory';
+import { extractAuthorizeToken } from '../common/utils/extract-authorize-token';
 
 @Injectable()
 export class ApiGuard implements CanActivate {
@@ -25,7 +22,7 @@ export class ApiGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     console.info('connection got here');
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = extractAuthorizeToken(request);
     console.info('token user', token);
     if (!token) {
       throw new UnauthorizedException();
@@ -59,10 +56,5 @@ export class ApiGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

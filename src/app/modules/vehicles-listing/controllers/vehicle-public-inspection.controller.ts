@@ -7,57 +7,60 @@ import {
   Post,
   Request,
   UnprocessableEntityException,
-  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from '../../logger/logger.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
-import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
 import { VehicleInspectionService } from '../services/vehicle-inspection.service';
 import { CreateVehicleInspectionDto } from '../dto/vehicle-inspection.dto';
 import {
   VehicleInspectionTitleType,
   VehicleInspectionType,
 } from '../entities/vehicle-inspection.entity';
-import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
+import { EnsureTokenIsValidGuard } from '../../../guards/ensure-token-valid.guard';
+import { throwCatchError } from '../../../common/utils/throw-error';
+import { VehicleService } from '../services/vehicle.service';
 
-@ApiTags('Vehicle-Inspection')
-@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
+@ApiTags('Vehicle-Public-Inspection')
+@UseGuards(EnsureTokenIsValidGuard)
 @Controller('api/v1')
-@ApiBearerAuth('jwt')
-export class VehicleInspectionController {
-  private readonly logger = new CustomLogger(VehicleInspectionController.name);
+export class VehiclePublicInspectionController {
+  private readonly logger = new CustomLogger(
+    VehiclePublicInspectionController.name,
+  );
 
   constructor(
     private readonly vehicleInspectionService: VehicleInspectionService,
+    private readonly vehicleService: VehicleService,
   ) {}
 
-  @Post('vehicle/inspection/:vehicleId')
+  @Post('vehicle/public-inspection/:vehicleId')
   @UseInterceptors(
-    new CustomFileInterceptor(
-      'file',
-      1,
-      {
-        limits: {
-          // limit to 100Mb
-          fileSize: 1024 * 1024 * 100,
-        },
+    FileInterceptor('file', {
+      storage: memoryStorage(), // Minimal buffering to access metadata
+      // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
+      fileFilter: (req, file, cb) => {
+        if (!allowedImageMimeTypes.includes(file.mimetype)) {
+          return cb(
+            new UnprocessableEntityException({
+              file: `Invalid file type. Allowed types: ${allowedImageMimeTypes.join(', ')}`,
+            }),
+            false,
+          );
+        }
+        cb(null, true);
       },
-      allowedImageMimeTypes,
-    ),
+    }),
   )
   @ApiOperation({ summary: 'Upload an attachment for a vehicle' })
   @ApiBody({
@@ -104,9 +107,15 @@ export class VehicleInspectionController {
     @Request() req: any,
     @Param('vehicleId') id: number,
     @Body() dto: CreateVehicleInspectionDto,
-    @UploadedFile()
-    file: Express.Multer.File,
   ) {
+    const file = req.file;
+
+    if (!file) {
+      throw new UnprocessableEntityException({
+        file: 'The File is required',
+      });
+    }
+
     const dtoCombine = {
       id,
       file: file,
@@ -116,7 +125,7 @@ export class VehicleInspectionController {
     return await this.vehicleInspectionService.store(req, dtoCombine);
   }
 
-  @Get('vehicle/inspection/:vehicleId')
+  @Get('vehicle/public-inspection/:vehicleId')
   @ApiOperation({ summary: 'Get all attachments for a vehicle' })
   @ApiResponse({
     status: 200,
@@ -134,7 +143,7 @@ export class VehicleInspectionController {
     }
   }
 
-  @Delete('vehicle/inspection/:id')
+  @Delete('vehicle/public-inspection/:id')
   @ApiOperation({ summary: 'Delete an attachment by ID' })
   @ApiResponse({ status: 200, description: 'Attachment deleted successfully' })
   async delete(@Request() req: any, @Param('id') id: number): Promise<any> {
@@ -143,6 +152,25 @@ export class VehicleInspectionController {
     } catch (error) {
       this.logger.error(`Failed to delete attachment: ${error.message}`);
       throw error;
+    }
+  }
+
+  @Get('/public-vehicle-details/:vehicleId')
+  async details(
+    @Request() req: any,
+    @Param('vehicleId') id: number,
+  ): Promise<any> {
+    try {
+      const vehicle = await this.vehicleService.findById(id);
+      if (!vehicle) {
+        throw new UnprocessableEntityException({
+          message: 'Vehicle not found',
+        });
+      }
+      return await this.vehicleService.details(req, vehicle.vehicle_vin_id);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
     }
   }
 }

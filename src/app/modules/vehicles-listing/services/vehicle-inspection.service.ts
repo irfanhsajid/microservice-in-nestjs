@@ -1,5 +1,9 @@
 import { CreateVehicleInspectionDto } from './../dto/vehicle-inspection.dto';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,7 +11,6 @@ import { Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
-import { User } from '../../user/entities/user.entity';
 import { VehicleInspection } from '../entities/vehicle-inspection.entity';
 import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
@@ -29,7 +32,11 @@ export class VehicleInspectionService implements ServiceInterface {
 
   async store(
     req: Request,
-    dto: { id: number; file: any; dto: CreateVehicleInspectionDto },
+    dto: {
+      id: number;
+      file: Express.Multer.File;
+      dto: CreateVehicleInspectionDto;
+    },
   ): Promise<Record<string, any>> {
     const queryRunner =
       this.vehicleInspectionRepository.manager.connection.createQueryRunner();
@@ -60,6 +67,13 @@ export class VehicleInspectionService implements ServiceInterface {
       );
 
       if (!vehicleReport) {
+        // check file is exist or not in current vehicle report not exist
+        if (!dto.file) {
+          throw new UnprocessableEntityException({
+            file: 'The File is required',
+          });
+        }
+
         vehicleReport = queryRunner.manager.create(VehicleInspectionReport, {
           vehicle_id: vechicle_id,
         });
@@ -69,22 +83,23 @@ export class VehicleInspectionService implements ServiceInterface {
           vehicleReport,
         );
       }
-
-      // Upload a file
-      const fileName = dto.file.originalname;
-      const fileStream = Readable.from(dto.file.buffer);
-      const fileSize = dto.file.size;
-
-      const folder = `vehicle/inspection/${vechicle_id}`;
-
-      const newFile = await this.fileUploadService.uploadFileStream(
-        fileStream,
-        fileName,
-        fileSize,
-        folder,
-      );
-
-      uploadedFiles = `${folder}/${newFile}`;
+      let newFile = '';
+      // Check if file exist
+      if (dto.file) {
+        // Upload a file
+        const folder = `vehicle/inspection/${vechicle_id}`;
+        const file = dto.file;
+        const fileName = `${Date.now()}-${file.originalname}`;
+        const fileStream = Readable.from(file.buffer);
+        const key = `${folder}/${fileName}`;
+        newFile = await this.fileUploadService.uploadStream(
+          key,
+          fileStream,
+          file.mimetype,
+          file.size,
+        );
+        uploadedFiles = `${folder}/${newFile}`;
+      }
 
       // find inspection
       let inspection = await queryRunner.manager.findOne(VehicleInspection, {
@@ -92,6 +107,7 @@ export class VehicleInspectionService implements ServiceInterface {
           vehicle_id: vechicle_id,
           vehicle_inspection_report_id: vehicleReport.id,
           type: dto.dto.type,
+          title: dto.dto.title,
         },
       });
 
@@ -105,7 +121,7 @@ export class VehicleInspectionService implements ServiceInterface {
       } else {
         inspection = queryRunner.manager.merge(VehicleInspection, inspection, {
           ...dto.dto,
-          path: newFile,
+          ...(dto.file ? { path: newFile } : {}),
         });
       }
 
@@ -119,7 +135,9 @@ export class VehicleInspectionService implements ServiceInterface {
 
       return {
         ...inspection,
-        path: this.fileUploadService.path(uploadedFiles),
+        path: dto.file
+          ? this.fileUploadService.path(uploadedFiles)
+          : inspection.path,
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -131,6 +149,8 @@ export class VehicleInspectionService implements ServiceInterface {
       }
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -207,8 +227,11 @@ export class VehicleInspectionService implements ServiceInterface {
         message: `Attachment removed successfully`,
       };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 }

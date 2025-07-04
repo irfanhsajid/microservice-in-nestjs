@@ -3,11 +3,13 @@ import { CustomLogger } from '../../logger/logger.service';
 import { VehicleInspectionLinkDto } from '../dto/vehicle-inspection-link.dto';
 import { VehicleInspectionLink } from '../entities/vehicle-inspection-links.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Vehicle } from '../entities/vehicles.entity';
 import { randomBytes } from 'crypto';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
+import { User } from '../../user/entities/user.entity';
+import { DateUtils } from '../../../common/utils/date-utils';
 
 @Injectable()
 export class VehicleInspectionLinkService {
@@ -45,12 +47,14 @@ export class VehicleInspectionLinkService {
         vehicleInspectionLink,
         {
           token,
+          expired_at: DateUtils.addDays(new Date(), 7),
           ...dto,
         },
       );
     } else {
       vehicleInspectionLink = this.vehicleInspectionLinkRepository.create({
         token,
+        expired_at: DateUtils.addDays(new Date(), 7),
         ...dto,
         vehicle: vehicle,
       });
@@ -63,8 +67,24 @@ export class VehicleInspectionLinkService {
     await this.vehicleQueue.add('vehicle-inspection-link', {
       email: dto.email,
       phone: dto.phone,
+      vehicleId: vehicle.id,
       token,
     });
     return vehicleInspectionLink;
+  }
+
+  async validateToken(token: string | undefined): Promise<User | null> {
+    const vehicleInspectionLink =
+      await this.vehicleInspectionLinkRepository.findOne({
+        where: { token, expired_at: MoreThan(new Date()) },
+        relations: { vehicle: { vehicle_vin: { user: true } } },
+      });
+
+    if (!vehicleInspectionLink) {
+      this.logger.warn('No inspection link found for the user');
+      return null;
+    }
+
+    return vehicleInspectionLink.vehicle?.vehicle_vin?.user;
   }
 }

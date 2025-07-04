@@ -43,6 +43,8 @@ export class AdminDealershipService implements ServiceInterface {
       .createQueryBuilder('dealership')
       .leftJoinAndSelect('dealership.vehicle_vins', 'vehicle_vins')
       .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
+      .leftJoinAndSelect('user_dealerships.user', 'user')
+      .leftJoinAndSelect('dealership.attachments', 'attachments')
       .loadRelationCountAndMap(
         'dealership.total_listings',
         'dealership.vehicle_vins',
@@ -50,12 +52,17 @@ export class AdminDealershipService implements ServiceInterface {
       .where('dealership.name ILIKE :search', { search: `%${search}%` })
       .select([
         'dealership.id',
-        'dealership.name',
-        'dealership.email',
+        'dealership.license_class',
+        'user.name',
+        'user.email',
+        'user.avatar',
+        'user.phone_number',
         'user_dealerships.status',
+        'attachments',
         'dealership.created_at',
         'dealership.updated_at',
       ])
+      .addSelect('dealership.name', 'dealership_name')
       .orderBy(
         orderBy === 'status'
           ? 'user_dealerships.status'
@@ -105,6 +112,7 @@ export class AdminDealershipService implements ServiceInterface {
     const dealership = await this.dealershipRepository
       .createQueryBuilder('dealership')
       .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
+      .leftJoinAndSelect('user_dealerships.user', 'user')
       .leftJoinAndSelect('dealership.addresses', 'addresses')
       .leftJoinAndSelect('dealership.payment_infos', 'payment_infos')
       .leftJoinAndSelect('dealership.attachments', 'attachments')
@@ -153,8 +161,21 @@ export class AdminDealershipService implements ServiceInterface {
       );
     }
 
+    // Update dealership status
     userDealership.status = dto.status;
     await this.userDealershipRepository.save(userDealership);
+
+    // Update rejected reason if status is rejected
+    if (userDealership.status === UserDealershipStatus.DENIED) {
+      await this.dealershipRepository.update(
+        {
+          id: dealershipId,
+        },
+        {
+          rejected_reason: dto.rejected_reason,
+        },
+      );
+    }
 
     return userDealership;
   }
