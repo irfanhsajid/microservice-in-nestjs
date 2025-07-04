@@ -69,6 +69,11 @@ else
   echo "REDIS_PORT is not set; using the default value from .env"
 fi
 
+cd /app/rust
+cargo vendor vendor
+cargo build --release
+
+
 cd /app
 yarn
 yarn generate:proto
@@ -81,3 +86,4 @@ supervisorctl update
 supervisorctl start all
 
 exec nginx -g "daemon off;"
+
