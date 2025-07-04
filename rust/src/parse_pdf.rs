@@ -8,7 +8,7 @@ pub fn extract_section<'a>(text: &'a str, start_marker: &str, end_marker: &str) 
     Some(&text[start_index..end_index])
 }
 
-pub fn extract_basic_fields(text: &str) -> (String, String, String, String, bool) {
+pub fn extract_basic_fields(text: &str) -> (String, String, String, String, bool, String) {
     let mut vin = "N/A".to_string();
     let mut model = "N/A".to_string();
     let mut odometer = "N/A".to_string();
@@ -16,8 +16,11 @@ pub fn extract_basic_fields(text: &str) -> (String, String, String, String, bool
     let is_stolen = !text.contains("This vehicle is not actively declared stolen.");
 
     for line in text.lines().map(str::trim) {
-        if vin == "N/A" && line.len() == 17 && line.chars().all(|c| c.is_ascii_alphanumeric()) {
-            vin = line.to_string();
+        if vin == "N/A" {
+            let compact = line.replace(char::is_whitespace, "");
+            if compact.len() == 17 && compact.chars().all(|c| c.is_ascii_alphanumeric()) {
+                vin = compact;
+            }
         } else if model == "N/A" && line.len() >= 6 && line.chars().take(4).all(|c| c.is_ascii_digit()) {
             model = line.to_string();
         } else if odometer == "N/A" && line.contains("Last Reported Odometer:") {
@@ -35,7 +38,13 @@ pub fn extract_basic_fields(text: &str) -> (String, String, String, String, bool
         }
     }
 
-    (vin, model, odometer, country, is_stolen)
+    let mut registration = "";
+    if let Some(reg) = extract_section(&text, "This vehicle has been registered", "DATE ODOMETER SOURCE DETAILS") {
+        registration = reg;
+    }
+
+
+    (vin, model, odometer, country, is_stolen, registration.to_string())
 }
 
 
@@ -246,7 +255,7 @@ pub fn parse_detailed_history(text: &str) -> Vec<DetailedHistory> {
                             odometer,
                             source,
                             record_type: record_type.to_string(),
-                            string_details,
+                            details: string_details,
                         });
                     }
                 }

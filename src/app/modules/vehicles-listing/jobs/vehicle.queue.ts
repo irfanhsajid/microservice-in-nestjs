@@ -9,6 +9,9 @@ import { DataSource } from 'typeorm';
 import { GenerateCarfaxReport } from './generate-carfax-report';
 import { User } from '../../user/entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
+import { PDFGrpcService } from 'src/grpc/pdf/pdf.grpc.service';
+import { ResponsePDFParsingPayload } from 'src/grpc/types/pdf-service/pdf-service.pb';
+import { firstValueFrom } from 'rxjs';
 
 @Processor('vehicle-consumer')
 export class VehicleConsumer extends WorkerHost {
@@ -19,6 +22,7 @@ export class VehicleConsumer extends WorkerHost {
     @InjectDataSource()
     private readonly dataSource: DataSource,
     protected readonly mailerService: MailerService,
+    private readonly pdfGrpcService: PDFGrpcService,
   ) {
     super();
   }
@@ -27,22 +31,36 @@ export class VehicleConsumer extends WorkerHost {
     switch (job.name) {
       case 'vehicle-fax-report': {
         this.logger.log('Running job for vehicle-fax-report');
-        const { vehicleFaxReport, filePath, user } = job.data;
+        const { vehicleFaxReport, filePath, user, local, localPath } = job.data;
 
         try {
           // Parse PDF
           console.time('parseCarfaxPDF'); // Start timer
-          const parsedResult = await parseCarfaxPDF(filePath);
-
-          const newReport = new GenerateCarfaxReport(this.dataSource, {
-            user: user as User,
-            vehicleFaxReport,
-            carfaxData: parsedResult,
+          const parsedResult = await this.pdfGrpcService.requestPdfParsing({
+            url: local ? localPath : filePath,
+            local: local,
           });
-
-          console.log(await newReport.save());
+          if (parsedResult.data) {
+            const newReport = new GenerateCarfaxReport(this.dataSource, {
+              user: user as User,
+              vehicleFaxReport,
+              carfaxData: parsedResult.data,
+            });
+            this.logger.log(await newReport.save());
+          } else {
+            this.logger.error(parsedResult.errors);
+          }
           console.timeEnd('parseCarfaxPDF');
-          console.log('Saved to output.json');
+
+          // const newReport = new GenerateCarfaxReport(this.dataSource, {
+          //   user: user as User,
+          //   vehicleFaxReport,
+          //   carfaxData: parsedResult,
+          // });
+
+          // console.log(await newReport.save());
+          // console.timeEnd('parseCarfaxPDF');
+          // console.log('Saved to output.json');
 
           return { status: 'success' };
         } catch (error) {

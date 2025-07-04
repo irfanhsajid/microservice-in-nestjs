@@ -17,6 +17,7 @@ import { Queue } from 'bullmq';
 import { validateCarfaxFormat } from 'src/app/common/utils/carfax.parser';
 import { VehicleFaxReportDetails } from '../entities/vehicle-fax-report-details.entity';
 import { User } from '../../user/entities/user.entity';
+import { FileCacheHandler } from 'src/app/common/utils/file-cache-handler';
 
 @Injectable()
 export class VehicleFaxReportService implements ServiceInterface {
@@ -134,11 +135,23 @@ export class VehicleFaxReportService implements ServiceInterface {
         vehicleFaxReport,
       );
 
+      // save file for report processing
+      const cacheFileHandler = new FileCacheHandler();
+
+      const savedCache = await cacheFileHandler.saveFile(file);
+
+      let local = false;
+
+      if (typeof savedCache === 'string') {
+        local = true;
+      }
       // Add extraction task to queue
       await this.vehicleQueue.add('vehicle-fax-report', {
         vehicleFaxReport,
         filePath: this.fileUploadService.path(uploadedFiles),
         user: req['user'],
+        local,
+        localPath: savedCache,
       });
 
       // commit transaction

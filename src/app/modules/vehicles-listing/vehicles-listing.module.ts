@@ -41,6 +41,7 @@ import { VehicleFaxReportDetailsDetailedHistory } from './entities/vehicle-fax-r
 import { VehicleFaxReportDetailsRecall } from './entities/vehicle-fax-report-details-recall.entity';
 import { VehicleFaxReportDetailsServiceRecord } from './entities/vehicle-fax-report-details-service-record.entity';
 import { VehiclePublicInspectionController } from './controllers/vehicle-public-inspection.controller';
+import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { VehiclePublicInspectionController } from './controllers/vehicle-public-
     UserModule,
     UploadsModule,
     CaslModule,
+    PdfGrpcModule,
     BullModule.registerQueue({
       name: 'vehicle-consumer',
     }),

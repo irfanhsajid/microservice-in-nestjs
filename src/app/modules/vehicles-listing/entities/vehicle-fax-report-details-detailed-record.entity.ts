@@ -22,16 +22,16 @@ export class VehicleFaxReportDetailsDetailedHistory {
   @JoinColumn({ name: 'vehicleFaxReportDetails_id' })
   vehicleFaxReportDetails: VehicleFaxReportDetails;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', nullable: true })
   date: string;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   odometer: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   source: string[];
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', nullable: true })
   record_type: string;
 
   @Column({ type: 'jsonb', nullable: true })

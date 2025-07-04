@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import {
   PDF_SERVICE_NAME,
   PDFServiceClient,
+  RequestPDFParsingPayload,
   ResponsePDFParsingPayload,
 } from 'src/grpc/types/pdf-service/pdf-service.pb';
 
@@ -15,9 +16,9 @@ export class PDFGrpcService {
     private grpcClient: ClientGrpc,
   ) {}
 
-  async requestPdfParsing(dto: {
-    url: string;
-  }): Promise<Observable<ResponsePDFParsingPayload>> {
+  async requestPdfParsing(
+    dto: RequestPDFParsingPayload,
+  ): Promise<ResponsePDFParsingPayload> {
     const pdfService =
       this.grpcClient.getService<PDFServiceClient>(PDF_SERVICE_NAME);
     return new Promise((resolve, reject) => {
