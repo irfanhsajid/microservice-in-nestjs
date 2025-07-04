@@ -4,6 +4,7 @@
 /build
 
 yarn.lock
+/.yarn
 
 # Logs
 logs
