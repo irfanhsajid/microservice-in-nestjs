@@ -30,7 +30,7 @@ impl PdfService for PDFService {
         let url = payload.url;
 
         let pdf_bytes = if payload.local {
-            // println!("using local file");
+            println!("using local file");
             let path = Path::new("..").join(&url);
             let mut file = fs::File::open(&path).await.map_err(|e| {
             Status::internal(format!("Failed to open local PDF file: {}", e))})?;
@@ -47,8 +47,8 @@ impl PdfService for PDFService {
 
             buf
         } else {
-            // println!("using online file");
             // Download from URL
+            println!("using online file");
             let client = reqwest::Client::new();
             let res = client.get(&url).send().await.map_err(|e| {
                 Status::internal(format!("Failed to fetch remote PDF: {}", e))
@@ -75,9 +75,7 @@ impl PdfService for PDFService {
 
         let recall = parse_recalls(&text);
 
-
-        // println!("basic text {} {} {} {} {}", basic_field.0, basic_field.1, basic_field.2, basic_field.3, basic_field.4);
-
+        println!("PDF processing done!");
         // Dummy CarfaxData
         let carfax_data = CarfaxData {
             vin: basic_field.0,
