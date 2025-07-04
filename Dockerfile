@@ -28,9 +28,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get update && apt-get install -y nodejs \
     && npm install -g yarn \
     && node -v \
-    && yarn -v \
-    && --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    && yarn -v
 
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 # Copy project files and configuration
 COPY . .
 COPY ./.env.example .env

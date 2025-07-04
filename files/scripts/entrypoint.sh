@@ -72,6 +72,7 @@ fi
 cd /app/rust
 cargo vendor vendor
 cargo build --release
+chmod +x /app/rust/target/release/server
 
 
 cd /app
