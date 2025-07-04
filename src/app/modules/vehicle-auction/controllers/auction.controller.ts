@@ -7,5 +7,5 @@ import { EnsureProfileCompletedGuard } from '../../../guards/ensure-profile-comp
 @ApiTags('Auction Setup')
 @ApiBearerAuth('jwt')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
-@Controller('api/v1')
+@Controller('api/v1/auction')
 export class AuctionController {}

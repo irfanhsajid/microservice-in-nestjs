@@ -75,6 +75,7 @@ impl PdfService for PDFService {
 
         let recall = parse_recalls(&text);
 
+        println!("is stollen {}", basic_field.4);
         println!("PDF processing done!");
         // Dummy CarfaxData
         let carfax_data = CarfaxData {
