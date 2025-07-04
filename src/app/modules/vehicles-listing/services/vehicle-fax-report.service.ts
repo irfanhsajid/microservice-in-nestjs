@@ -52,7 +52,7 @@ export class VehicleFaxReportService implements ServiceInterface {
     let uploadedFiles: any;
 
     try {
-      const vechicle_id = dto.id;
+      const vehicle_id = dto.id;
       const userDealership = req['user_default_dealership'] as UserDealership;
 
       // find a vehicle report
@@ -84,7 +84,7 @@ export class VehicleFaxReportService implements ServiceInterface {
         },
       );
 
-      const folder = `vehicle/fax/${vechicle_id}`;
+      const folder = `vehicle/fax/${vehicle_id}`;
 
       // Upload attachment file
       const file = dto.file;

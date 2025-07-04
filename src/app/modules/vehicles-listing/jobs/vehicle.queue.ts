@@ -43,6 +43,7 @@ export class VehicleConsumer extends WorkerHost {
             local: local,
           });
           if (parsedResult.data) {
+            console.log('Parsed Result:', parsedResult.data);
             const newReport = new GenerateCarfaxReport(this.dataSource, {
               user: user as User,
               vehicleFaxReport,
