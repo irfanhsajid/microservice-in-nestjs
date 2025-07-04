@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -72,7 +76,7 @@ export class VehicleFaxReportService implements ServiceInterface {
       const isValidFile = await validateCarfaxFormat(dto.file.buffer);
 
       if (!isValidFile) {
-        throw new BadRequestException('Invalid CARFAX PDF format');
+        throw new UnprocessableEntityException('Invalid CARFAX PDF format');
       }
       // Find a vehicle fax attachment report exist
       let vehicleFaxReport = await queryRunner.manager.findOne(

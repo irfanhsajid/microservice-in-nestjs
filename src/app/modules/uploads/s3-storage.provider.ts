@@ -14,10 +14,12 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
 import { Readable } from 'stream';
+import { CustomLogger } from '../logger/logger.service';
 @Injectable()
 export class S3StorageProvider implements StorageProvider {
   private s3Client: S3Client;
   private readonly bucket: string;
+  private readonly logger = new CustomLogger(S3StorageProvider.name);
 
   constructor(private configService: ConfigService) {
     this.bucket = this.configService.get<string>(
@@ -70,12 +72,11 @@ export class S3StorageProvider implements StorageProvider {
 
   async deleteFile(filePath: string): Promise<void> {
     try {
-      console.info(
+      this.logger.log(
         `Deleting file from S3 with key: ${filePath}, bucket: ${this.bucket}`,
       );
       const key = this.getKeyFromPath(filePath);
-      console.log('extracted key', key);
-      // Verify object exists (optional, for better error handling)
+      this.logger.log('extracted key', key);
       try {
         await this.s3Client.send(
           new HeadObjectCommand({
@@ -83,14 +84,15 @@ export class S3StorageProvider implements StorageProvider {
             Key: key,
           }),
         );
-        console.info('File exists, proceeding with deletion');
+        this.logger.log('File exists, proceeding with deletion');
       } catch (error) {
-        if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
-          throw new BadRequestException(`File does not exist: ${key}`);
-        }
-        throw new BadRequestException(
-          `Error checking file existence: ${error.message}`,
-        );
+        this.logger.error(error);
+        // if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
+        //   throw new BadRequestException(`File does not exist: ${key}`);
+        // }
+        // throw new BadRequestException(
+        //   `Error checking file existence: ${error.message}`,
+        // );
       }
 
       await new Promise<void>((resolve, reject) => {
@@ -109,15 +111,15 @@ export class S3StorageProvider implements StorageProvider {
         });
       });
 
-      console.info(`File deleted successfully: ${key}`);
+      this.logger.log(`File deleted successfully: ${key}`);
     } catch (error) {
-      console.error('S3 deletion error:', error);
-      if (error.name === 'NoSuchKey' || error.name === 'NotFound') {
-        throw new BadRequestException(`File does not exist: ${filePath}`);
-      } else if (error.name === 'AccessDenied') {
-        throw new BadRequestException('Permission denied to delete file');
-      }
-      throw new BadRequestException(`File deletion failed: ${error.message}`);
+      this.logger.error('S3 deletion error:', error);
+      // if (error.name === 'NoSuchKey' || error.name === 'NotFound') {
+      //   throw new BadRequestException(`File does not exist: ${filePath}`);
+      // } else if (error.name === 'AccessDenied') {
+      //   throw new BadRequestException('Permission denied to delete file');
+      // }
+      // throw new BadRequestException(`File deletion failed: ${error.message}`);
     }
   }
 
