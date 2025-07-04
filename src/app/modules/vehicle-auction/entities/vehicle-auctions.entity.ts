@@ -42,7 +42,7 @@ export class VehicleAuction {
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: Vehicle;
 
-  @ManyToOne(() => Dealership, (dealership) => dealership.vechicle_vins)
+  @ManyToOne(() => Dealership, (dealership) => dealership.vehicle_vins)
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
 
