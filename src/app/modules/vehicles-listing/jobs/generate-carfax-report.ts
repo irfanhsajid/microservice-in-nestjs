@@ -46,7 +46,7 @@ export class GenerateCarfaxReport {
           vehicleFaxReport,
           {
             attachment: null,
-            status: VehicleFaxReportStatus.INVALID_CARFAX_FORMAT,
+            status: VehicleFaxReportStatus.CARFAX_REPORT_GENERATION_FAILED,
           },
         );
         await queryRunner.manager.save(
