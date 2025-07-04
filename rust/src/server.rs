@@ -1,7 +1,10 @@
+use std::path::Path;
+use tokio::fs;
+
 use carvu::pdf_service_server::{PdfServiceServer, PdfService};
 use carvu::{RequestPdfParsingPayload, ResponsePdfParsingPayload, CarfaxData};
-use pdf_extract::extract_text_from_mem;
-use reqwest::Client;
+use pdf_extract::{extract_text_from_mem};
+use tokio::io::AsyncReadExt;
 use tonic::transport::Server;
 use tonic::{Request, Response, Status};
 use parse_pdf::{extract_basic_fields, parse_incidents};
@@ -25,29 +28,43 @@ impl PdfService for PDFService {
     ) -> Result<Response<ResponsePdfParsingPayload>, Status> {
         let payload = request.into_inner();
         let url = payload.url;
-        println!("got url {:?}", url);
 
-        let client = Client::new();
+        let pdf_bytes = if payload.local {
+            println!("using local file");
+            let path = Path::new("..").join(&url);
+            let mut file = fs::File::open(&path).await.map_err(|e| {
+            Status::internal(format!("Failed to open local PDF file: {}", e))})?;
 
-        // Download pdf bytes
-        let reponse = client.get(url).send().await.map_err(|e| {
-            Status::internal(format!("Falied to process PDF: {}", e))
-        })?;
+            let mut buf = Vec::new();
+            file.read_to_end(&mut buf).await.map_err(|e| {
+                Status::internal(format!("Failed to read local PDF file: {}", e))
+            })?;
 
-        if !reponse.status().is_success() {
-            return Err(Status::internal(format!("Failed to process PDF, status: {}", reponse.status())));
-        }
+            // Delete the local file after reading
+            fs::remove_file(path).await.map_err(|e| {
+                Status::internal(format!("Failed to delete local PDF file: {}", e))
+            })?;
 
-        let pdf_bytes = reponse.bytes().await.map_err(|e| {
-            Status::internal(format!("Falied to read PDF response body: {}", e))
-        })?;
+            buf
+        } else {
+            // Download from URL
+            println!("using online file");
+            let client = reqwest::Client::new();
+            let res = client.get(&url).send().await.map_err(|e| {
+                Status::internal(format!("Failed to fetch remote PDF: {}", e))
+            })?;
+
+            res.bytes().await.map_err(|e| {
+                Status::internal(format!("Failed to read remote PDF content: {}", e))
+            })?.to_vec()
+
+        };
 
         // println!("Extracted Text:\n{}", full_text);
         let text = extract_text_from_mem(&pdf_bytes).map_err(|e| {
             Status::internal(format!("Failed to extract text from PDF: {}", e))
         })?;
-        println!("{}", text);
-        // println!("Full extracted text:\n{}", text);
+
         let basic_field = extract_basic_fields(&text);
 
         let incident = parse_incidents(&text);
@@ -58,9 +75,7 @@ impl PdfService for PDFService {
 
         let recall = parse_recalls(&text);
 
-
-        println!("basic text {} {} {} {} {}", basic_field.0, basic_field.1, basic_field.2, basic_field.3, basic_field.4);
-
+        println!("PDF processing done!");
         // Dummy CarfaxData
         let carfax_data = CarfaxData {
             vin: basic_field.0,
@@ -68,8 +83,8 @@ impl PdfService for PDFService {
             odometer: basic_field.2,
             country: basic_field.3,
             is_stolen: basic_field.4,
+            registration: basic_field.5,
             accidents: incident,
-            registration: "This vehicle has been registered in the province of Ontario in Canada with Normal branding".to_string(),
             service_records: service_records,
             detailed_history: detailed_history,
             recalls: recall,

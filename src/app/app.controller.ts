@@ -44,6 +44,9 @@ export class AppController {
   @Get('/rust')
   getRustPdfService(@Query() param: string) {
     console.log(param['url']);
-    return this.pdfGrpcService.requestPdfParsing({ url: param['url'] });
+    return this.pdfGrpcService.requestPdfParsing({
+      url: param['url'],
+      local: false,
+    });
   }
 }
