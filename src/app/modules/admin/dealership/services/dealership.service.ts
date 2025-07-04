@@ -112,6 +112,7 @@ export class AdminDealershipService implements ServiceInterface {
     const dealership = await this.dealershipRepository
       .createQueryBuilder('dealership')
       .leftJoinAndSelect('dealership.user_dealerships', 'user_dealerships')
+      .leftJoinAndSelect('user_dealerships.user', 'user')
       .leftJoinAndSelect('dealership.addresses', 'addresses')
       .leftJoinAndSelect('dealership.payment_infos', 'payment_infos')
       .leftJoinAndSelect('dealership.attachments', 'attachments')
