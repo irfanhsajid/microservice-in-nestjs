@@ -31,6 +31,8 @@ import { AdminModule } from './modules/admin/admin.module';
 import twilio from '../config/twilio';
 import sms from '../config/sms';
 import { SmsModule } from './modules/sms/sms.module';
+import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
+import { AuctionModule } from './modules/vehicle-auction/auction.module';
 
 @Module({
   imports: [
@@ -115,6 +117,8 @@ import { SmsModule } from './modules/sms/sms.module';
     VehiclesListingModule,
     AdminModule,
     SmsModule,
+    PdfGrpcModule,
+    AuctionModule,
   ],
   controllers: [AppController],
   providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],
