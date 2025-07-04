@@ -1,7 +1,10 @@
 import axios from 'axios';
 import * as fs from 'fs';
-import { writeFile } from 'fs/promises';
 import * as pdf from 'pdf-parse';
+import {
+  Recall,
+  ServiceDetails,
+} from 'src/grpc/types/pdf-service/pdf-service.pb';
 
 interface Incident {
   date: string;
@@ -412,21 +415,16 @@ function parseVehicleHistory(raw: string): DetailedHistory[] {
   return result;
 }
 
-// Test code
-// void (async () => {
-//   console.time('parseCarfaxPDF'); // Start timer
+export function isValidCarfaxData(data: any): boolean {
+  const isString = (val: any) => typeof val === 'string';
 
-//   const result = await parseCarfaxPDF(
-//     '/home/mrk/Desktop/project/carvu/CARFAX Canada Vehicle History Report 2.pdf',
-//     'local',
-//   );
-
-//   await writeFile(
-//     '/home/mrk/Desktop/project/carvu/output.json',
-//     JSON.stringify(result, null, 2),
-//     'utf-8',
-//   );
-
-//   console.timeEnd('parseCarfaxPDF'); // End timer and log result
-//   console.log('Saved to output.json');
-// })();
+  return (
+    data &&
+    isString(data.vin) &&
+    isString(data.model) &&
+    isString(data.odometer) &&
+    isString(data.country) &&
+    isString(data.registration) &&
+    typeof data.isStolen === 'boolean'
+  );
+}

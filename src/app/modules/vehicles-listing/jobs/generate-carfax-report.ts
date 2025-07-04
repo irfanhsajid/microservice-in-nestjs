@@ -11,6 +11,7 @@ import { VehicleFaxReportDetailsServiceRecord } from '../entities/vehicle-fax-re
 import { VehicleFaxReportDetailsRecall } from '../entities/vehicle-fax-report-details-recall.entity';
 import { VehicleFaxReportDetailsDetailedHistory } from '../entities/vehicle-fax-report-details-detailed-record.entity';
 import { CarfaxData } from 'src/grpc/types/pdf-service/pdf-service.pb';
+import { isValidCarfaxData } from 'src/app/common/utils/carfax.parser';
 
 export class GenerateCarfaxReport {
   private readonly logger = new CustomLogger(GenerateCarfaxReport.name);
@@ -29,7 +30,13 @@ export class GenerateCarfaxReport {
     await queryRunner.startTransaction();
 
     try {
-      const { user, vehicleFaxReport, carfaxData } = this.data;
+      const { vehicleFaxReport, carfaxData } = this.data;
+
+      if (!isValidCarfaxData(carfaxData)) {
+        this.logger.error(`Error: Invalid carfax got`);
+        this.logger.error(JSON.stringify(carfaxData, null, 2));
+        return;
+      }
 
       // Remove old details if they exist
       const existingDetails = await queryRunner.manager.findOne(
