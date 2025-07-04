@@ -22,15 +22,15 @@ export class VehicleFaxReportDetailsAccident {
   @JoinColumn({ name: 'vehicleFaxReportDetails_id' })
   vehicleFaxReportDetails: VehicleFaxReportDetails;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', nullable: true })
   date: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', nullable: true })
   location: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   amounts: string[];
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   details: string[];
 }

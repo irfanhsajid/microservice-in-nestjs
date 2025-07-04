@@ -4,6 +4,7 @@
 /build
 
 yarn.lock
+/.yarn
 
 # Logs
 logs
@@ -72,3 +73,7 @@ storage/app/temp/*
 storage/logs/*
 !storage/logs
 !storage/logs/.gitkeep
+
+# rust project ignore
+rust/target
+rust/vendor
