@@ -21,6 +21,10 @@ RUN apt-get update && apt-get install -y \
     vim \
     software-properties-common \
     protobuf-compiler \
+    gcc \
+    g++ \
+    make \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js (latest LTS) and Yarn
@@ -31,6 +35,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && yarn -v
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+# Ensure Rust environment is sourced
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 # Copy project files and configuration
 COPY . .
 COPY ./.env.example .env
