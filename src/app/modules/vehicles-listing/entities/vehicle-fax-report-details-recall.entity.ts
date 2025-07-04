@@ -22,9 +22,9 @@ export class VehicleFaxReportDetailsRecall {
   @JoinColumn({ name: 'vehicleFaxReportDetails_id' })
   vehicleFaxReportDetails: VehicleFaxReportDetails;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', nullable: true })
   recall_number: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', nullable: true })
   recall_date: string;
 }

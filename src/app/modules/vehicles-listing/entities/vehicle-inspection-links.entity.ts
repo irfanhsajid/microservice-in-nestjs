@@ -28,6 +28,9 @@ export class VehicleInspectionLink {
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: Vehicle;
 
+  @Column({ type: 'timestamp', nullable: true })
+  expired_at: Date;
+
   @CreateDateColumn({ nullable: true })
   created_at: Date;
 

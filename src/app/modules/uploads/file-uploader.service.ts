@@ -27,28 +27,6 @@ export class FileUploaderService {
     }
   }
 
-  async uploadFileStream(
-    fileStream: Readable,
-    fileName: string,
-    fileSize: number = 0,
-    folder: string = '',
-  ): Promise<string> {
-    if (!fileStream || !fileName) {
-      throw new BadRequestException('File stream or file name not provided');
-    }
-
-    try {
-      return await this.storageProvider.uploadFileStream(
-        fileStream,
-        fileName,
-        folder,
-        fileSize,
-      );
-    } catch (error) {
-      throw new BadRequestException(`File upload failed: ${error.message}`);
-    }
-  }
-
   async deleteFile(filePath: string): Promise<void> {
     try {
       await this.storageProvider.deleteFile(filePath);
@@ -58,12 +36,18 @@ export class FileUploaderService {
     }
   }
 
-  async uploadFileFromPath(
-    filePath: string,
+  async uploadStream(
     key: string,
-    contentType = 'application/octet-stream',
+    fileStream: Readable,
+    contentType: string,
+    size: number,
   ): Promise<string> {
-    return this.storageProvider.uploadFileFromPath(filePath, key, contentType);
+    return this.storageProvider.uploadStream(
+      key,
+      fileStream,
+      contentType,
+      size,
+    );
   }
 
   path(path: string): string {

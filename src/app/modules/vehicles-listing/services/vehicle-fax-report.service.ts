@@ -17,6 +17,7 @@ import { Queue } from 'bullmq';
 import { validateCarfaxFormat } from 'src/app/common/utils/carfax.parser';
 import { VehicleFaxReportDetails } from '../entities/vehicle-fax-report-details.entity';
 import { User } from '../../user/entities/user.entity';
+import { FileCacheHandler } from 'src/app/common/utils/file-cache-handler';
 
 @Injectable()
 export class VehicleFaxReportService implements ServiceInterface {
@@ -41,7 +42,7 @@ export class VehicleFaxReportService implements ServiceInterface {
 
   async store(
     req: Request,
-    dto: { id: number; file: any },
+    dto: { id: number; file: Express.Multer.File },
   ): Promise<Record<string, any>> {
     const queryRunner =
       this.vehicleFaxReportRepository.manager.connection.createQueryRunner();
@@ -86,15 +87,16 @@ export class VehicleFaxReportService implements ServiceInterface {
       const folder = `vehicle/fax/${vechicle_id}`;
 
       // Upload attachment file
-      const fileName = dto.file.originalname;
-      const fileStream = Readable.from(dto.file.buffer);
-      const fileSize = dto.file.size;
+      const file = dto.file;
+      const fileName = `${Date.now()}-${file.originalname}`;
+      const fileStream = Readable.from(file.buffer);
+      const key = `${folder}/${fileName}`;
 
-      const newFile = await this.fileUploadService.uploadFileStream(
+      const newFile = await this.fileUploadService.uploadStream(
+        key,
         fileStream,
-        fileName,
-        fileSize,
-        folder,
+        file.mimetype,
+        file.size,
       );
 
       uploadedFiles = `${folder}/${newFile}`;
@@ -111,7 +113,9 @@ export class VehicleFaxReportService implements ServiceInterface {
         // Delete old vehicle fax report and update new one and merge
         // -------------
         // Delete old Fax report
-        await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+        if (vehicleFaxReport.attachment) {
+          await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+        }
 
         // Merge vehicle Fax report with new fax file attachment
         vehicleFaxReport = queryRunner.manager.merge(
@@ -131,11 +135,23 @@ export class VehicleFaxReportService implements ServiceInterface {
         vehicleFaxReport,
       );
 
+      // save file for report processing
+      const cacheFileHandler = new FileCacheHandler();
+
+      const savedCache = await cacheFileHandler.saveFile(file);
+
+      let local = false;
+
+      if (typeof savedCache === 'string') {
+        local = true;
+      }
       // Add extraction task to queue
       await this.vehicleQueue.add('vehicle-fax-report', {
         vehicleFaxReport,
         filePath: this.fileUploadService.path(uploadedFiles),
         user: req['user'],
+        local,
+        localPath: savedCache,
       });
 
       // commit transaction
@@ -155,6 +171,8 @@ export class VehicleFaxReportService implements ServiceInterface {
       }
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -218,7 +236,9 @@ export class VehicleFaxReportService implements ServiceInterface {
       }
 
       // try delete the attachment from s3
-      await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+      if (vehicleFaxReport.attachment) {
+        await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+      }
 
       // delete attachment from database Record
       await queryRunner.manager.delete(VehicleFaxReport, id);
@@ -230,8 +250,11 @@ export class VehicleFaxReportService implements ServiceInterface {
         message: `Attachment removed successfully`,
       };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -267,12 +290,24 @@ export class VehicleFaxReportService implements ServiceInterface {
         vehicleFaxReport = queryRunner.manager.create(VehicleFaxReport, {
           vehicle_id: id,
           expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
+          status: VehicleFaxReportStatus.REQUESTED,
         });
       } else {
+        // Check if user already requested for carfax report
+        if (
+          vehicleFaxReport.status === VehicleFaxReportStatus.REQUESTED ||
+          vehicleFaxReport.status === VehicleFaxReportStatus.PENDING
+        ) {
+          return {
+            message: 'You have already requested for carfax report',
+          };
+        }
         // Delete old vehicle fax report and update new one and merge
         // -------------
         // Delete old Fax report
-        await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+        if (vehicleFaxReport.attachment) {
+          await this.fileUploadService.deleteFile(vehicleFaxReport.attachment);
+        }
 
         // Merge vehicle Fax report with new fax file attachment
         vehicleFaxReport = queryRunner.manager.merge(
@@ -280,9 +315,13 @@ export class VehicleFaxReportService implements ServiceInterface {
           vehicleFaxReport,
           {
             expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
+            status: VehicleFaxReportStatus.REQUESTED,
+            attachment: null,
           },
         );
       }
+
+      await queryRunner.manager.save(VehicleFaxReport, vehicleFaxReport);
 
       // Add extraction task to queue
       await this.vehicleQueue.add('vehicle-fax-report-apply', vehicleFaxReport);
@@ -291,11 +330,14 @@ export class VehicleFaxReportService implements ServiceInterface {
       await queryRunner.commitTransaction();
 
       return {
-        message: `Attachment removed successfully`,
+        message: `CarFax report applied successfully`,
       };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 

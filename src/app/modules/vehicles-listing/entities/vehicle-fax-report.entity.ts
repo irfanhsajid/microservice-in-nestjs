@@ -34,7 +34,7 @@ export class VehicleFaxReport {
   status: VehicleFaxReportStatus;
 
   @Column({ type: 'varchar', nullable: true })
-  attachment: string;
+  attachment: string | null;
 
   @Column({ nullable: false })
   expired_at: Date;

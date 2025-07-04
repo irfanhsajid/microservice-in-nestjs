@@ -7,6 +7,7 @@ import {
   Post,
   Request,
   UnprocessableEntityException,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,6 +32,7 @@ import { Readable } from 'stream';
 import { DealershipAttachment } from '../entities/dealership-attachment.entity';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedMimeTypes } from 'src/app/common/types/allow-file-type';
+import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
 
 @ApiTags('Onboarding')
 @UseGuards(ApiGuard, EnsureEmailVerifiedGuard)
@@ -47,21 +49,17 @@ export class DealershipAttachmentController {
 
   @Post('dealership/attachments')
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(), // Minimal buffering to access metadata
-      // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
-      fileFilter: (req, file, cb) => {
-        if (!allowedMimeTypes.includes(file.mimetype)) {
-          return cb(
-            new UnprocessableEntityException({
-              file: `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,
-            }),
-            false,
-          );
-        }
-        cb(null, true);
+    new CustomFileInterceptor(
+      'file',
+      1,
+      {
+        limits: {
+          // limit to 100Mb
+          fileSize: 1024 * 1024 * 100,
+        },
       },
-    }),
+      allowedMimeTypes,
+    ),
   )
   @ApiOperation({ summary: 'Upload an attachment for a dealership' })
   @ApiBody({
@@ -85,29 +83,16 @@ export class DealershipAttachmentController {
   async uploadAttachment(
     @Request() req: any,
     @Body() dto: DealershipAttachmentDto,
+    @UploadedFile()
+    file: Express.Multer.File,
   ) {
-    const file = req.file;
     if (!file) {
       throw new UnprocessableEntityException({
         file: 'File is required',
       });
     }
 
-    // Create a readable stream from the file buffer (Multer still buffers in memoryStorage)
-    // Note: This is not ideal for large files; see below for a fully streaming alternative
-    const originalFileName = file.originalname;
-
-    const fileStream = Readable.from(file.buffer);
-
-    const fileSize = file.size;
-
-    return this.dealershipAttachmentService.uploadAttachment(
-      req,
-      originalFileName,
-      fileStream,
-      dto,
-      fileSize,
-    );
+    return this.dealershipAttachmentService.uploadAttachment(req, dto, file);
   }
 
   @Get('dealership/attachments')

@@ -40,6 +40,9 @@ import { VehicleFaxReportDetailsAccident } from './entities/vehicle-fax-report-d
 import { VehicleFaxReportDetailsDetailedHistory } from './entities/vehicle-fax-report-details-detailed-record.entity';
 import { VehicleFaxReportDetailsRecall } from './entities/vehicle-fax-report-details-recall.entity';
 import { VehicleFaxReportDetailsServiceRecord } from './entities/vehicle-fax-report-details-service-record.entity';
+import { VehiclePublicInspectionController } from './controllers/vehicle-public-inspection.controller';
+import { SmsModule } from '../sms/sms.module';
+import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
 
 @Module({
   imports: [
@@ -63,6 +66,8 @@ import { VehicleFaxReportDetailsServiceRecord } from './entities/vehicle-fax-rep
     UserModule,
     UploadsModule,
     CaslModule,
+    PdfGrpcModule,
+    SmsModule,
     BullModule.registerQueue({
       name: 'vehicle-consumer',
     }),
@@ -75,6 +80,7 @@ import { VehicleFaxReportDetailsServiceRecord } from './entities/vehicle-fax-rep
     VehicleInspectionController,
     VehicleFaxReportController,
     VehicleInspectionLinkController,
+    VehiclePublicInspectionController,
   ],
   providers: [
     VehicleConsumer,
@@ -89,7 +95,7 @@ import { VehicleFaxReportDetailsServiceRecord } from './entities/vehicle-fax-rep
     VehicleFaxReportService,
     VehicleInspectionLinkService,
   ],
-  exports: [],
+  exports: [VehicleInspectionLinkService],
 })
 export class VehiclesListingModule {
   constructor(
