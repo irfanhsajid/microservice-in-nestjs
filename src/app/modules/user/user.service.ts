@@ -57,14 +57,22 @@ export class UserService {
     return permissions;
   }
 
-  async findByIdWithRoleAndPermissions(id: number) {
-    return await this.userDealershipRepository.findOne({
-      where: { id },
-      relations: [
-        'role',
-        'role.role_has_permissions',
-        'role.role_has_permissions.permission',
-      ],
+  async findByIdWithRoleAndPermissions(
+    id: number,
+    userDealershipID: number,
+  ): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { id, user_dealerships: { id: userDealershipID } },
+      relations: {
+        user_dealerships: {
+          role: {
+            role_has_permissions: {
+              permission: true,
+            },
+          },
+          dealership: true,
+        },
+      },
     });
   }
 

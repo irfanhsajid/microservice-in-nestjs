@@ -44,10 +44,22 @@ export class UserController {
 
   @Get('/user')
   @ApiOperation({ summary: 'Retrieve authenticated user' })
-  show(@Request() request: Request): UserResource | null {
+  async show(@Request() request: Request): Promise<UserResource | null> {
     try {
       const user = request['user'] as User;
-      return new UserResource(user);
+      const userDealership = request[
+        'user_default_dealership'
+      ] as UserDealership;
+      const userPermissions =
+        await this.userService.findByIdWithRoleAndPermissions(
+          user.id,
+          userDealership?.id,
+        );
+
+      if (!userPermissions) {
+        throw new Error('User not found');
+      }
+      return new UserResource(userPermissions);
     } catch (e) {
       this.logger.error(e);
       return throwCatchError(e);
