@@ -18,8 +18,13 @@ export class AutoBidProcessor extends WorkerHost {
     super();
   }
 
-  process(job: Job, token?: string): Promise<any> {
-    throw new Error('Method not implemented.');
+  async process(job: Job, token?: string): Promise<any> {
+    switch (job.name) {
+      case 'place-auto-bid': {
+        await this.handleAutoBid(job);
+        return;
+      }
+    }
   }
 
   async handleAutoBid(
@@ -30,6 +35,7 @@ export class AutoBidProcessor extends WorkerHost {
       bidIncrement: number;
     }>,
   ) {
+    console.log('job running on bidding');
     const { userId, auctionId, maxBidAmount, bidIncrement } = job.data;
 
     const queryRunner =
@@ -44,12 +50,16 @@ export class AutoBidProcessor extends WorkerHost {
       });
 
       if (!auction) {
-        throw new BadRequestException('Auction not found');
+        this.logger.error('Invalid auction');
+        await job.remove();
+        return;
       }
 
       // Check if auction has ended
       if (new Date() > auction.ending_time) {
-        throw new BadRequestException('Auction has ended');
+        this.logger.error('Auction already ended');
+        await job.remove();
+        return;
       }
 
       // Find the current maximum bid
@@ -73,8 +83,6 @@ export class AutoBidProcessor extends WorkerHost {
           user_id: userId,
           vehicle_id: auction.vehicle_id,
           vehicle_auction_id: auction.id,
-          created_at: new Date(),
-          updated_at: new Date(),
         });
 
         await queryRunner.manager.save(VehicleAuctionBid, newBid);
@@ -82,11 +90,32 @@ export class AutoBidProcessor extends WorkerHost {
           `Auto-bid placed for user ${userId} on auction ${auctionId}: ${nextBidAmount}`,
         );
       } else {
-        // Stop the job if max bid is reached
         this.logger.log(
           `Max bid amount reached for user ${userId} on auction ${auctionId}`,
         );
-        await job.remove(); // Remove the repeating job
+        // release max auto bidding
+        let currentBid = await queryRunner.manager.findOne(VehicleAuctionBid, {
+          where: {
+            user_id: userId,
+            vehicle_auction_id: auctionId,
+            vehicle_id: auction.vehicle_id,
+            auto_bid: true,
+          },
+        });
+
+        if (currentBid) {
+          currentBid = queryRunner.manager.merge(
+            VehicleAuctionBid,
+            currentBid,
+            {
+              auto_bid: false,
+            },
+          );
+
+          await queryRunner.manager.save(VehicleAuctionBid, currentBid);
+        }
+
+        await job.remove();
       }
 
       await queryRunner.commitTransaction();
@@ -95,7 +124,7 @@ export class AutoBidProcessor extends WorkerHost {
       this.logger.error(
         `Auto-bid failed for user ${userId} on auction ${auctionId}: ${error.message}`,
       );
-      throw error; // Let Bull handle retries or failures
+      throw error;
     } finally {
       await queryRunner.release();
     }

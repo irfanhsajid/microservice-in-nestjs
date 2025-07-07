@@ -11,6 +11,7 @@ import { AuctionBidService } from './services/auction-bid.service';
 import { Vehicle } from '../vehicles-listing/entities/vehicles.entity';
 import { UserDealership } from '../dealership/entities/user-dealership.entity';
 import { VehiclesListingModule } from '../vehicles-listing/vehicles-listing.module';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -22,6 +23,9 @@ import { VehiclesListingModule } from '../vehicles-listing/vehicles-listing.modu
     ]),
     UserModule,
     CaslModule,
+    BullModule.registerQueue({
+      name: 'auto-bid-queue',
+    }),
     VehiclesListingModule,
   ],
   controllers: [AuctionController, AuctionBidController],

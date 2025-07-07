@@ -29,9 +29,6 @@ export class AuctionService implements ServiceInterface {
     @InjectRepository(Vehicle)
     private readonly vehicleRepository: Repository<Vehicle>,
 
-    @InjectRepository(UserDealership)
-    private readonly userDealershipRepository: Repository<UserDealership>,
-
     private readonly vehicleService: VehicleService,
   ) {}
 
