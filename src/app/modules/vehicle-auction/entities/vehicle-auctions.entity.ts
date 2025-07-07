@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -11,6 +12,7 @@ import { Vehicle } from '../../vehicles-listing/entities/vehicles.entity';
 import { Dealership } from '../../dealership/entities/dealerships.entity';
 import { DealershipAddress } from '../../dealership/entities/dealership-address.entity';
 import { AuctionType } from '../enums/auction-type';
+import { VehicleAuctionBid } from './vehicle-auctions-bid.entity';
 
 @Entity('vehicle_auctions')
 export class VehicleAuction {
@@ -34,6 +36,7 @@ export class VehicleAuction {
 
   @Column({ nullable: false })
   ending_time: Date;
+
   @Column({ type: 'int' })
   starting_amount: number;
 
@@ -72,4 +75,11 @@ export class VehicleAuction {
   @ManyToOne(() => DealershipAddress, (address) => address.vehicle_auctions)
   @JoinColumn({ name: 'shipping_address_id' })
   addresses: DealershipAddress[];
+
+  @OneToMany(
+    () => VehicleAuctionBid,
+    (vehicleAuctionBin) => vehicleAuctionBin.vehicle_auction,
+    { cascade: true },
+  )
+  vehicle_auction_bids: VehicleAuctionBid[];
 }

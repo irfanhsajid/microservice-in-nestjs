@@ -2,8 +2,6 @@ import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { CustomLogger } from '../../logger/logger.service';
 import { ConfigService } from '@nestjs/config';
-import { parseCarfaxPDF } from 'src/app/common/utils/carfax.parser';
-import { writeFile } from 'fs/promises';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GenerateCarfaxReport } from './generate-carfax-report';
@@ -11,8 +9,6 @@ import { User } from '../../user/entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { SmsService } from '../../sms/sms.service';
 import { PDFGrpcService } from 'src/grpc/pdf/pdf.grpc.service';
-import { ResponsePDFParsingPayload } from 'src/grpc/types/pdf-service/pdf-service.pb';
-import { firstValueFrom } from 'rxjs';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 
 @Processor('vehicle-consumer')
