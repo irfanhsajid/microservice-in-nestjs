@@ -39,7 +39,7 @@ export class AuctionController {
     }
   }
 
-  @Post('/store')
+  @Post('/')
   async store(@Request() req: any, @Body() dto: CreateVehicleAuctionDto) {
     try {
       return await this.auctionService.store(req, dto);

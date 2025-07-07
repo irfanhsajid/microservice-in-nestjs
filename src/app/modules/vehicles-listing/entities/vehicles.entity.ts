@@ -123,7 +123,7 @@ export class Vehicle {
 
   @OneToMany(
     () => VehicleAuctionBid,
-    (vehicleAutctionBid) => vehicleAutctionBid.vehicle,
+    (vehicleActionBid) => vehicleActionBid.vehicle,
     {
       cascade: true,
     },

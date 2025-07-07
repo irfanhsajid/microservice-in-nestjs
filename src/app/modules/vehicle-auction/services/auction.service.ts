@@ -96,6 +96,9 @@ export class AuctionService implements ServiceInterface {
         relations: {
           vehicle_attachment: true,
           information: true,
+          vehicle_auction: {
+            vehicle_auction_bids: true,
+          },
         },
         order: {
           [params.sort_column || 'created_at']: params.sort_direction || 'desc',
