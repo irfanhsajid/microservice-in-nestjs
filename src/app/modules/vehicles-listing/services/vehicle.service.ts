@@ -36,19 +36,10 @@ export class VehicleService implements ServiceInterface {
       'user_default_dealership'
     ] as UserDealership;
 
-    let dealershipUserIds = [user.id];
-    if (user_default_dealership.dealership_id) {
-      const userDealerships = await this.userDealershipRepository
-        .find({
-          where: {
-            dealership_id: user_default_dealership.dealership_id,
-          },
-          select: ['user_id'],
-        })
-        .then((res) => res.map((dealership) => dealership.user_id));
-
-      dealershipUserIds = [...dealershipUserIds, ...userDealerships];
-    }
+    const dealershipUserIds = await this.getDealershipUserIds(
+      user,
+      user_default_dealership,
+    );
 
     return await paginate(this.vehicleRepository, {
       page: params.page || 1,
@@ -109,6 +100,26 @@ export class VehicleService implements ServiceInterface {
         },
       },
     });
+  }
+
+  async getDealershipUserIds(
+    user: User,
+    user_default_dealership: UserDealership,
+  ) {
+    let dealershipUserIds = [user.id];
+    if (user_default_dealership.dealership_id) {
+      const userDealerships = await this.userDealershipRepository
+        .find({
+          where: {
+            dealership_id: user_default_dealership.dealership_id,
+          },
+          select: ['user_id'],
+        })
+        .then((res) => res.map((dealership) => dealership.user_id));
+
+      dealershipUserIds = [...dealershipUserIds, ...userDealerships];
+    }
+    return dealershipUserIds;
   }
 
   // Store or create

@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { CreateVehicleAuctionDto } from '../dto/auction.dto';
 import { CustomLogger } from '../../logger/logger.service';
 import { AuctionService } from '../services/auction.service';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { responseReturn } from '../../../common/utils/response-return';
 
 @ApiTags('Auction Setup')
 @ApiBearerAuth('jwt')
@@ -25,6 +27,17 @@ export class AuctionController {
   private readonly logger = new CustomLogger(AuctionController.name);
 
   constructor(private readonly auctionService: AuctionService) {}
+
+  @Get('/')
+  async index(@Request() req: any, @Query() params: any) {
+    try {
+      const vehicles = await this.auctionService.index(req, params);
+      return responseReturn('Vehicles auction fetched successfully', vehicles);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
 
   @Post('/store')
   async store(@Request() req: any, @Body() dto: CreateVehicleAuctionDto) {

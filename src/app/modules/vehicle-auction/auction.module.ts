@@ -8,12 +8,21 @@ import { AuctionService } from './services/auction.service';
 import { VehicleAuctionBid } from './entities/vehicle-auctions-bid.entity';
 import { AuctionBidController } from './controllers/auction-bid.controller';
 import { AuctionBidService } from './services/auction-bid.service';
+import { Vehicle } from '../vehicles-listing/entities/vehicles.entity';
+import { UserDealership } from '../dealership/entities/user-dealership.entity';
+import { VehiclesListingModule } from '../vehicles-listing/vehicles-listing.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([VehicleAuction, VehicleAuctionBid]),
+    TypeOrmModule.forFeature([
+      VehicleAuction,
+      VehicleAuctionBid,
+      Vehicle,
+      UserDealership,
+    ]),
     UserModule,
     CaslModule,
+    VehiclesListingModule,
   ],
   controllers: [AuctionController, AuctionBidController],
   providers: [AuctionService, AuctionBidService],

@@ -95,7 +95,7 @@ import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
     VehicleFaxReportService,
     VehicleInspectionLinkService,
   ],
-  exports: [VehicleInspectionLinkService],
+  exports: [VehicleInspectionLinkService, VehicleService],
 })
 export class VehiclesListingModule {
   constructor(
