@@ -49,6 +49,9 @@ export class AuctionService implements ServiceInterface {
       findOptions: {
         where: [
           {
+            vehicle_auction: {
+              dealership_id: user_default_dealership.dealership_id,
+            },
             vehicle_vin: {
               user_id: In(dealershipUserIds),
               dealership_id: user_default_dealership.dealership_id || IsNull(),
@@ -59,6 +62,9 @@ export class AuctionService implements ServiceInterface {
             },
           },
           {
+            vehicle_auction: {
+              dealership_id: user_default_dealership.dealership_id,
+            },
             vehicle_vin: {
               user_id: In(dealershipUserIds),
               dealership_id: user_default_dealership.dealership_id || IsNull(),
