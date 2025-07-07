@@ -12,6 +12,7 @@ import { DataSource, ILike, Repository } from 'typeorm';
 import { CreateAdminUserDto } from '../dto/create-user.dto';
 import { UserDealership } from 'src/app/modules/dealership/entities/user-dealership.entity';
 import { Role } from 'src/app/modules/roles/entities/role.entity';
+import { UpdateAdminUserDto } from '../dto/update-user.dto';
 
 @Injectable()
 export class AdminUserService implements ServiceInterface {
@@ -84,20 +85,12 @@ export class AdminUserService implements ServiceInterface {
     dto: CreateAdminUserDto,
   ): Promise<Record<string, any>> {
     const userDealership = req['user_default_dealership'] as UserDealership;
-    const role = await this.roleRepository.findOneBy({ id: dto.role_id });
 
-    if (!role) {
-      throw new NotFoundException(`Role with ID ${dto.role_id} not found`);
-    }
-
-    console.log('userDealership', userDealership.dealership_id);
-    console.log('role', role.dealership_id);
-
-    if (role?.dealership_id !== userDealership?.dealership_id) {
-      throw new ForbiddenException(
-        'You do not have permission to add this role.',
-      );
-    }
+    // Validate role
+    await this.validateRolePermission(
+      dto.role_id,
+      userDealership.dealership_id,
+    );
 
     const createdUser = this.dataSource.transaction(async (manager) => {
       const user = manager.create(User, {
@@ -112,6 +105,7 @@ export class AdminUserService implements ServiceInterface {
       const userDealerships = manager.create(UserDealership, {
         role_id: dto.role_id,
         user_id: user.id,
+        dealership_id: userDealership?.dealership_id,
         is_default: true,
       });
 
@@ -123,7 +117,60 @@ export class AdminUserService implements ServiceInterface {
     return createdUser;
   }
 
-  update(req: Request, dto: any, id: number): Record<string, any> {
-    throw new Error('Method not implemented.');
+  async update(
+    req: Request,
+    dto: UpdateAdminUserDto,
+    id: number,
+  ): Promise<Record<string, any>> {
+    const userDealership = req['user_default_dealership'] as UserDealership;
+
+    // Validate role
+    await this.validateRolePermission(
+      dto.role_id,
+      userDealership.dealership_id,
+    );
+
+    const updatedUser = await this.userRepository.findOne({
+      where: { id },
+      relations: ['user_dealerships'],
+    });
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    // Check if user has permission to update this user
+    if (
+      updatedUser.user_dealerships?.findIndex(
+        (user_dealership) =>
+          user_dealership.dealership_id === userDealership.dealership_id,
+      ) === -1
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to update this user.',
+      );
+    }
+
+    // Update user
+    Object.assign(updatedUser, dto);
+    await this.userRepository.save(updatedUser);
+
+    return updatedUser;
+  }
+
+  async validateRolePermission(roleId: number, dealershipId: number) {
+    const role = await this.roleRepository.findOneBy({ id: roleId });
+
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${roleId} not found`);
+    }
+
+    if (role.dealership_id !== dealershipId) {
+      throw new ForbiddenException(
+        'You do not have permission to access this role.',
+      );
+    }
+
+    return role;
   }
 }

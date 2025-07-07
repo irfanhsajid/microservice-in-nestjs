@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -19,6 +20,7 @@ import { CheckAbility } from 'src/app/modules/auth/casl/check-ability.decorator'
 import { AdminUserService } from '../services/user.service';
 import { AdminUserIndexDto } from '../dto/user-index-dto';
 import { CreateAdminUserDto } from '../dto/create-user.dto';
+import { UpdateAdminUserDto } from '../dto/update-user.dto';
 
 @ApiTags('Admin User Management')
 @ApiBearerAuth('jwt')
@@ -35,6 +37,23 @@ export class AdminUserController {
     try {
       const user = await this.adminUserService.store(req, dto);
       return responseReturn('Users created successfully', user);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @UseGuards(AbilityGuard)
+  @CheckAbility('update', 'user')
+  @Put('/:id')
+  async update(
+    @Req() req: Request,
+    @Body() dto: UpdateAdminUserDto,
+    @Param('id') id: string,
+  ) {
+    try {
+      const user = await this.adminUserService.update(req, dto, +id);
+      return responseReturn('Users updated successfully', user);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
