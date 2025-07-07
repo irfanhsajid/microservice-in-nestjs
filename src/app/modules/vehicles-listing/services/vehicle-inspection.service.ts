@@ -84,6 +84,7 @@ export class VehicleInspectionService implements ServiceInterface {
         );
       }
       let newFile = '';
+      let fileSize = 0;
       // Check if file exist
       if (dto.file) {
         // Upload a file
@@ -99,6 +100,7 @@ export class VehicleInspectionService implements ServiceInterface {
           file.size,
         );
         uploadedFiles = `${folder}/${newFile}`;
+        fileSize = file.size;
       }
 
       // find inspection
@@ -117,11 +119,12 @@ export class VehicleInspectionService implements ServiceInterface {
           vehicle_id: vechicle_id,
           ...dto.dto,
           vehicle_inspection_report_id: vehicleReport?.id,
+          size: fileSize,
         });
       } else {
         inspection = queryRunner.manager.merge(VehicleInspection, inspection, {
           ...dto.dto,
-          ...(dto.file ? { path: newFile } : {}),
+          ...(dto.file ? { path: newFile, size: fileSize } : {}),
         });
       }
 

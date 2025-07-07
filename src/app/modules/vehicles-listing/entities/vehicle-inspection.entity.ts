@@ -56,6 +56,9 @@ export class VehicleInspection {
   @Column()
   path: string;
 
+  @Column({ type: 'int', nullable: true })
+  size: number;
+
   @Column({ type: 'text' })
   description: string;
 

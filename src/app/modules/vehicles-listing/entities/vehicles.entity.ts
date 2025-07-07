@@ -18,6 +18,7 @@ import { VehicleInspection } from './vehicle-inspection.entity';
 import { VehicleFaxReport } from './vehicle-fax-report.entity';
 import { VehicleInspectionLink } from './vehicle-inspection-links.entity';
 import { VehicleAuction } from '../../vehicle-auction/entities/vehicle-auctions.entity';
+import { VehicleAuctionBid } from '../../vehicle-auction/entities/vehicle-auctions-bid.entity';
 
 export enum VehicleCondition {
   USED = 'USED',
@@ -115,14 +116,19 @@ export class Vehicle {
   })
   vehicle_attachment: VehicleAttachment[];
 
+  @OneToOne(() => VehicleAuction, (vehicleAuction) => vehicleAuction.vehicle, {
+    cascade: true,
+  })
+  vehicle_auction: VehicleAuction;
+
   @OneToMany(
-    () => VehicleAuction,
-    (vehicleAutction) => vehicleAutction.vehicle,
+    () => VehicleAuctionBid,
+    (vehicleActionBid) => vehicleActionBid.vehicle,
     {
       cascade: true,
     },
   )
-  vehicle_auction: VehicleAuction[];
+  vehicle_auction_bids: VehicleAuctionBid[];
 
   @OneToMany(
     () => VehicleInspectionReport,

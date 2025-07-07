@@ -33,11 +33,13 @@ import sms from '../config/sms';
 import { SmsModule } from './modules/sms/sms.module';
 import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
 import { AuctionModule } from './modules/vehicle-auction/auction.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     AuthModule,
     // AppThrottlerModule,
+    ScheduleModule.forRoot(),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
