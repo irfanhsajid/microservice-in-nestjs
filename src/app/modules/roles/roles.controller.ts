@@ -30,7 +30,7 @@ export class RolesController {
   @Get()
   index(@Req() req: Request) {
     try {
-      const dealerId = req.user_default_dealership?.id || null;
+      const dealerId = req.user_default_dealership?.dealership_id || null;
       const roles = this.rolesService.index(dealerId);
 
       return responseReturn('Roles fetched successfully', roles);
