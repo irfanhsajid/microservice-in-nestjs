@@ -13,7 +13,7 @@ import { VehicleFaxReportDetailsDetailedHistory } from '../entities/vehicle-fax-
 import { CarfaxData } from 'src/grpc/types/pdf-service/pdf-service.pb';
 import { isValidCarfaxData } from 'src/app/common/utils/carfax.parser';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
-import { VehicleVins } from '../entities/vehicle-vins.entity';
+import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
 
 export class GenerateCarfaxReport {
   private readonly logger = new CustomLogger(GenerateCarfaxReport.name);
@@ -185,6 +185,9 @@ export class GenerateCarfaxReport {
       if (vehicleVin) {
         vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
           is_report: true,
+          status: vehicleVin?.is_inspect
+            ? VehicleVinStatus.LISTED
+            : VehicleVinStatus.DRAFT,
         });
         await queryRunner.manager.save(VehicleVins, vehicleVin);
       }

@@ -17,7 +17,7 @@ import {
 } from '../entities/vehicle-inspection.entity';
 import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
-import { VehicleVins } from '../entities/vehicle-vins.entity';
+import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
 import { Vehicle } from '../entities/vehicles.entity';
 
 @Injectable()
@@ -201,6 +201,9 @@ export class VehicleInspectionService implements ServiceInterface {
         if (vehicleVin) {
           vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
             is_inspect: true,
+            status: vehicleVin?.is_report
+              ? VehicleVinStatus.LISTED
+              : VehicleVinStatus.DRAFT,
           });
           await queryRunner.manager.save(VehicleVins, vehicleVin);
         }
