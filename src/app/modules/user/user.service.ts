@@ -341,6 +341,17 @@ export class UserService {
     }
   }
 
+  // Update last login
+  async updateLastLogin(user: User) {
+    try {
+      user.last_login_at = new Date();
+      await this.userRepository.save(user);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
   // Parse expiration time
   protected parseExpiresInToSeconds(expiresIn: string): number {
     const timeUnits: { [key: string]: number } = {

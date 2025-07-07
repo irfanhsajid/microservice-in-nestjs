@@ -31,6 +31,7 @@ export class AdminUserService implements ServiceInterface {
         'user.name',
         'user.email',
         'user.status',
+        'user.last_login_at',
         'user_dealerships.status',
         'role.id',
         'role.name',

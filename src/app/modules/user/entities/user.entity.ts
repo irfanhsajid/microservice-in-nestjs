@@ -62,6 +62,13 @@ export class User {
   })
   account_type: UserAccountType;
 
+  @Column({
+    type: 'timestamp',
+    nullable: true,
+    default: null,
+  })
+  last_login_at: Date | null;
+
   @CreateDateColumn()
   created_at: Date;
 
