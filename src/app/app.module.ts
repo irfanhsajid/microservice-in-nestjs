@@ -32,6 +32,8 @@ import twilio from '../config/twilio';
 import sms from '../config/sms';
 import { SmsModule } from './modules/sms/sms.module';
 import { IsExistsConstraint } from './common/validation/is-exists-contraint';
+import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
+import { AuctionModule } from './modules/vehicle-auction/auction.module';
 
 @Module({
   imports: [
@@ -116,6 +118,8 @@ import { IsExistsConstraint } from './common/validation/is-exists-contraint';
     VehiclesListingModule,
     AdminModule,
     SmsModule,
+    PdfGrpcModule,
+    AuctionModule,
   ],
   controllers: [AppController],
   providers: [
