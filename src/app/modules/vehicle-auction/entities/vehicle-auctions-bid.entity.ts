@@ -28,6 +28,9 @@ export class VehicleAuctionBid {
   @Column({ type: 'int' })
   amount: number;
 
+  @Column({ type: 'boolean', default: false })
+  auto_bid: boolean;
+
   @CreateDateColumn({ nullable: true })
   created_at: Date;
 

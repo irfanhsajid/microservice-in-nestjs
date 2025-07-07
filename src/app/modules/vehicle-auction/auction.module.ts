@@ -8,12 +8,16 @@ import { AuctionService } from './services/auction.service';
 import { VehicleAuctionBid } from './entities/vehicle-auctions-bid.entity';
 import { AuctionBidController } from './controllers/auction-bid.controller';
 import { AuctionBidService } from './services/auction-bid.service';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([VehicleAuction, VehicleAuctionBid]),
     UserModule,
     CaslModule,
+    BullModule.registerQueue({
+      name: 'auto-bid-queue',
+    }),
   ],
   controllers: [AuctionController, AuctionBidController],
   providers: [AuctionService, AuctionBidService],

@@ -1,23 +1,25 @@
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { CustomLogger } from '../../logger/logger.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { type QueryRunner, Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 
-import {
-  extractUser,
-  extractUserDealership,
-} from 'src/app/common/utils/user-data-utils';
+import { extractUser } from 'src/app/common/utils/user-data-utils';
 import { VehicleAuctionBidDto } from '../dto/auction-bid.dto';
 import { VehicleAuctionBid } from '../entities/vehicle-auctions-bid.entity';
 import { VehicleAuction } from '../entities/vehicle-auctions.entity';
 import { BadRequestException } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 export class AuctionBidService implements ServiceInterface {
   private readonly logger = new CustomLogger(AuctionBidService.name);
 
   constructor(
     @InjectRepository(VehicleAuctionBid)
     private readonly vehicleAuctionBid: Repository<VehicleAuctionBid>,
+
+    @InjectQueue('auto-bid-queue')
+    private readonly autoBidQueue: Queue,
   ) {}
 
   index(req: Request, params: any): Record<string, any> {
@@ -52,6 +54,36 @@ export class AuctionBidService implements ServiceInterface {
         throw new BadRequestException('Auction has already ended');
       }
 
+      // Check current max bid
+      const maxBid = await this.getCurrentMaxBid(queryRunner, auction.id);
+
+      if (maxBid) {
+        if (maxBid.amount > dto.data.amount) {
+          throw new BadRequestException({
+            amount: 'Bidding amount is too low',
+          });
+        }
+      }
+
+      // Check user set auto bid
+      const currentUserBid = await queryRunner.manager.findOne(
+        VehicleAuctionBid,
+        {
+          where: {
+            user_id: user.id,
+            vehicle_auction_id: auction.id,
+            auto_bid: true,
+          },
+        },
+      );
+
+      if (currentUserBid) {
+        return {
+          message:
+            'You have already placed a auto bid for this auction. No need to manually placed the bidding',
+        };
+      }
+
       // New user bid
       const newBid = queryRunner.manager.create(VehicleAuctionBid, {
         amount: dto.data.amount,
@@ -60,13 +92,29 @@ export class AuctionBidService implements ServiceInterface {
         vehicle_auction_id: auction.id,
       });
 
-      // @TODO
+      await queryRunner.manager.save(VehicleAuctionBid, newBid);
+
       // If auto bid is true
       // Run a backgroud job that will set bid automatically upto maximun set bid
       // Trigger corn job for current spcific user
       // The bidding will place base on current max bid amount of the auction
-
-      await queryRunner.manager.save(VehicleAuctionBid, newBid);
+      if (dto.data.auto_bid) {
+        await this.autoBidQueue.add(
+          'place-auto-bid',
+          {
+            userId: user.id,
+            auctionId: auction.id,
+            maxBidAmount: dto.data.max_amount,
+            bidIncrement: 100,
+          },
+          {
+            repeat: {
+              every: 30000,
+              endDate: auction.ending_time,
+            },
+          },
+        );
+      }
 
       // commit changes
       await queryRunner.commitTransaction();
@@ -104,5 +152,21 @@ export class AuctionBidService implements ServiceInterface {
   }
   destroy(req: Request, id: number): Record<string, any> {
     throw new Error('Method not implemented.');
+  }
+
+  async getCurrentMaxBid(
+    repo: QueryRunner | Repository<VehicleAuctionBid>,
+    id: number,
+  ): Promise<VehicleAuctionBid | null> {
+    try {
+      return await repo.manager
+        .createQueryBuilder(VehicleAuctionBid, 'bid')
+        .where('bid.vehicle_auction_id = :auctionId', { auctionId: id })
+        .orderBy('bid.amount', 'DESC')
+        .getOne();
+    } catch (error) {
+      this.logger.error(`Failed to fetch current bid for auction ${id}`, error);
+      return null;
+    }
   }
 }
