@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -64,7 +65,7 @@ export class VehicleAuction {
   @Column({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.vehicle_auction)
+  @OneToOne(() => Vehicle, (vehicle) => vehicle.vehicle_auction)
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: Vehicle;
 

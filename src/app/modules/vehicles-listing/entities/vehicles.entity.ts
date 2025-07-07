@@ -116,14 +116,10 @@ export class Vehicle {
   })
   vehicle_attachment: VehicleAttachment[];
 
-  @OneToMany(
-    () => VehicleAuction,
-    (vehicleAutction) => vehicleAutction.vehicle,
-    {
-      cascade: true,
-    },
-  )
-  vehicle_auction: VehicleAuction[];
+  @OneToOne(() => VehicleAuction, (vehicleAuction) => vehicleAuction.vehicle, {
+    cascade: true,
+  })
+  vehicle_auction: VehicleAuction;
 
   @OneToMany(
     () => VehicleAuctionBid,
