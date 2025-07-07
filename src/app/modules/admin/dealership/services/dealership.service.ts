@@ -8,7 +8,6 @@ import {
 import {
   Between,
   FindOptionsWhere,
-  ILike,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
