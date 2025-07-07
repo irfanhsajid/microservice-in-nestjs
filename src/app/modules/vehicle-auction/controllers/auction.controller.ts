@@ -26,7 +26,7 @@ export class AuctionController {
 
   constructor(private readonly auctionService: AuctionService) {}
 
-  @Post('/store')
+  @Post('/')
   async store(@Request() req: any, @Body() dto: CreateVehicleAuctionDto) {
     try {
       return await this.auctionService.store(req, dto);
