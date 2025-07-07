@@ -46,7 +46,26 @@ export class AdminUserService implements ServiceInterface {
   }
 
   async show(req: Request, id: number): Promise<Record<string, any>> {
-    return new Promise((resolve, reject) => {});
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.user_dealerships', 'user_dealerships')
+      .leftJoinAndSelect('user_dealerships.role', 'role')
+      .where('user.id = :id', { id })
+      .select([
+        'user.id',
+        'user.name',
+        'user.email',
+        'user.phone_number',
+        'user_dealerships.status',
+        'role.id',
+        'role.name',
+      ])
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
   store(req: Request, dto: any): Record<string, any> {
