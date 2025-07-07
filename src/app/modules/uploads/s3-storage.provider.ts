@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-promise-reject-errors */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   Injectable,
   InternalServerErrorException,
@@ -12,11 +14,12 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { StorageProvider } from 'src/app/common/interfaces/storage-provider';
 import { Readable } from 'stream';
-
+import { CustomLogger } from '../logger/logger.service';
 @Injectable()
 export class S3StorageProvider implements StorageProvider {
   private s3Client: S3Client;
   private readonly bucket: string;
+  private readonly logger = new CustomLogger(S3StorageProvider.name);
 
   constructor(private configService: ConfigService) {
     this.bucket = this.configService.get<string>(
@@ -29,37 +32,6 @@ export class S3StorageProvider implements StorageProvider {
 
   path(path: string): string {
     return `https://${this.bucket}.s3.amazonaws.com/${path}`;
-  }
-
-  async uploadFileStream(
-    fileStream: Readable,
-    fileName: string,
-    folder: string = '',
-    fileSize: number = 0,
-    contentType?: string,
-  ): Promise<string> {
-    try {
-      const sanitizedFileName = `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const key = folder ? `${folder}/${sanitizedFileName}` : sanitizedFileName;
-
-      console.info(`Uploading file to S3 with key: ${key}`);
-      const command = new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: key,
-        Body: fileStream,
-        ContentLength: fileSize,
-        ContentType: contentType || 'application/octet-stream',
-      });
-
-      await this.s3Client.send(command);
-      console.info(`File uploaded successfully: ${key}`);
-      return sanitizedFileName;
-    } catch (error) {
-      console.error(`S3 stream upload error: ${error.message}`);
-      throw new InternalServerErrorException(
-        `S3 stream upload error: ${error.message}`,
-      );
-    }
   }
 
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
@@ -75,10 +47,21 @@ export class S3StorageProvider implements StorageProvider {
         ContentType: file.mimetype,
       });
 
-      await this.s3Client.send(command);
+      await new Promise<void>((resolve, reject) => {
+        setImmediate(async () => {
+          try {
+            await this.s3Client.send(command);
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+      });
+
+      // await this.s3Client.send(command);
       const fileUrl = `https://${this.bucket}.s3.amazonaws.com/${key}`;
       console.info(`File uploaded successfully: ${fileUrl}`);
-      return fileUrl;
+      return fileName;
     } catch (error) {
       console.error(`S3 upload error: ${error.message}`);
       throw new InternalServerErrorException(
@@ -89,11 +72,11 @@ export class S3StorageProvider implements StorageProvider {
 
   async deleteFile(filePath: string): Promise<void> {
     try {
-      console.info(
+      this.logger.log(
         `Deleting file from S3 with key: ${filePath}, bucket: ${this.bucket}`,
       );
       const key = this.getKeyFromPath(filePath);
-      // Verify object exists (optional, for better error handling)
+      this.logger.log('extracted key', key);
       try {
         await this.s3Client.send(
           new HeadObjectCommand({
@@ -101,40 +84,86 @@ export class S3StorageProvider implements StorageProvider {
             Key: key,
           }),
         );
-        console.info('File exists, proceeding with deletion');
+        this.logger.log('File exists, proceeding with deletion');
       } catch (error) {
-        if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
-          throw new BadRequestException(`File does not exist: ${key}`);
-        }
-        throw new BadRequestException(
-          `Error checking file existence: ${error.message}`,
-        );
+        this.logger.error(error);
+        // if (error.name === 'NotFound' || error.name === 'NoSuchKey') {
+        //   throw new BadRequestException(`File does not exist: ${key}`);
+        // }
+        // throw new BadRequestException(
+        //   `Error checking file existence: ${error.message}`,
+        // );
       }
 
-      // Delete object using the extracted key
-      await this.s3Client.send(
-        new DeleteObjectCommand({
+      await new Promise<void>((resolve, reject) => {
+        setImmediate(async () => {
+          try {
+            await this.s3Client.send(
+              new DeleteObjectCommand({
+                Bucket: this.bucket,
+                Key: key,
+              }),
+            );
+            resolve();
+          } catch (err) {
+            reject(err);
+          }
+        });
+      });
+
+      this.logger.log(`File deleted successfully: ${key}`);
+    } catch (error) {
+      this.logger.error('S3 deletion error:', error);
+      // if (error.name === 'NoSuchKey' || error.name === 'NotFound') {
+      //   throw new BadRequestException(`File does not exist: ${filePath}`);
+      // } else if (error.name === 'AccessDenied') {
+      //   throw new BadRequestException('Permission denied to delete file');
+      // }
+      // throw new BadRequestException(`File deletion failed: ${error.message}`);
+    }
+  }
+
+  async uploadStream(
+    key: string,
+    fileStream: Readable,
+    contentType: string,
+    size: number,
+    retries = 3,
+    delay = 1000,
+  ): Promise<string> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const command = new PutObjectCommand({
           Bucket: this.bucket,
           Key: key,
-        }),
-      );
-      console.info(`File deleted successfully: ${key}`);
-    } catch (error) {
-      console.error('S3 deletion error:', error);
-      if (error.name === 'NoSuchKey' || error.name === 'NotFound') {
-        throw new BadRequestException(`File does not exist: ${filePath}`);
-      } else if (error.name === 'AccessDenied') {
-        throw new BadRequestException('Permission denied to delete file');
+          Body: fileStream,
+          ContentType: contentType,
+          ContentLength: size,
+        });
+        await this.s3Client.send(command);
+        return key.split('/').pop()!;
+      } catch (err: any) {
+        if (err.Code === 'SlowDown' && attempt < retries) {
+          console.warn(
+            `S3 SlowDown error, retrying in ${delay}ms... attempt ${attempt}`,
+          );
+          await new Promise((r) => setTimeout(r, delay));
+          delay *= 2;
+        } else {
+          console.error('S3 upload failed:', err);
+          throw new InternalServerErrorException('Failed to upload file');
+        }
       }
-      throw new BadRequestException(`File deletion failed: ${error.message}`);
     }
+    throw new InternalServerErrorException('Exceeded upload retries');
   }
 
   getKeyFromPath(url: string) {
     const u = new URL(url);
-    const path = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
+    // const path = u.pathname.startsWith('/') ? u.pathname.slice(1) : u.pathname;
 
-    return path;
+    // return path;
+    return url.replace(u.origin + '/', '');
   }
 
   setClient(client: S3Client) {

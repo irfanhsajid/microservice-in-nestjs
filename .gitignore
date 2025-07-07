@@ -3,6 +3,9 @@
 /node_modules
 /build
 
+yarn.lock
+/.yarn
+
 # Logs
 logs
 *.log
@@ -63,7 +66,14 @@ src/grpc/types/*
 !src/grpc/types/README.md
 
 storage/app/*
+storage/app/temp/*
+!storage/app/temp
+!storage/app/temp/.gitkeep
 !storage/app/.gitkeep
 storage/logs/*
 !storage/logs
 !storage/logs/.gitkeep
+
+# rust project ignore
+rust/target
+rust/vendor

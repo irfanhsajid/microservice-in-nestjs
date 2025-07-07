@@ -33,10 +33,10 @@ export class AuthOriginGuard implements CanActivate {
       request.get('origin') ||
       request.get('referer')?.split('/').slice(0, 3).join('/');
     const appUrl = this.configService.get<string>('app.app_url');
-    const adminOrigin = [
-      this.configService.get<string>('app.admin_url'),
-      appUrl,
-    ];
+
+    const adminUrlEnv = this.configService.get<string>('app.admin_url') || '';
+    const adminOrigin = [...adminUrlEnv.split(','), appUrl];
+
     const webOrigin = [this.configService.get<string>('app.web_url'), appUrl];
 
     const body = request.body;

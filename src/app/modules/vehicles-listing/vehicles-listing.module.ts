@@ -31,7 +31,18 @@ import { VehicleFaxReportController } from './controllers/vehicle-fax-report.con
 import { VehicleFaxReportSubscriber } from './subscriber/vehicle-fax.subscriber';
 import { VehicleFaxReportService } from './services/vehicle-fax-report.service';
 import { BullModule } from '@nestjs/bullmq';
-import { VehicleConsumer } from './job/vehicle.queue';
+import { VehicleConsumer } from './jobs/vehicle.queue';
+import { VehicleInspectionLinkController } from './controllers/vehicle-inspection-link.controller';
+import { VehicleInspectionLink } from './entities/vehicle-inspection-links.entity';
+import { VehicleInspectionLinkService } from './services/vehicle-inspection-link.service';
+import { VehicleFaxReportDetails } from './entities/vehicle-fax-report-details.entity';
+import { VehicleFaxReportDetailsAccident } from './entities/vehicle-fax-report-details-accident.entity';
+import { VehicleFaxReportDetailsDetailedHistory } from './entities/vehicle-fax-report-details-detailed-record.entity';
+import { VehicleFaxReportDetailsRecall } from './entities/vehicle-fax-report-details-recall.entity';
+import { VehicleFaxReportDetailsServiceRecord } from './entities/vehicle-fax-report-details-service-record.entity';
+import { VehiclePublicInspectionController } from './controllers/vehicle-public-inspection.controller';
+import { SmsModule } from '../sms/sms.module';
+import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
 
 @Module({
   imports: [
@@ -45,10 +56,18 @@ import { VehicleConsumer } from './job/vehicle.queue';
       VehicleInspectionReport,
       VehicleInspection,
       VehicleFaxReport,
+      VehicleInspectionLink,
+      VehicleFaxReportDetails,
+      VehicleFaxReportDetailsAccident,
+      VehicleFaxReportDetailsDetailedHistory,
+      VehicleFaxReportDetailsRecall,
+      VehicleFaxReportDetailsServiceRecord,
     ]),
     UserModule,
     UploadsModule,
     CaslModule,
+    PdfGrpcModule,
+    SmsModule,
     BullModule.registerQueue({
       name: 'vehicle-consumer',
     }),
@@ -60,6 +79,8 @@ import { VehicleConsumer } from './job/vehicle.queue';
     VehicleInformationController,
     VehicleInspectionController,
     VehicleFaxReportController,
+    VehicleInspectionLinkController,
+    VehiclePublicInspectionController,
   ],
   providers: [
     VehicleConsumer,
@@ -72,8 +93,9 @@ import { VehicleConsumer } from './job/vehicle.queue';
     VehicleInformationService,
     VehicleInspectionService,
     VehicleFaxReportService,
+    VehicleInspectionLinkService,
   ],
-  exports: [],
+  exports: [VehicleInspectionLinkService],
 })
 export class VehiclesListingModule {
   constructor(

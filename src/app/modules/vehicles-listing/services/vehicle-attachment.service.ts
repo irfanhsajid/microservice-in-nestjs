@@ -3,7 +3,7 @@ import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VehicleAttachment } from '../entities/vehicle-attachments.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
@@ -29,7 +29,10 @@ export class VehicleAttachmentService implements ServiceInterface {
     throw new Error('Method not implemented.');
   }
 
-  async store(req: Request, dto: any): Promise<Record<string, any>> {
+  async store(
+    req: Request,
+    dto: { id: number; file: Express.Multer.File },
+  ): Promise<Record<string, any>> {
     const queryRunner =
       this.vehicleAttachmentRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
@@ -45,7 +48,7 @@ export class VehicleAttachmentService implements ServiceInterface {
         where: {
           vehicle_vin: {
             id: dto.id,
-            dealership_id: userDealership.dealership_id,
+            dealership_id: userDealership.dealership_id || IsNull(),
           },
         },
       });
@@ -54,7 +57,7 @@ export class VehicleAttachmentService implements ServiceInterface {
         throw new BadRequestException('No vehicle found to upload image');
       }
 
-      // check how many file user has uploaded
+      // check how many file users have uploaded
       const existingAttachment = await queryRunner.manager.find(
         VehicleAttachment,
         {
@@ -64,22 +67,19 @@ export class VehicleAttachmentService implements ServiceInterface {
           },
         },
       );
-
       if (existingAttachment && existingAttachment.length >= 5) {
         throw new BadRequestException('You can upload up to 5 files max');
       }
-
-      const fileName = dto.file.originalname;
-      const fileStream = Readable.from(dto.file.buffer);
-      const fileSize = dto.file.size;
-
       const folder = `vehicle/images/${vechicle.id}`;
+      const file = dto.file;
+      const fileName = `${Date.now()}-${file.originalname}`;
+      const key = `${folder}/${fileName}`;
 
-      const newFile = await this.fileUploadService.uploadFileStream(
-        fileStream,
-        fileName,
-        fileSize,
-        folder,
+      const newFile = await this.fileUploadService.uploadStream(
+        key,
+        Readable.from(file.buffer),
+        file.mimetype,
+        file.size,
       );
 
       uploadedFiles = `${folder}/${newFile}`;
@@ -107,6 +107,9 @@ export class VehicleAttachmentService implements ServiceInterface {
       }
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      // Relese the query runner if not it will throw error
+      await queryRunner.release();
     }
   }
 
@@ -167,6 +170,8 @@ export class VehicleAttachmentService implements ServiceInterface {
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 }

@@ -17,6 +17,7 @@ import {
 import { DealershipAttachment } from './dealership-attachment.entity';
 import { VehicleVins } from '../../vehicles-listing/entities/vehicle-vins.entity';
 import { Role } from '../../roles/entities/role.entity';
+import { VehicleAuction } from '../../vehicle-auction/entities/vehicle-auctions.entity';
 
 // General Dealer (G), Wholesale Dealer, Outside Ontario Dealer
 export enum LicenseClass {
@@ -67,6 +68,9 @@ export class Dealership {
   @Column({ type: 'varchar', length: 255 })
   website: string;
 
+  @Column({ type: 'text', nullable: true })
+  rejected_reason?: string;
+
   @CreateDateColumn()
   created_at: Date;
 
@@ -102,13 +106,16 @@ export class Dealership {
   })
   addresses: DealershipAddress[];
 
-  @OneToMany(() => VehicleVins, (vechicleVins) => vechicleVins.dealership, {
+  @OneToMany(() => VehicleVins, (vehicleVins) => vehicleVins.dealership, {
     cascade: true,
   })
-  vechicle_vins: VehicleVins[];
+  vehicle_vins: VehicleVins[];
 
   @OneToMany(() => Role, (role) => role.dealership)
   roles: Role[];
+
+  @OneToMany(() => VehicleAuction, (auction) => auction.dealership)
+  vehicle_auctions: VehicleAuction[];
 
   // Helper method to get the primary address
   get primaryAddress(): DealershipAddress | undefined {

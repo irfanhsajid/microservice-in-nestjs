@@ -7,8 +7,11 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { Dealership } from './dealerships.entity';
+import { VehicleAuction } from '../../vehicle-auction/entities/vehicle-auctions.entity';
 
 export enum DealershipAddressType {
   PRIMARY = 'PRIMARY',
@@ -30,6 +33,9 @@ export class DealershipAddress {
     default: DealershipAddressType.PRIMARY,
   })
   type: DealershipAddressType;
+
+  @Column({ nullable: true })
+  map_link: string;
 
   @Column({ type: 'bool', default: false })
   make_as_default: boolean;
@@ -63,4 +69,7 @@ export class DealershipAddress {
   })
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
+
+  @OneToMany(() => VehicleAuction, (vehicleAuction) => vehicleAuction.addresses)
+  vehicle_auctions: VehicleAuction[];
 }

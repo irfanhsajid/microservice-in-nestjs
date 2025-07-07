@@ -20,33 +20,18 @@ export class LocalStorageProvider implements StorageProvider {
       'uploads',
     );
   }
+  uploadStream(
+    key: string,
+    fileStream: Readable,
+    contentType: string,
+  ): Promise<string> {
+    throw new Error('Method not implemented.');
+  }
 
   path(path: string): string {
     return `${this.configService.get<string>('app.url', '')}/storage/${path}`;
   }
 
-  async uploadFileStream(
-    fileStream: Readable,
-    fileName: string,
-    folder: string,
-  ): Promise<string> {
-    try {
-      const uploadPath = path.join(this.uploadDir, folder);
-      await fs.mkdir(uploadPath, { recursive: true });
-
-      const sanitizedFileName = `${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filePath = path.join(uploadPath, sanitizedFileName);
-
-      const writeStream = file.createWriteStream(filePath);
-      await pipelineAsync(fileStream, writeStream);
-
-      return path.join(folder, sanitizedFileName);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Local storage stream upload error: ${error.message}`,
-      );
-    }
-  }
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
     try {
       const uploadPath = path.join(this.uploadDir, folder);
@@ -56,7 +41,8 @@ export class LocalStorageProvider implements StorageProvider {
       const filePath = path.join(uploadPath, fileName);
       await fs.writeFile(filePath, file.buffer);
 
-      return path.join(folder, fileName);
+      //return path.join(folder, fileName);
+      return fileName;
     } catch (error) {
       throw new InternalServerErrorException(
         `Local storage error: ${error.message}`,

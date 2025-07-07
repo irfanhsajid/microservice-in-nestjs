@@ -7,6 +7,7 @@ import {
   Post,
   Request,
   UnprocessableEntityException,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -25,21 +26,16 @@ import { memoryStorage } from 'multer';
 import { EnsureEmailVerifiedGuard } from 'src/app/guards/ensure-email-verified.guard';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 import { EnsureProfileCompletedGuard } from 'src/app/guards/ensure-profile-completed.guard';
-import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 import { VehicleInspectionService } from '../services/vehicle-inspection.service';
 import { CreateVehicleInspectionDto } from '../dto/vehicle-inspection.dto';
 import {
   VehicleInspectionTitleType,
   VehicleInspectionType,
 } from '../entities/vehicle-inspection.entity';
+import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
 
-@ApiTags('Vehicle-listing')
-@UseGuards(
-  ApiGuard,
-  EnsureEmailVerifiedGuard,
-  EnsureProfileCompletedGuard,
-  //EnsureHasDealershipGuard,
-)
+@ApiTags('Vehicle-Inspection')
+@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
 @Controller('api/v1')
 @ApiBearerAuth('jwt')
 export class VehicleInspectionController {
@@ -51,21 +47,17 @@ export class VehicleInspectionController {
 
   @Post('vehicle/inspection/:vehicleId')
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(), // Minimal buffering to access metadata
-      // limits: { fileSize: 10485760 }, // Enforce 10MB limit at Multer level
-      fileFilter: (req, file, cb) => {
-        if (!allowedImageMimeTypes.includes(file.mimetype)) {
-          return cb(
-            new UnprocessableEntityException({
-              file: `Invalid file type. Allowed types: ${allowedImageMimeTypes.join(', ')}`,
-            }),
-            false,
-          );
-        }
-        cb(null, true);
+    new CustomFileInterceptor(
+      'file',
+      1,
+      {
+        limits: {
+          // limit to 100Mb
+          fileSize: 1024 * 1024 * 100,
+        },
       },
-    }),
+      allowedImageMimeTypes,
+    ),
   )
   @ApiOperation({ summary: 'Upload an attachment for a vehicle' })
   @ApiBody({
@@ -112,15 +104,9 @@ export class VehicleInspectionController {
     @Request() req: any,
     @Param('vehicleId') id: number,
     @Body() dto: CreateVehicleInspectionDto,
+    @UploadedFile()
+    file: Express.Multer.File,
   ) {
-    const file = req.file;
-
-    if (!file) {
-      throw new UnprocessableEntityException({
-        file: 'The File is required',
-      });
-    }
-
     const dtoCombine = {
       id,
       file: file,

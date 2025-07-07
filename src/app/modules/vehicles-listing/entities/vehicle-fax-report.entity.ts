@@ -9,11 +9,13 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Vehicle } from './vehicles.entity';
+import { VehicleFaxReportDetails } from './vehicle-fax-report-details.entity';
 
 export enum VehicleFaxReportStatus {
   REQUESTED = 'REQUESTED',
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
+  CARFAX_REPORT_GENERATION_FAILED = 'CARFAX_REPORT_GENERATION_FAILED',
 }
 
 @Entity('vehicle_fax_report')
@@ -33,7 +35,7 @@ export class VehicleFaxReport {
   status: VehicleFaxReportStatus;
 
   @Column({ type: 'varchar', nullable: true })
-  attachment: string;
+  attachment: string | null;
 
   @Column({ nullable: false })
   expired_at: Date;
@@ -50,4 +52,11 @@ export class VehicleFaxReport {
   @OneToOne(() => Vehicle, (vehicle) => vehicle.vehicle_fax_report)
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: Vehicle;
+
+  @OneToOne(
+    () => VehicleFaxReportDetails,
+    (vehicleFaxReportDetails) => vehicleFaxReportDetails.vehicle_fax_report,
+    { cascade: true },
+  )
+  vehicle_fax_report_details: VehicleFaxReportDetails;
 }

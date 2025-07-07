@@ -30,7 +30,7 @@ export class AdminDealershipController {
   private readonly logger = new CustomLogger(AdminDealershipController.name);
 
   @UseGuards(AbilityGuard)
-  @CheckAbility('update', 'dealership')
+  @CheckAbility('read', 'dealership')
   @Get('/')
   async index(
     @Req() req: Request,
@@ -49,7 +49,7 @@ export class AdminDealershipController {
   }
 
   @UseGuards(AbilityGuard)
-  @CheckAbility('update', 'dealership')
+  @CheckAbility('read', 'dealership')
   @Get('/:id')
   async show(@Req() req: Request, @Param('id') id: string) {
     try {
