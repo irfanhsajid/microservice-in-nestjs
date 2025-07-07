@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 import { UserService } from '../modules/user/user.service';
 import { CaslAbilityFactory } from '../modules/auth/casl/casl-ability.factory';
+import { extractAuthorizeToken } from '../common/utils/extract-authorize-token';
 
 @Injectable()
 export class ApiGuard implements CanActivate {
@@ -22,7 +22,7 @@ export class ApiGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     console.info('connection got here');
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = extractAuthorizeToken(request);
     console.info('token user', token);
     if (!token) {
       throw new UnauthorizedException();
@@ -39,27 +39,22 @@ export class ApiGuard implements CanActivate {
 
       const userDealership = await this.userService.userDefaultDealership(user);
 
-      if (!userDealership) {
-        throw new UnauthorizedException();
+      if (userDealership) {
+        request['user_default_dealership'] = userDealership;
+        const permissions = await this.userService.getPermissionsByRole(
+          userDealership?.role_id,
+        );
+        request['ability'] = this.abilityFactory.createForUser(
+          user,
+          permissions,
+        );
       }
 
       request['user'] = user;
-      request['user_default_dealership'] = userDealership;
-
-      const permissions = await this.userService.getPermissionsByRole(
-        userDealership?.role_id,
-      );
-
-      request['ability'] = this.abilityFactory.createForUser(user, permissions);
     } catch (error) {
       console.info(error);
       throw new UnauthorizedException();
     }
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }

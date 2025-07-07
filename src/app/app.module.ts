@@ -27,6 +27,11 @@ import { AbilityMiddleware } from './modules/auth/casl/ability.middleware';
 import { CaslAbilityFactory } from './modules/auth/casl/casl-ability.factory';
 import { RolesModule } from './modules/roles/roles.module';
 import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
+import { AdminModule } from './modules/admin/admin.module';
+import twilio from '../config/twilio';
+import sms from '../config/sms';
+import { SmsModule } from './modules/sms/sms.module';
+import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
 
 @Module({
   imports: [
@@ -49,7 +54,17 @@ import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [database, app, services, mail, filesystems, session, oauth],
+      load: [
+        database,
+        app,
+        services,
+        mail,
+        filesystems,
+        session,
+        oauth,
+        twilio,
+        sms,
+      ],
     }),
     TypeOrmModule.forRootAsync({
       useFactory: driver,
@@ -99,6 +114,9 @@ import { IsUniqueConstraint } from './common/validation/is-unique-constraint';
     GuardsModule,
     RolesModule,
     VehiclesListingModule,
+    AdminModule,
+    SmsModule,
+    PdfGrpcModule,
   ],
   controllers: [AppController],
   providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],

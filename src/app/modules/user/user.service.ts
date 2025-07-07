@@ -16,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { Role } from '../roles/entities/role.entity';
 import { Permission } from '../roles/entities/permission.entity';
 import { RoleHasPermissions } from '../roles/entities/role_has_permissions.entity';
+import { comparePassword, hashPassword } from 'src/app/common/utils/hash';
 
 @Injectable()
 export class UserService {
@@ -84,19 +85,13 @@ export class UserService {
         });
       }
 
-      let user = queryRunner.manager.create(User, dto);
+      let user = queryRunner.manager.create(User, {
+        ...dto,
+        status: true,
+      });
 
       user = await queryRunner.manager.save(User, user);
 
-      //Assign user role
-      const userDealership = queryRunner.manager.create(UserDealership, {
-        user_id: user.id,
-        is_default: true,
-        role_id: 1,
-        status: UserDealershipStatus.REQUESTED,
-      });
-
-      await queryRunner.manager.save(UserDealership, userDealership);
       await queryRunner.commitTransaction();
       return user;
     } catch (error) {
@@ -113,12 +108,12 @@ export class UserService {
       if (!user) {
         return null;
       }
-      if (user.account_type === UserAccountType.MODERATOR) {
-        return user;
-      }
-      if (!(await user.comparePassword(dto.password))) {
+
+      if (!(await comparePassword(dto.password, user.password))) {
+        console.log('password not match');
         return null;
       }
+
       if (!user.status) {
         return null;
       }
@@ -179,11 +174,21 @@ export class UserService {
       }
 
       user.email_verified_at = new Date();
+      user.profile_completed =
+        user.account_type !== UserAccountType.DEALER ? new Date() : null;
       const newUser = await queryRunner.manager.save(User, user);
 
-      await queryRunner.commitTransaction();
+      //Assign user role
+      const userDealership = queryRunner.manager.create(UserDealership, {
+        user_id: user.id,
+        is_default: true,
+        role_id: 1,
+        status: UserDealershipStatus.REQUESTED,
+      });
 
-      console.log(newUser);
+      await queryRunner.manager.save(UserDealership, userDealership);
+
+      await queryRunner.commitTransaction();
       return newUser;
     } catch (error) {
       // Rollback transaction on error
@@ -202,7 +207,7 @@ export class UserService {
         return null;
       }
 
-      user.password = password;
+      user.password = await hashPassword(password);
       await this.userRepository.save(user);
       return user;
     } catch (error) {

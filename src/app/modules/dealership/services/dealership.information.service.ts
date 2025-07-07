@@ -25,7 +25,7 @@ export class DealershipInformationService
       // Find user dealership by user id with dealership relation
       const userDealership = req['user_default_dealership'] as UserDealership;
 
-      if (!userDealership) {
+      if (!userDealership.dealership_id) {
         return {} as Dealership;
       }
 
@@ -36,6 +36,7 @@ export class DealershipInformationService
         },
         relations: ['addresses'],
       });
+
       const mapAddressesData = dealership?.addresses
         ? mapAddresses(dealership?.addresses)
         : {};

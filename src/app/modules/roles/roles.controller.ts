@@ -27,10 +27,24 @@ export class RolesController {
   private readonly logger = new CustomLogger(RolesController.name);
 
   @UseGuards(ApiGuard)
-  @Post()
-  create(@Body() createRoleDto: CreateRoleDto, @Req() req: Request) {
+  @Get()
+  index(@Req() req: Request) {
     try {
-      const role = this.rolesService.create(
+      const dealerId = req.user_default_dealership?.id || null;
+      const roles = this.rolesService.index(dealerId);
+
+      return responseReturn('Roles fetched successfully', roles);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @UseGuards(ApiGuard)
+  @Post()
+  store(@Body() createRoleDto: CreateRoleDto, @Req() req: Request) {
+    try {
+      const role = this.rolesService.store(
         createRoleDto,
         req.user_default_dealership?.dealership_id || null,
       );
@@ -43,25 +57,11 @@ export class RolesController {
   }
 
   @UseGuards(ApiGuard)
-  @Get()
-  findAll(@Req() req: Request) {
-    try {
-      const dealerId = req.user_default_dealership?.id || null;
-      const roles = this.rolesService.findAll(dealerId);
-
-      return responseReturn('Roles fetched successfully', roles);
-    } catch (error) {
-      this.logger.error(error);
-      return throwCatchError(error);
-    }
-  }
-
-  @UseGuards(ApiGuard)
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req: Request) {
+  show(@Param('id') id: string, @Req() req: Request) {
     try {
       const dealerId = req.user_default_dealership?.id || null;
-      const role = this.rolesService.findOne(+id, dealerId);
+      const role = this.rolesService.show(+id, dealerId);
       return responseReturn('Role fetched successfully', role);
     } catch (error) {
       this.logger.error(error);
@@ -83,9 +83,9 @@ export class RolesController {
 
   @UseGuards(ApiGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  destroy(@Param('id') id: string) {
     try {
-      const role = this.rolesService.remove(+id);
+      const role = this.rolesService.destroy(+id);
       return responseReturn('Role deleted successfully', role);
     } catch (error) {
       this.logger.error(error);

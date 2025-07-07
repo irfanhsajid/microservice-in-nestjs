@@ -30,22 +30,23 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && node -v \
     && yarn -v
 
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 # Copy project files and configuration
 COPY . .
 COPY ./.env.example .env
-COPY dockerfile/supervisor/* /opt/docker/etc/supervisor.d/
-COPY dockerfile/supervisor/* /etc/supervisor/conf.d/
+COPY files/supervisor/* /opt/docker/etc/supervisor.d/
+COPY files/supervisor/* /etc/supervisor/conf.d/
 RUN chmod +x /etc/supervisor/conf.d/*
 
 # Replace default nginx config
 RUN rm /etc/nginx/sites-enabled/default
-COPY dockerfile/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY files/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Set supervisor log directory
 RUN mkdir -p /var/log/supervisor/ && chmod 777 /var/log/supervisor/
 
 # Entrypoint
-COPY dockerfile/scripts/* /usr/local/bin/
+COPY files/scripts/* /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80

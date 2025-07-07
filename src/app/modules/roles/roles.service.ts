@@ -21,7 +21,19 @@ export class RolesService {
     private readonly rhpRepository: Repository<RoleHasPermissions>,
   ) {}
 
-  async create(dto: CreateRoleDto, dealerId: number | null) {
+  async index(dealerId: number | null) {
+    if (!dealerId) {
+      return await this.roleRepository.find({
+        relations: ['role_has_permissions', 'role_has_permissions.permission'],
+      });
+    }
+    return await this.roleRepository.find({
+      where: { dealership_id: dealerId },
+      relations: ['role_has_permissions', 'role_has_permissions.permission'],
+    });
+  }
+
+  async store(dto: CreateRoleDto, dealerId: number | null) {
     const { name, status, guard, permission_ids } = dto;
 
     // Check valid permission ids
@@ -40,19 +52,7 @@ export class RolesService {
     return role;
   }
 
-  async findAll(dealerId: number | null) {
-    if (!dealerId) {
-      return await this.roleRepository.find({
-        relations: ['role_has_permissions', 'role_has_permissions.permission'],
-      });
-    }
-    return await this.roleRepository.find({
-      where: { dealership_id: dealerId },
-      relations: ['role_has_permissions', 'role_has_permissions.permission'],
-    });
-  }
-
-  async findOne(id: number, dealerId: number | null) {
+  async show(id: number, dealerId: number | null) {
     if (!dealerId) {
       const role = await this.roleRepository.findOne({
         where: { id: id },
@@ -113,7 +113,7 @@ export class RolesService {
     return role;
   }
 
-  async remove(id: number) {
+  async destroy(id: number) {
     const role = await this.roleRepository.findOne({ where: { id: id } });
 
     if (!role) {

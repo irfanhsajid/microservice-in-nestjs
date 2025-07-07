@@ -21,7 +21,7 @@ import { BlacklistTokenStorageProvider } from 'src/app/common/interfaces/blackli
 import { TypeOrmBlacklistTokenStorageProvider } from './providers/typeorm-blacklist-token-store.provider';
 import { RedisBlacklistTokenStorageProvider } from './providers/redis-blacklist-token-store.provider';
 import { BlacklistTokenStore } from './entities/blacklist-token-store.entity';
-import { RegisteredController } from './controllers/auth.registered.controller';
+import { RegisterController } from './controllers/auth.register.controller';
 import { VerifyEmailController } from './controllers/auth.verifyemail.controller';
 import { PasswordResetLinkController } from './controllers/auth.passwordresetlink.controller';
 import { AuthMailService } from './mail/auth.service';
@@ -34,6 +34,7 @@ import { Repository } from 'typeorm';
 import { useContainer } from 'class-validator';
 import { IsUnique } from './dto/validator/is-unique.validator';
 import { CaslModule } from './casl/casl.module';
+import { GuardsModule } from 'src/app/guards/guards.module';
 
 @Module({
   imports: [
@@ -83,11 +84,12 @@ import { CaslModule } from './casl/casl.module';
       inject: [ConfigService],
     }),
     CaslModule,
+    GuardsModule,
   ],
   controllers: [
     AuthenticatedController,
     DocsController,
-    RegisteredController,
+    RegisterController,
     VerifyEmailController,
     PasswordResetLinkController,
     OAuthController,

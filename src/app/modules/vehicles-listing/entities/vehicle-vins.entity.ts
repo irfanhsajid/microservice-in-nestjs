@@ -36,7 +36,7 @@ export class VehicleVins {
   @Column({ nullable: false })
   user_id: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   dealership_id: number;
 
   @Column({ type: 'varchar', nullable: false })
@@ -69,7 +69,7 @@ export class VehicleVins {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Dealership, (dealership) => dealership.vechicle_vins)
+  @ManyToOne(() => Dealership, (dealership) => dealership.vehicle_vins)
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
 

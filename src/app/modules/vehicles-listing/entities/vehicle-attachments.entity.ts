@@ -18,15 +18,8 @@ export class VehicleAttachment {
   @Column({ nullable: false })
   user_id: number;
 
-  @ManyToOne(() => User, (user) => user.vehicle_attachment)
-  user: User;
-
   @Column({ nullable: false })
   vehicle_id: number;
-
-  @ManyToOne(() => Vehicle, (vehicle) => vehicle.vehicle_attachments)
-  @JoinColumn({ name: 'vehicle_id' })
-  vehicle: Vehicle;
 
   @Column({ type: 'varchar', nullable: true })
   name: string;
@@ -48,4 +41,12 @@ export class VehicleAttachment {
 
   @Column({ type: 'timestamp', nullable: true })
   deleted_at: Date;
+
+  @ManyToOne(() => User, (user) => user.vehicle_attachment)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.vehicle_attachments)
+  @JoinColumn({ name: 'vehicle_id' })
+  vehicle: Vehicle;
 }

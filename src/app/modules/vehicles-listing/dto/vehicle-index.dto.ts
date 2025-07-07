@@ -8,8 +8,18 @@ import {
 } from 'class-validator';
 import { Sort } from '../../../common/pagination/sort';
 import { IndexSortColumn } from '../enums/vehicle-index.sortcolumn';
+import { VehicleVinStatus } from '../entities/vehicle-vins.entity';
 
 export class VehicleIndexDto {
+  @ApiProperty({
+    example: VehicleVinStatus.DRAFT,
+    type: 'string',
+    enum: Object.values(VehicleVinStatus),
+  })
+  @IsNotEmpty()
+  @IsEnum(VehicleVinStatus)
+  status: VehicleVinStatus;
+
   @ApiProperty({ example: 1 })
   @IsNotEmpty()
   @IsNumber()

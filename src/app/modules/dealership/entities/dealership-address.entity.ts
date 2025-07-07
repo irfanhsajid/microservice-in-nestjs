@@ -9,6 +9,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Dealership } from './dealerships.entity';
+import { VehicleAuction } from '../../vehicle-auction/entities/vehicle-auctions.entity';
 
 export enum DealershipAddressType {
   PRIMARY = 'PRIMARY',
@@ -63,4 +64,7 @@ export class DealershipAddress {
   })
   @JoinColumn({ name: 'dealership_id' })
   dealership: Dealership;
+
+  @ManyToOne(() => VehicleAuction, (vehicleAuction) => vehicleAuction.addresses)
+  vehicle_auctions: VehicleAuction;
 }

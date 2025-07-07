@@ -23,27 +23,27 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://staging.carvu.ca',
+      'https://staging.admin.carvu.ca',
       'http://10.0.0.56:3000',
+      'http://10.0.0.195:3000',
       'http://localhost:3000',
+      'http://localhost:3001',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   });
   const configService = app.get(ConfigService);
 
   // grpc server
-  const grpcServer = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
-    {
-      transport: Transport.GRPC,
-      options: {
-        package: CARVU_PACKAGE_NAME,
-        protoPath: globSync('src/grpc/proto/carvu_proto/**/*.proto', {
-          absolute: true,
-        }),
-        url: `${configService.get<string>('services.grpc.host')}:${configService.get<number>('services.grpc.port')}`,
-      },
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.GRPC,
+    options: {
+      package: CARVU_PACKAGE_NAME,
+      protoPath: globSync('src/grpc/proto/carvu_proto/**/*.proto', {
+        absolute: true,
+      }),
+      url: `${configService.get<string>('services.grpc.host')}:${configService.get<number>('services.grpc.port')}`,
     },
-  );
+  });
 
   // Get Session repository
   const dataSource = app.get(DataSource); // Get the DataSource
@@ -155,9 +155,10 @@ async function bootstrap() {
   app.setViewEngine('hbs');
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  await app.listen(configService.get<number>('app.port') || 3000);
-
-  await grpcServer.listen();
+  await Promise.all([
+    await app.startAllMicroservices(),
+    await app.listen(configService.get<number>('app.port') || 3000),
+  ]);
 }
 
 bootstrap().catch((e) => console.error(e));

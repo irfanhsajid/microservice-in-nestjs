@@ -29,16 +29,9 @@ export class DealershipAttachmentService {
 
   async uploadAttachment(
     req: Request,
-    originalFileName: string,
-    fileStream: Readable,
     dto: DealershipAttachmentDto,
-    fileSize: number,
+    file: Express.Multer.File,
   ): Promise<any> {
-    if (!fileStream) {
-      throw new UnprocessableEntityException({
-        file: 'File stream or file name not provided',
-      });
-    }
     const currentUser = req['user'] as User;
     const userDealership = req['user_default_dealership'] as UserDealership;
     let tempFilePath: string = '';
@@ -46,15 +39,18 @@ export class DealershipAttachmentService {
     try {
       const folder = `dealership/${userDealership?.dealership_id}`;
 
+      const fileName = `${Date.now()}-${file.originalname}`;
+      const key = `${folder}/${fileName}`;
+
       // Upload file stream to storage
-      const filePath = await this.fileUploaderService.uploadFileStream(
-        fileStream,
-        originalFileName,
-        fileSize,
-        folder,
+      const filePath = await this.fileUploaderService.uploadStream(
+        key,
+        Readable.from(file.buffer),
+        file.mimetype,
+        file.size,
       );
 
-      tempFilePath = filePath;
+      tempFilePath = `${folder}/${filePath}`;
 
       // Create an attachment record
       const attachment = this.attachmentRepository.create({
@@ -69,11 +65,16 @@ export class DealershipAttachmentService {
       const data = instanceToPlain(attachment);
       delete data?.dealership;
       delete data?.user;
-      return data;
+      return {
+        ...data,
+        path: this.fileUploaderService.path(tempFilePath),
+      };
     } catch (error) {
       // delete file if attachment not created
       if (tempFilePath) {
-        await this.fileUploaderService.deleteFile(tempFilePath);
+        await this.fileUploaderService.deleteFile(
+          this.fileUploaderService.path(tempFilePath),
+        );
       }
       this.logger.error(error);
       return throwCatchError(error);

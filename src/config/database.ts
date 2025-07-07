@@ -30,7 +30,7 @@ export default () =>
           migrations: [
             path.join(__dirname, '../database/migrations/*{.ts,.js}'),
           ],
-          logging: ['error'],
+          logging: [],
         } satisfies TypeOrmModuleOptions,
 
         mysql: {

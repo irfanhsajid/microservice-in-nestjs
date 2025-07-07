@@ -8,6 +8,7 @@ import {
   Request,
   UseGuards,
   Query,
+  Param,
 } from '@nestjs/common';
 import { throwCatchError } from '../../../common/utils/throw-error';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -17,9 +18,15 @@ import { EnsureProfileCompletedGuard } from '../../../guards/ensure-profile-comp
 import { CreateVehicleDto } from '../dto/vehicle.dto';
 import { VehicleIndexDto } from '../dto/vehicle-index.dto';
 import { responseReturn } from '../../../common/utils/response-return';
+import { EnsureHasDealershipGuard } from 'src/app/guards/ensure-has-dealership.guard';
 
 @ApiTags('Vehicle-listing')
-@UseGuards(ApiGuard, EnsureEmailVerifiedGuard, EnsureProfileCompletedGuard)
+@UseGuards(
+  ApiGuard,
+  EnsureEmailVerifiedGuard,
+  EnsureProfileCompletedGuard,
+  //EnsureHasDealershipGuard,
+)
 @ApiBearerAuth('jwt')
 @Controller('api/v1')
 export class VehicleController {
@@ -41,6 +48,27 @@ export class VehicleController {
     try {
       const vehicles = await this.vehicleService.index(req, params);
       return responseReturn('Vehicles fetched successfully', vehicles);
+    } catch (error) {
+      this.logger.error(error);
+      console.log('Error in VehicleController.index:', error);
+      return throwCatchError(error);
+    }
+  }
+
+  @Get('/vehicle-details/:vinId')
+  async details(@Request() req: any, @Param('vinId') id: number): Promise<any> {
+    try {
+      return await this.vehicleService.details(req, id);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @Get('/vehicles/:vinId')
+  async show(@Request() req: any, @Param('vinId') id: number): Promise<any> {
+    try {
+      return await this.vehicleService.show(req, id);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
