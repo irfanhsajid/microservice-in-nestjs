@@ -1,11 +1,8 @@
 import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { responseReturn } from 'src/app/common/utils/response-return';
 import { throwCatchError } from '../../../common/utils/throw-error';
 import { ApiGuard } from '../../../guards/api.guard';
-import { UserDealership } from '../../dealership/entities/user-dealership.entity';
 import { CustomLogger } from '../../logger/logger.service';
-import { User } from '../entities/user.entity';
 import { UserResource } from '../resource/user.resource';
 import { UserService } from '../user.service';
 import { User } from '../entities/user.entity';
