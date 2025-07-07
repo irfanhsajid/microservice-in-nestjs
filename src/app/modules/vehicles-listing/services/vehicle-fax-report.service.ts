@@ -112,6 +112,7 @@ export class VehicleFaxReportService implements ServiceInterface {
           attachment: newFile,
           expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
           status: VehicleFaxReportStatus.REQUESTED,
+          size: file.size,
         });
       } else {
         // Delete old vehicle fax report and update new one and merge
@@ -129,6 +130,7 @@ export class VehicleFaxReportService implements ServiceInterface {
             attachment: newFile,
             expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
             status: VehicleFaxReportStatus.REQUESTED,
+            size: file.size,
           },
         );
       }
@@ -321,6 +323,7 @@ export class VehicleFaxReportService implements ServiceInterface {
             expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
             status: VehicleFaxReportStatus.REQUESTED,
             attachment: null,
+            size: 0,
           },
         );
       }

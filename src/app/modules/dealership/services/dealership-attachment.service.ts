@@ -58,6 +58,7 @@ export class DealershipAttachmentService {
         dealership_id: userDealership?.dealership_id,
         name: dto.name as unknown as string,
         path: filePath,
+        size: file.size,
       });
 
       // Save to a database
