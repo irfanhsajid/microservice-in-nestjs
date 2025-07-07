@@ -31,6 +31,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import twilio from '../config/twilio';
 import sms from '../config/sms';
 import { SmsModule } from './modules/sms/sms.module';
+import { IsExistsConstraint } from './common/validation/is-exists-contraint';
 
 @Module({
   imports: [
@@ -117,6 +118,11 @@ import { SmsModule } from './modules/sms/sms.module';
     SmsModule,
   ],
   controllers: [AppController],
-  providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],
+  providers: [
+    AbilityMiddleware,
+    CaslAbilityFactory,
+    IsUniqueConstraint,
+    IsExistsConstraint,
+  ],
 })
 export class AppModule {}

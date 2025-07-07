@@ -24,6 +24,6 @@ export class IsExistsConstraint implements ValidatorConstraintInterface {
 
   defaultMessage(args: ValidationArguments): string {
     const [EntityClass, field] = args.constraints;
-    return `${field} does not exist in ${EntityClass.name} table`;
+    return `${field} does not exist in ${EntityClass} table`;
   }
 }

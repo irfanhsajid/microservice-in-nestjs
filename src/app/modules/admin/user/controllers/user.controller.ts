@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Patch,
+  Post,
   Query,
   Req,
   UseGuards,
@@ -17,6 +18,7 @@ import { AbilityGuard } from 'src/app/modules/auth/casl/ability.guard';
 import { CheckAbility } from 'src/app/modules/auth/casl/check-ability.decorator';
 import { AdminUserService } from '../services/user.service';
 import { AdminUserIndexDto } from '../dto/user-index-dto';
+import { CreateAdminUserDto } from '../dto/create-user.dto';
 
 @ApiTags('Admin User Management')
 @ApiBearerAuth('jwt')
@@ -25,6 +27,19 @@ import { AdminUserIndexDto } from '../dto/user-index-dto';
 export class AdminUserController {
   constructor(private readonly adminUserService: AdminUserService) {}
   private readonly logger = new CustomLogger(AdminUserController.name);
+
+  @UseGuards(AbilityGuard)
+  @CheckAbility('create', 'user')
+  @Post('/')
+  async create(@Req() req: Request, @Body() dto: CreateAdminUserDto) {
+    try {
+      const user = await this.adminUserService.store(req, dto);
+      return responseReturn('Users created successfully', user);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
 
   @UseGuards(AbilityGuard)
   @CheckAbility('read', 'user')

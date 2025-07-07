@@ -4,10 +4,10 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPhoneNumber,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { IsExists } from 'src/app/common/validation/is-exists';
 import { IsUnique } from 'src/app/common/validation/is-unique';
 
 export class CreateAdminUserDto {
@@ -19,7 +19,6 @@ export class CreateAdminUserDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
-  @IsExists('roles', 'id')
   role_id: number;
 
   @ApiProperty()
@@ -32,6 +31,7 @@ export class CreateAdminUserDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
+  @IsPhoneNumber()
   phone_number: string;
 
   @ApiProperty()
