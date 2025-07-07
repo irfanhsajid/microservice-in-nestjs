@@ -7,13 +7,18 @@ import {
 import { CustomLogger } from '../../logger/logger.service';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
 import { Readable } from 'stream';
-import { VehicleInspection } from '../entities/vehicle-inspection.entity';
+import {
+  VehicleInspection,
+  VehicleInspectionType,
+} from '../entities/vehicle-inspection.entity';
 import { VehicleInspectionReport } from '../entities/vehicle-inspection-report.entity';
 import { UserDealership } from '../../dealership/entities/user-dealership.entity';
+import { VehicleVins } from '../entities/vehicle-vins.entity';
+import { Vehicle } from '../entities/vehicles.entity';
 
 @Injectable()
 export class VehicleInspectionService implements ServiceInterface {
@@ -133,6 +138,8 @@ export class VehicleInspectionService implements ServiceInterface {
         inspection,
       );
 
+      // find inspection for vehicle vin update
+      await this.updateVehicleVinSatus(queryRunner, vechicle_id);
       // commit transaction
       await queryRunner.commitTransaction();
 
@@ -154,6 +161,52 @@ export class VehicleInspectionService implements ServiceInterface {
       return throwCatchError(error);
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  async updateVehicleVinSatus(queryRunner: QueryRunner, vehicleId: number) {
+    try {
+      const vehicle = await queryRunner.manager.findOne(Vehicle, {
+        where: {
+          id: vehicleId,
+        },
+      });
+      const exteriorInspections = await queryRunner.manager.find(
+        VehicleInspection,
+        {
+          where: {
+            vehicle_id: vehicle?.id,
+            type: VehicleInspectionType.EXTERIOR,
+          },
+        },
+      );
+
+      const interiors = await queryRunner.manager.find(VehicleInspection, {
+        where: {
+          vehicle_id: vehicle?.id,
+          type: VehicleInspectionType.INTERIOR,
+        },
+      });
+
+      if (interiors.length === 5 && exteriorInspections.length === 8) {
+        // Update vehicle vin inspection status
+        let vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
+          where: {
+            vehicle: {
+              id: vehicle?.id,
+            },
+          },
+        });
+
+        if (vehicleVin) {
+          vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
+            is_inspect: true,
+          });
+          await queryRunner.manager.save(VehicleVins, vehicleVin);
+        }
+      }
+    } catch (error) {
+      this.logger.error(error);
     }
   }
 

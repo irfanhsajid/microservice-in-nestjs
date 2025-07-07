@@ -9,6 +9,7 @@ import { VehicleAuctionBid } from './entities/vehicle-auctions-bid.entity';
 import { AuctionBidController } from './controllers/auction-bid.controller';
 import { AuctionBidService } from './services/auction-bid.service';
 import { BullModule } from '@nestjs/bullmq';
+import { AutoBidConsumer } from './jobs/auction-bin.queue';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { BullModule } from '@nestjs/bullmq';
     }),
   ],
   controllers: [AuctionController, AuctionBidController],
-  providers: [AuctionService, AuctionBidService],
+  providers: [AutoBidConsumer, AuctionService, AuctionBidService],
   exports: [],
 })
 export class AuctionModule {}

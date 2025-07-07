@@ -8,8 +8,8 @@ import { BadRequestException } from '@nestjs/common';
 import { CustomLogger } from '../../logger/logger.service';
 
 @Processor('auto-bid-queue')
-export class AutoBidProcessor extends WorkerHost {
-  private readonly logger = new CustomLogger(AutoBidProcessor.name);
+export class AutoBidConsumer extends WorkerHost {
+  private readonly logger = new CustomLogger(AutoBidConsumer.name);
 
   constructor(
     @InjectRepository(VehicleAuctionBid)

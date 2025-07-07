@@ -48,6 +48,13 @@ export class AuctionBidService implements ServiceInterface {
         throw new BadRequestException('Invalid auction');
       }
 
+      // check bidding amount
+      if (dto.data.amount < auction.starting_amount) {
+        throw new BadRequestException({
+          amount: `Invalid bidding amount. bidding amount must be greater than ${auction.starting_amount} `,
+        });
+      }
+
       // check auction ended or not
       // if ended throw error
       if (new Date() > auction.ending_time) {
@@ -90,6 +97,7 @@ export class AuctionBidService implements ServiceInterface {
         user_id: user.id,
         vehicle_id: auction.vehicle_id,
         vehicle_auction_id: auction.id,
+        auto_bid: dto.data.auto_bid,
       });
 
       await queryRunner.manager.save(VehicleAuctionBid, newBid);
@@ -99,6 +107,7 @@ export class AuctionBidService implements ServiceInterface {
       // Trigger corn job for current spcific user
       // The bidding will place base on current max bid amount of the auction
       if (dto.data.auto_bid) {
+        console.log('auto bid enabled');
         await this.autoBidQueue.add(
           'place-auto-bid',
           {
@@ -109,7 +118,7 @@ export class AuctionBidService implements ServiceInterface {
           },
           {
             repeat: {
-              every: 30000,
+              every: 1000,
               endDate: auction.ending_time,
             },
           },
