@@ -29,29 +29,28 @@ export class VehicleAuction {
   @Column({ type: 'enum', enum: AuctionType, nullable: false })
   type: AuctionType;
 
+  @Column({ nullable: false })
+  starting_time: Date;
+
+  @Column({ nullable: false })
+  ending_time: Date;
   @Column({ type: 'int' })
   starting_amount: number;
 
   @Column({ type: 'int' })
   reserve_amount: number;
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', nullable: true })
   financing: boolean;
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', nullable: true })
   trade: boolean;
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', nullable: true })
   warranty: boolean;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   warranty_data: any;
-
-  @Column()
-  starting_time: Date;
-
-  @Column()
-  ending_time: Date;
 
   @CreateDateColumn({ nullable: true })
   created_at: Date;

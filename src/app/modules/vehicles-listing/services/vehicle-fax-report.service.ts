@@ -188,16 +188,18 @@ export class VehicleFaxReportService implements ServiceInterface {
       if (!userDealership) {
         return {};
       }
-      return await this.vehicleFaxReportRepository.find({
-        where: {
-          vehicle_id: id,
-          vehicle: {
-            vehicle_vin: {
-              dealership_id: userDealership.dealership_id,
+      return (
+        (await this.vehicleFaxReportRepository.findOne({
+          where: {
+            vehicle_id: id,
+            vehicle: {
+              vehicle_vin: {
+                dealership_id: userDealership.dealership_id,
+              },
             },
           },
-        },
-      });
+        })) ?? {}
+      );
     } catch (error) {
       this.logger.log(error);
       return throwCatchError(error);
