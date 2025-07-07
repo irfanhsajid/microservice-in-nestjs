@@ -22,8 +22,22 @@ export class AdminUserService implements ServiceInterface {
     private readonly dataSource: DataSource,
   ) {}
 
-  destroy(req: Request, id: number): Record<string, any> {
-    throw new Error('Method not implemented.');
+  async destroy(req: Request, id: number): Promise<Record<string, any>> {
+    const userDealership = req['user_default_dealership'] as UserDealership;
+
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['user_dealerships'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    await this.validateUserPermission(user, userDealership?.dealership_id);
+
+    await this.userRepository.softDelete({ id });
+
+    return user;
   }
 
   async index(req: Request, params: any): Promise<Record<string, any>> {
@@ -139,17 +153,11 @@ export class AdminUserService implements ServiceInterface {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    // Check if user has permission to update this user
-    if (
-      updatedUser.user_dealerships?.findIndex(
-        (user_dealership) =>
-          user_dealership.dealership_id === userDealership.dealership_id,
-      ) === -1
-    ) {
-      throw new ForbiddenException(
-        'You do not have permission to update this user.',
-      );
-    }
+    // Validate user
+    await this.validateUserPermission(
+      updatedUser,
+      userDealership.dealership_id,
+    );
 
     // Update user
     Object.assign(updatedUser, dto);
@@ -172,5 +180,21 @@ export class AdminUserService implements ServiceInterface {
     }
 
     return role;
+  }
+
+  async validateUserPermission(
+    user: User,
+    dealershipId: number,
+  ): Promise<void> {
+    // Check if user has permission to update this user
+    const hasPermission = user.user_dealerships?.some(
+      (user_dealership) => user_dealership.dealership_id === dealershipId,
+    );
+
+    if (!hasPermission) {
+      throw new ForbiddenException(
+        'You do not have permission to perform this action on this user.',
+      );
+    }
   }
 }

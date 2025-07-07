@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -54,6 +55,19 @@ export class AdminUserController {
     try {
       const user = await this.adminUserService.update(req, dto, +id);
       return responseReturn('Users updated successfully', user);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @UseGuards(AbilityGuard)
+  @CheckAbility('delete', 'user')
+  @Delete('/:id')
+  async destroy(@Req() req: Request, @Param('id') id: string) {
+    try {
+      const user = await this.adminUserService.destroy(req, +id);
+      return responseReturn('Users deleted successfully', user);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
