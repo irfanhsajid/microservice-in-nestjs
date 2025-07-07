@@ -12,6 +12,7 @@ import { Vehicle } from '../vehicles-listing/entities/vehicles.entity';
 import { UserDealership } from '../dealership/entities/user-dealership.entity';
 import { VehiclesListingModule } from '../vehicles-listing/vehicles-listing.module';
 import { BullModule } from '@nestjs/bullmq';
+import { AutoBidConsumer } from './jobs/auction-bin.queue';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { BullModule } from '@nestjs/bullmq';
     VehiclesListingModule,
   ],
   controllers: [AuctionController, AuctionBidController],
-  providers: [AuctionService, AuctionBidService],
+  providers: [AutoBidConsumer, AuctionService, AuctionBidService],
   exports: [],
 })
 export class AuctionModule {}
