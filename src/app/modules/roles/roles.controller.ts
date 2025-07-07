@@ -32,7 +32,7 @@ export class RolesController {
     try {
       const role = this.rolesService.create(
         createRoleDto,
-        req.user_default_dealership?.id || null,
+        req.user_default_dealership?.dealership_id || null,
       );
 
       return responseReturn('Role created successfully', role);
