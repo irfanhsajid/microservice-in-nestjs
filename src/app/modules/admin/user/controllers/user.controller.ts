@@ -85,7 +85,6 @@ export class AdminUserController {
     @Param('id') id: string,
   ) {
     try {
-      console.log('fileController---->', file);
       const user = await this.adminUserService.uploadAvatar(req, +id, file);
       return responseReturn('Users avatar uploaded successfully', user);
     } catch (error) {
