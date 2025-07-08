@@ -31,7 +31,7 @@ impl PdfService for PDFService {
 
         let pdf_bytes = if payload.local {
             println!("using local file");
-            let path = Path::new("..").join(&url);
+            let path = Path::new(&url);
             println!("got file path {}", url);
             let mut file = fs::File::open(&path).await.map_err(|e| {
             println!("error: {}", format!("error: {} file path:", e));
