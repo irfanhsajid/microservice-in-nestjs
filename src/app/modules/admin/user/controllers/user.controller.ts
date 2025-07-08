@@ -9,9 +9,11 @@ import {
   Put,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { ApiGuard } from 'src/app/guards/api.guard';
 import { CustomLogger } from 'src/app/modules/logger/logger.service';
@@ -22,6 +24,8 @@ import { AdminUserService } from '../services/user.service';
 import { AdminUserIndexDto } from '../dto/user-index-dto';
 import { CreateAdminUserDto } from '../dto/create-user.dto';
 import { UpdateAdminUserDto } from '../dto/update-user.dto';
+import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
+import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
 
 @ApiTags('Admin User Management')
 @ApiBearerAuth('jwt')
@@ -38,6 +42,51 @@ export class AdminUserController {
     try {
       const user = await this.adminUserService.store(req, dto);
       return responseReturn('Users created successfully', user);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @UseInterceptors(
+    new CustomFileInterceptor(
+      'file',
+      1,
+      {
+        limits: {
+          // limit to 100Mb
+          fileSize: 1024 * 1024 * 5,
+        },
+      },
+      allowedImageMimeTypes,
+    ),
+  )
+  @ApiBody({
+    description: 'File upload along with metadata',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseGuards(AbilityGuard)
+  @CheckAbility('update', 'user')
+  @Post('/:id/avatar')
+  async uploadAvatar(
+    @Req() req: Request,
+    @UploadedFile()
+    file: Express.Multer.File,
+    @Param('id') id: string,
+  ) {
+    try {
+      console.log('fileController---->', file);
+      const user = await this.adminUserService.uploadAvatar(req, +id, file);
+      return responseReturn('Users avatar uploaded successfully', user);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);

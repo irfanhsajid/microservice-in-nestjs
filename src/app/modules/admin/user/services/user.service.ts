@@ -13,13 +13,20 @@ import { CreateAdminUserDto } from '../dto/create-user.dto';
 import { UserDealership } from 'src/app/modules/dealership/entities/user-dealership.entity';
 import { Role } from 'src/app/modules/roles/entities/role.entity';
 import { UpdateAdminUserDto } from '../dto/update-user.dto';
+import { FileUploaderService } from 'src/app/modules/uploads/file-uploader.service';
+import { Readable } from 'stream';
+import { throwCatchError } from 'src/app/common/utils/throw-error';
+import { CustomLogger } from 'src/app/modules/logger/logger.service';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class AdminUserService implements ServiceInterface {
+  private readonly logger = new CustomLogger(AdminUserService.name);
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
     private readonly dataSource: DataSource,
+    private fileUploaderService: FileUploaderService,
   ) {}
 
   async destroy(req: Request, id: number): Promise<Record<string, any>> {
@@ -33,7 +40,7 @@ export class AdminUserService implements ServiceInterface {
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    await this.validateUserPermission(user, userDealership?.dealership_id);
+    this.validateUserPermission(user, userDealership?.dealership_id);
 
     await this.userRepository.softDelete({ id });
 
@@ -82,6 +89,7 @@ export class AdminUserService implements ServiceInterface {
         'user.name',
         'user.email',
         'user.phone_number',
+        'user.avatar',
         'user_dealerships.status',
         'role.id',
         'role.name',
@@ -154,16 +162,76 @@ export class AdminUserService implements ServiceInterface {
     }
 
     // Validate user
-    await this.validateUserPermission(
-      updatedUser,
-      userDealership.dealership_id,
-    );
+    this.validateUserPermission(updatedUser, userDealership.dealership_id);
 
     // Update user
     Object.assign(updatedUser, dto);
     await this.userRepository.save(updatedUser);
 
     return updatedUser;
+  }
+
+  async uploadAvatar(
+    req: Request,
+    id: number,
+    file: Express.Multer.File,
+  ): Promise<Record<string, any>> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['user_dealerships'],
+    });
+    const userDealership = req['user_default_dealership'] as UserDealership;
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    // Validate user
+    this.validateUserPermission(user, userDealership.dealership_id);
+
+    let tempFilePath: string = '';
+
+    const folder = `user/avatar`;
+
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const key = `${folder}/${fileName}`;
+    try {
+      // Step 1: Delete old avatar if exists
+      if (user.avatar) {
+        await this.fileUploaderService.deleteFile(user.avatar);
+      }
+
+      // Step 2: Upload new avatar
+
+      // Upload file stream to storage
+      const filePath = await this.fileUploaderService.uploadStream(
+        key,
+        Readable.from(file.buffer),
+        file.mimetype,
+        file.size,
+      );
+
+      tempFilePath = `${folder}/${filePath}`;
+
+      // save user avatar
+      user.avatar = filePath;
+      await this.userRepository.save(user);
+      const data = instanceToPlain(user);
+      delete data?.password;
+      return {
+        ...data,
+        avatar: this.fileUploaderService.path(tempFilePath),
+      };
+    } catch (error) {
+      // delete file if something went wrong
+      if (tempFilePath) {
+        await this.fileUploaderService.deleteFile(
+          this.fileUploaderService.path(tempFilePath),
+        );
+      }
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
   }
 
   async validateRolePermission(roleId: number, dealershipId: number) {
@@ -182,10 +250,7 @@ export class AdminUserService implements ServiceInterface {
     return role;
   }
 
-  async validateUserPermission(
-    user: User,
-    dealershipId: number,
-  ): Promise<void> {
+  validateUserPermission(user: User, dealershipId: number) {
     // Check if user has permission to update this user
     const hasPermission = user.user_dealerships?.some(
       (user_dealership) => user_dealership.dealership_id === dealershipId,
