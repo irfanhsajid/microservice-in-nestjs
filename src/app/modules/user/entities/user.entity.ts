@@ -15,6 +15,7 @@ import { DealershipPaymentInfo } from '../../dealership/entities/dealership-paym
 import { DealershipAttachment } from '../../dealership/entities/dealership-attachment.entity';
 import { VehicleVins } from '../../vehicles-listing/entities/vehicle-vins.entity';
 import { VehicleAttachment } from '../../vehicles-listing/entities/vehicle-attachments.entity';
+import { VehicleAuctionBid } from '../../vehicle-auction/entities/vehicle-auctions-bid.entity';
 
 export enum UserAccountType {
   BUYER = 'BUYER',
@@ -97,6 +98,15 @@ export class User {
     cascade: true,
   })
   vehicle_vins: VehicleVins[];
+
+  @OneToMany(
+    () => VehicleAuctionBid,
+    (vehicleAuctionBid) => vehicleAuctionBid.user,
+    {
+      cascade: true,
+    },
+  )
+  vehicle_auction_bids: VehicleAuctionBid[];
 
   @OneToMany(
     () => VehicleAttachment,

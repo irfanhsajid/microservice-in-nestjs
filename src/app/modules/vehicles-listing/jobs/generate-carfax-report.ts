@@ -13,6 +13,7 @@ import { VehicleFaxReportDetailsDetailedHistory } from '../entities/vehicle-fax-
 import { CarfaxData } from 'src/grpc/types/pdf-service/pdf-service.pb';
 import { isValidCarfaxData } from 'src/app/common/utils/carfax.parser';
 import { FileUploaderService } from '../../uploads/file-uploader.service';
+import { VehicleVins, VehicleVinStatus } from '../entities/vehicle-vins.entity';
 
 export class GenerateCarfaxReport {
   private readonly logger = new CustomLogger(GenerateCarfaxReport.name);
@@ -33,7 +34,6 @@ export class GenerateCarfaxReport {
 
     try {
       const { vehicleFaxReport, carfaxData } = this.data;
-
       if (!isValidCarfaxData(carfaxData)) {
         this.logger.error(`Error: Invalid carfax got`);
         this.logger.error(JSON.stringify(carfaxData, null, 2));
@@ -170,6 +170,27 @@ export class GenerateCarfaxReport {
             recall_date: recall.recallDate,
           });
         }
+      }
+
+      // Update vehicle vin status
+      // Update vehicle vin inspection status
+      let vehicleVin = await queryRunner.manager.findOne(VehicleVins, {
+        where: {
+          vehicle: {
+            id: vehicleFaxReport.vehicle_id,
+          },
+        },
+      });
+
+      console.log('updating', vehicleVin);
+      if (vehicleVin) {
+        vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
+          is_report: true,
+          status: vehicleVin?.is_inspect
+            ? VehicleVinStatus.LISTED
+            : VehicleVinStatus.DRAFT,
+        });
+        await queryRunner.manager.save(VehicleVins, vehicleVin);
       }
 
       // update report fax status
