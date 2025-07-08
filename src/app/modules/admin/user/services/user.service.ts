@@ -6,7 +6,10 @@ import {
 } from '@nestjs/common';
 import { ServiceInterface } from 'src/app/common/interfaces/service.interface';
 import { PaginationEnum } from '../../common/enums/pagination.enum';
-import { User } from 'src/app/modules/user/entities/user.entity';
+import {
+  User,
+  UserAccountType,
+} from 'src/app/modules/user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import paginate from 'src/app/common/pagination/paginate';
 import { DataSource, ILike, Repository } from 'typeorm';
@@ -61,18 +64,10 @@ export class AdminUserService implements ServiceInterface {
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.user_dealerships', 'user_dealerships')
       .leftJoinAndSelect('user_dealerships.role', 'role')
-      .where('user.name ILIKE :search', { search: `%${search}%` });
-
-    // Filter by dealership
-    if (user_dealership.dealership_id === null) {
-      usersQuery.andWhere('user_dealerships.dealership_id IS NULL');
-    } else {
-      usersQuery.andWhere('user_dealerships.dealership_id = :dealershipId', {
-        dealershipId: user_dealership.dealership_id,
-      });
-    }
-
-    usersQuery
+      .where('user.name ILIKE :search', { search: `%${search}%` })
+      .andWhere('account_type = :accountType', {
+        accountType: UserAccountType.MODERATOR,
+      })
       .select([
         'user.id',
         'user.name',
@@ -136,6 +131,7 @@ export class AdminUserService implements ServiceInterface {
         email_verified_at: new Date(),
         accept_privacy: true,
         status: true,
+        account_type: UserAccountType.MODERATOR,
       });
 
       await manager.save(user);
