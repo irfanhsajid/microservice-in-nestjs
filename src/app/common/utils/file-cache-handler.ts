@@ -11,7 +11,8 @@ export class FileCacheHandler {
     folder: string = '',
   ): Promise<string | boolean> {
     try {
-      const uploadPath = path.join(this.uploadDir, folder);
+      const uploadPath = path.join(__dirname, this.uploadDir, folder);
+      console.log('cache file path', uploadPath);
       await fs.mkdir(uploadPath, { recursive: true, mode: 0o777 });
 
       const fileName = `${Date.now()}-${file.originalname}`;
