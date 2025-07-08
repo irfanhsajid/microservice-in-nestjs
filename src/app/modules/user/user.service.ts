@@ -107,6 +107,8 @@ export class UserService {
       await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -205,6 +207,8 @@ export class UserService {
         `Failed to update email_verified_at for ${email}: ${error}`,
       );
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
