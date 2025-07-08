@@ -11,12 +11,15 @@ export class FileCacheHandler {
     folder: string = '',
   ): Promise<string | boolean> {
     try {
-      const uploadPath = path.join(this.uploadDir, folder);
-      await fs.mkdir(uploadPath, { recursive: true });
+      const uploadPath = path.join(__dirname, this.uploadDir, folder);
+      console.log('cache file path', uploadPath);
+      await fs.mkdir(uploadPath, { recursive: true, mode: 0o777 });
 
       const fileName = `${Date.now()}-${file.originalname}`;
       const filePath = path.join(uploadPath, fileName);
       await fs.writeFile(filePath, file.buffer);
+
+      await fs.chmod(filePath, 0o777);
 
       return filePath;
     } catch (error) {

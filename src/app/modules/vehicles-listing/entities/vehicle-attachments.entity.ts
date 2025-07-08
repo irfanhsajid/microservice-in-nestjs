@@ -27,8 +27,8 @@ export class VehicleAttachment {
   @Column({ type: 'varchar', nullable: true })
   path: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  size: string;
+  @Column({ type: 'int', nullable: true })
+  size: number;
 
   @Column({ type: 'timestamp', nullable: true })
   expired_at: Date;

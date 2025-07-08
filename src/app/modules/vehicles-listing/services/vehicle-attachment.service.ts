@@ -89,6 +89,7 @@ export class VehicleAttachmentService implements ServiceInterface {
         user_id: user?.id,
         path: newFile,
         vehicle_id: vechicle?.id,
+        size: file.size,
       });
       u = await queryRunner.manager.save(VehicleAttachment, u);
 

@@ -28,6 +28,9 @@ export class DealershipAttachment {
   @Column({ type: 'varchar', length: 255 })
   path: string;
 
+  @Column({ type: 'int', nullable: true })
+  size: number;
+
   @CreateDateColumn()
   created_at: Date;
 

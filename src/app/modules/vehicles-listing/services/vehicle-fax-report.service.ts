@@ -112,6 +112,7 @@ export class VehicleFaxReportService implements ServiceInterface {
           attachment: newFile,
           expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
           status: VehicleFaxReportStatus.REQUESTED,
+          size: file.size,
         });
       } else {
         // Delete old vehicle fax report and update new one and merge
@@ -129,6 +130,7 @@ export class VehicleFaxReportService implements ServiceInterface {
             attachment: newFile,
             expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
             status: VehicleFaxReportStatus.REQUESTED,
+            size: file.size,
           },
         );
       }
@@ -186,16 +188,18 @@ export class VehicleFaxReportService implements ServiceInterface {
       if (!userDealership) {
         return {};
       }
-      return await this.vehicleFaxReportRepository.find({
-        where: {
-          vehicle_id: id,
-          vehicle: {
-            vehicle_vin: {
-              dealership_id: userDealership.dealership_id,
+      return (
+        (await this.vehicleFaxReportRepository.findOne({
+          where: {
+            vehicle_id: id,
+            vehicle: {
+              vehicle_vin: {
+                dealership_id: userDealership.dealership_id,
+              },
             },
           },
-        },
-      });
+        })) ?? {}
+      );
     } catch (error) {
       this.logger.log(error);
       return throwCatchError(error);
@@ -321,6 +325,7 @@ export class VehicleFaxReportService implements ServiceInterface {
             expired_at: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // add 60 days
             status: VehicleFaxReportStatus.REQUESTED,
             attachment: null,
+            size: 0,
           },
         );
       }
