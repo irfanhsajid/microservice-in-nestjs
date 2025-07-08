@@ -49,7 +49,7 @@ export class AuctionService implements ServiceInterface {
       findOptions: {
         where: [
           {
-            vehicle_auction: {
+            vehicle_auctions: {
               dealership_id: user_default_dealership.dealership_id,
             },
             vehicle_vin: {
@@ -62,7 +62,7 @@ export class AuctionService implements ServiceInterface {
             },
           },
           {
-            vehicle_auction: {
+            vehicle_auctions: {
               dealership_id: user_default_dealership.dealership_id,
             },
             vehicle_vin: {
@@ -102,7 +102,7 @@ export class AuctionService implements ServiceInterface {
         relations: {
           vehicle_attachment: true,
           information: true,
-          vehicle_auction: {
+          vehicle_auctions: {
             vehicle_auction_bids: true,
           },
         },
