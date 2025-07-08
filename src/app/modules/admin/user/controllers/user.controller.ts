@@ -26,6 +26,7 @@ import { CreateAdminUserDto } from '../dto/create-user.dto';
 import { UpdateAdminUserDto } from '../dto/update-user.dto';
 import { CustomFileInterceptor } from 'src/app/common/interceptors/file-upload.interceptor';
 import { allowedImageMimeTypes } from 'src/app/common/types/allow-file-type';
+import { AdminUserChangePasswordDto } from '../dto/change-password.dto';
 
 @ApiTags('Admin User Management')
 @ApiBearerAuth('jwt')
@@ -87,6 +88,23 @@ export class AdminUserController {
       console.log('fileController---->', file);
       const user = await this.adminUserService.uploadAvatar(req, +id, file);
       return responseReturn('Users avatar uploaded successfully', user);
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  @Patch('/:id/change-password')
+  @UseGuards(AbilityGuard)
+  @CheckAbility('update', 'user')
+  async changePassword(
+    @Req() req: Request,
+    @Param('id') id: number,
+    @Body() dto: AdminUserChangePasswordDto,
+  ) {
+    try {
+      const user = await this.adminUserService.changePassword(req, id, dto);
+      return responseReturn("User's password changed successfully", user);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);

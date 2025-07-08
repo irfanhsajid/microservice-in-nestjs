@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -18,6 +19,8 @@ import { Readable } from 'stream';
 import { throwCatchError } from 'src/app/common/utils/throw-error';
 import { CustomLogger } from 'src/app/modules/logger/logger.service';
 import { instanceToPlain } from 'class-transformer';
+import { AdminUserChangePasswordDto } from '../dto/change-password.dto';
+import { hashPassword } from 'src/app/common/utils/hash';
 
 @Injectable()
 export class AdminUserService implements ServiceInterface {
@@ -48,15 +51,28 @@ export class AdminUserService implements ServiceInterface {
   }
 
   async index(req: Request, params: any): Promise<Record<string, any>> {
+    const user_dealership = req['user_default_dealership'] as UserDealership;
+    console.log('user_dealership', user_dealership);
     const page = params.page || PaginationEnum.DEFAULT_PAGE;
     const limit = params.limit || PaginationEnum.DEFAULT_LIMIT;
     const search = params.search || '';
 
-    const usersQUery = this.userRepository
+    const usersQuery = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.user_dealerships', 'user_dealerships')
       .leftJoinAndSelect('user_dealerships.role', 'role')
-      .where('user.name ILIKE :search', { search: `%${search}%` })
+      .where('user.name ILIKE :search', { search: `%${search}%` });
+
+    // Filter by dealership
+    if (user_dealership.dealership_id === null) {
+      usersQuery.andWhere('user_dealerships.dealership_id IS NULL');
+    } else {
+      usersQuery.andWhere('user_dealerships.dealership_id = :dealershipId', {
+        dealershipId: user_dealership.dealership_id,
+      });
+    }
+
+    usersQuery
       .select([
         'user.id',
         'user.name',
@@ -70,7 +86,7 @@ export class AdminUserService implements ServiceInterface {
       ])
       .orderBy('user.id', 'DESC');
 
-    const users = await paginate(usersQUery, {
+    const users = await paginate(usersQuery, {
       page,
       limit,
     });
@@ -232,6 +248,39 @@ export class AdminUserService implements ServiceInterface {
       this.logger.error(error);
       return throwCatchError(error);
     }
+  }
+
+  async changePassword(
+    req: Request,
+    id: number,
+    dto: AdminUserChangePasswordDto,
+  ) {
+    const user_dealership = req['user_default_dealership'] as UserDealership;
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['user_dealerships'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    // Validate user
+    this.validateUserPermission(user, user_dealership.dealership_id);
+
+    const isMatchCurrentPassword = await user.comparePassword(
+      dto.current_password,
+    );
+
+    if (!isMatchCurrentPassword) {
+      throw new BadRequestException('Current password is incorrect.');
+    }
+
+    user.password = await hashPassword(dto.password);
+    await this.userRepository.save(user);
+    const data = instanceToPlain(user);
+    delete data?.password;
+    return data;
   }
 
   async validateRolePermission(roleId: number, dealershipId: number) {

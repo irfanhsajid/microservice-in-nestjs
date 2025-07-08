@@ -1,18 +1,18 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
 import { IsExistsConstraint } from './is-exists-constraint';
+import { IsMatchConstraint } from './is-match-constraint';
 
-export function IsExists(
-  EntityClass: any,
-  field: string,
+export function IsMatch(
+  property: string,
   validationOptions?: ValidationOptions,
 ) {
-  return function (object: any, propertyName: string) {
+  return (object: any, propertyName: string) => {
     registerDecorator({
       target: object.constructor,
       propertyName,
       options: validationOptions,
-      constraints: [EntityClass, field],
-      validator: IsExistsConstraint,
+      constraints: [property],
+      validator: IsMatchConstraint,
     });
   };
 }
