@@ -45,6 +45,9 @@ export class AuthService extends Service implements AuthInterface {
     // Generate jwt token
     const token = await this.createJwtToken(user);
 
+    // Update last login time
+    await this.userService.updateLastLogin(user);
+
     return {
       ...token,
       user: new UserResource(user),
