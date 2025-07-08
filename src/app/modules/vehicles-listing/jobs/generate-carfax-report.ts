@@ -182,6 +182,7 @@ export class GenerateCarfaxReport {
         },
       });
 
+      console.log('updating', vehicleVin);
       if (vehicleVin) {
         vehicleVin = queryRunner.manager.merge(VehicleVins, vehicleVin, {
           is_report: true,

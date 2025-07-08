@@ -65,7 +65,7 @@ export class VehicleAuction {
   @Column({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
-  @OneToOne(() => Vehicle, (vehicle) => vehicle.vehicle_auction)
+  @ManyToOne(() => Vehicle, (vehicle) => vehicle.vehicle_auctions)
   @JoinColumn({ name: 'vehicle_id' })
   vehicle: Vehicle;
 
