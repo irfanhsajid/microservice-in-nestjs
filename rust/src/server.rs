@@ -33,15 +33,18 @@ impl PdfService for PDFService {
             println!("using local file");
             let path = Path::new("..").join(&url);
             let mut file = fs::File::open(&path).await.map_err(|e| {
+            println!("error: {}", format!("error: {}", e));
             Status::internal(format!("Failed to open local PDF file: {}", e))})?;
 
             let mut buf = Vec::new();
             file.read_to_end(&mut buf).await.map_err(|e| {
+                println!("error: {}", format!("error: {}", e));
                 Status::internal(format!("Failed to read local PDF file: {}", e))
             })?;
 
             // Delete the local file after reading
             fs::remove_file(path).await.map_err(|e| {
+                println!("error: {}", format!("error: {}", e));
                 Status::internal(format!("Failed to delete local PDF file: {}", e))
             })?;
 
