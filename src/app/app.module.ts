@@ -31,13 +31,16 @@ import { AdminModule } from './modules/admin/admin.module';
 import twilio from '../config/twilio';
 import sms from '../config/sms';
 import { SmsModule } from './modules/sms/sms.module';
+import { IsExistsConstraint } from './common/validation/is-exists-constraint';
 import { PdfGrpcModule } from 'src/grpc/pdf/pdf.grpc.module';
 import { AuctionModule } from './modules/vehicle-auction/auction.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
     AuthModule,
     // AppThrottlerModule,
+    ScheduleModule.forRoot(),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -121,6 +124,11 @@ import { AuctionModule } from './modules/vehicle-auction/auction.module';
     AuctionModule,
   ],
   controllers: [AppController],
-  providers: [AbilityMiddleware, CaslAbilityFactory, IsUniqueConstraint],
+  providers: [
+    AbilityMiddleware,
+    CaslAbilityFactory,
+    IsUniqueConstraint,
+    IsExistsConstraint,
+  ],
 })
 export class AppModule {}

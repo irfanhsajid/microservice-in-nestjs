@@ -23,6 +23,7 @@ const userSeeder = async (conn: DataSource) => {
       status: true,
       email_verified_at: new Date(),
       account_type: UserAccountType.MODERATOR,
+      role_id: 1,
     },
 
     {
@@ -33,6 +34,7 @@ const userSeeder = async (conn: DataSource) => {
       status: true,
       email_verified_at: new Date(),
       account_type: UserAccountType.DEALER,
+      role_id: 2,
     },
   ];
 
@@ -42,7 +44,7 @@ const userSeeder = async (conn: DataSource) => {
     userDealershipsData.push({
       user_id: user.id,
       is_default: true,
-      role_id: 1,
+      role_id: user.role_id,
       status: UserDealershipStatus.APPROVED,
     } as UserDealership);
 

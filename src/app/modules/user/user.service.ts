@@ -57,14 +57,22 @@ export class UserService {
     return permissions;
   }
 
-  async findByIdWithRoleAndPermissions(id: number) {
-    return await this.userDealershipRepository.findOne({
-      where: { id },
-      relations: [
-        'role',
-        'role.role_has_permissions',
-        'role.role_has_permissions.permission',
-      ],
+  async findByIdWithRoleAndPermissions(
+    id: number,
+    userDealershipID: number,
+  ): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { id, user_dealerships: { id: userDealershipID } },
+      relations: {
+        user_dealerships: {
+          role: {
+            role_has_permissions: {
+              permission: true,
+            },
+          },
+          dealership: true,
+        },
+      },
     });
   }
 
@@ -99,6 +107,8 @@ export class UserService {
       await queryRunner.rollbackTransaction();
       this.logger.error(error);
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -197,6 +207,8 @@ export class UserService {
         `Failed to update email_verified_at for ${email}: ${error}`,
       );
       return throwCatchError(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -335,6 +347,17 @@ export class UserService {
         access_token: token,
         expired_at: expiredAt,
       };
+    } catch (error) {
+      this.logger.error(error);
+      return throwCatchError(error);
+    }
+  }
+
+  // Update last login
+  async updateLastLogin(user: User) {
+    try {
+      user.last_login_at = new Date();
+      await this.userRepository.save(user);
     } catch (error) {
       this.logger.error(error);
       return throwCatchError(error);
